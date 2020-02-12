@@ -1,0 +1,24 @@
+
+use crate::packet::*;
+use crate::network::*;
+use bytes::BytesMut;
+use uuid::Uuid;
+use crate::result::*;
+
+pub struct PlaceGhostRecipePacket {
+    pub containerId: i32,
+    pub recipe: ResourceLocation,
+}
+
+impl CodablePacket for PlaceGhostRecipePacket {
+    fn encode(self, buf: &mut BytesMut) {
+        buf.set_mc_u8(self.containerId);
+        buf.set_mc_string(self.recipe);
+    }
+
+    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+        let containerId = buf.get_mc_u8()?;
+        let recipe = buf.get_mc_string()?;
+        return Ok(PlaceGhostRecipePacket { containerId, recipe });
+    }
+}

@@ -1,0 +1,4449 @@
+{
+  "game": {
+    "serverbound": [
+      {
+        "name": "AcceptTeleportationPacket",
+        "type": "guess",
+        "struct": {
+          "id": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          }
+        ]
+      },
+      {
+        "name": "BlockEntityTagQuery",
+        "type": "guess",
+        "struct": {
+          "transactionId": "int",
+          "pos": "BlockPos"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "transactionId"
+          },
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "transactionId"
+          },
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          }
+        ]
+      },
+      {
+        "name": "ChangeDifficultyPacket",
+        "type": "guess",
+        "struct": {
+          "difficulty": "Difficulty"
+        },
+        "writeOps": [
+          {
+            "type": "raw",
+            "raw": "var1.writeByte(this.difficulty.getId());"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.difficulty = Difficulty.byId(var1.readUnsignedByte());"
+          }
+        ]
+      },
+      {
+        "name": "ChatPacket",
+        "type": "guess",
+        "struct": {
+          "message": "String"
+        },
+        "writeOps": [
+          {
+            "type": "Utf",
+            "field": "message"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Utf",
+            "field": "message",
+            "max": 256
+          }
+        ]
+      },
+      {
+        "name": "ClientCommandPacket",
+        "type": "guess",
+        "struct": {
+          "action": "ServerboundClientCommandPacket.Action"
+        },
+        "writeOps": [
+          {
+            "type": "Enum",
+            "field": "action"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.action = (ServerboundClientCommandPacket.Action)var1.readEnum(ServerboundClientCommandPacket.Action.class);"
+          }
+        ]
+      },
+      {
+        "name": "ClientInformationPacket",
+        "type": "guess",
+        "struct": {
+          "language": "String",
+          "viewDistance": "int",
+          "chatVisibility": "ChatVisiblity",
+          "chatColors": "boolean",
+          "modelCustomisation": "int",
+          "mainHand": "HumanoidArm"
+        },
+        "writeOps": [
+          {
+            "type": "Utf",
+            "field": "language"
+          },
+          {
+            "type": "Byte",
+            "field": "viewDistance"
+          },
+          {
+            "type": "Enum",
+            "field": "chatVisibility"
+          },
+          {
+            "type": "Boolean",
+            "field": "chatColors"
+          },
+          {
+            "type": "Byte",
+            "field": "modelCustomisation"
+          },
+          {
+            "type": "Enum",
+            "field": "mainHand"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Utf",
+            "field": "language",
+            "max": 16
+          },
+          {
+            "type": "Byte",
+            "field": "viewDistance"
+          },
+          {
+            "type": "raw",
+            "raw": "this.chatVisibility = (ChatVisiblity)var1.readEnum(ChatVisiblity.class);"
+          },
+          {
+            "type": "Boolean",
+            "field": "chatColors"
+          },
+          {
+            "type": "UnsignedByte",
+            "field": "modelCustomisation"
+          },
+          {
+            "type": "raw",
+            "raw": "this.mainHand = (HumanoidArm)var1.readEnum(HumanoidArm.class);"
+          }
+        ]
+      },
+      {
+        "name": "CommandSuggestionPacket",
+        "type": "guess",
+        "struct": {
+          "id": "int",
+          "command": "String"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeUtf(this.command, 32500);"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "Utf",
+            "field": "command",
+            "max": 32500
+          }
+        ]
+      },
+      {
+        "name": "ContainerAckPacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int",
+          "uid": "short",
+          "accepted": "boolean"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "Short",
+            "field": "uid"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeByte(this.accepted ? 1 : 0);"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "Short",
+            "field": "uid"
+          },
+          {
+            "type": "raw",
+            "raw": "this.accepted = var1.readByte() != 0;"
+          }
+        ]
+      },
+      {
+        "name": "ContainerButtonClickPacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int",
+          "buttonId": "int"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "Byte",
+            "field": "buttonId"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "Byte",
+            "field": "buttonId"
+          }
+        ]
+      },
+      {
+        "name": "ContainerClickPacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int",
+          "slotNum": "int",
+          "buttonNum": "int",
+          "uid": "short",
+          "itemStack": "ItemStack",
+          "clickType": "ClickType"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "Short",
+            "field": "slotNum"
+          },
+          {
+            "type": "Byte",
+            "field": "buttonNum"
+          },
+          {
+            "type": "Short",
+            "field": "uid"
+          },
+          {
+            "type": "Enum",
+            "field": "clickType"
+          },
+          {
+            "type": "Item",
+            "field": "itemStack"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "Short",
+            "field": "slotNum"
+          },
+          {
+            "type": "Byte",
+            "field": "buttonNum"
+          },
+          {
+            "type": "Short",
+            "field": "uid"
+          },
+          {
+            "type": "raw",
+            "raw": "this.clickType = (ClickType)var1.readEnum(ClickType.class);"
+          },
+          {
+            "type": "Item",
+            "field": "itemStack"
+          }
+        ]
+      },
+      {
+        "name": "ContainerClosePacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          }
+        ]
+      },
+      {
+        "name": "CustomPayloadPacket",
+        "type": "guess",
+        "struct": {
+          "identifier": "ResourceLocation",
+          "data": "FriendlyByteBuf"
+        },
+        "writeOps": [
+          {
+            "type": "ResourceLocation",
+            "field": "identifier"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeBytes((ByteBuf)this.data);"
+          }
+        ],
+        "readOps": null
+      },
+      {
+        "name": "EditBookPacket",
+        "type": "guess",
+        "struct": {
+          "book": "ItemStack",
+          "signing": "boolean",
+          "hand": "InteractionHand"
+        },
+        "writeOps": [
+          {
+            "type": "Item",
+            "field": "book"
+          },
+          {
+            "type": "Boolean",
+            "field": "signing"
+          },
+          {
+            "type": "Enum",
+            "field": "hand"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Item",
+            "field": "book"
+          },
+          {
+            "type": "Boolean",
+            "field": "signing"
+          },
+          {
+            "type": "raw",
+            "raw": "this.hand = (InteractionHand)var1.readEnum(InteractionHand.class);"
+          }
+        ]
+      },
+      {
+        "name": "EntityTagQuery",
+        "type": "guess",
+        "struct": {
+          "transactionId": "int",
+          "entityId": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "transactionId"
+          },
+          {
+            "type": "VarInt",
+            "field": "entityId"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "transactionId"
+          },
+          {
+            "type": "VarInt",
+            "field": "entityId"
+          }
+        ]
+      },
+      {
+        "name": "InteractPacket",
+        "type": "guess",
+        "struct": {
+          "entityId": "int",
+          "action": "ServerboundInteractPacket.Action",
+          "hand": "InteractionHand"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "KeepAlivePacket",
+        "type": "guess",
+        "struct": {
+          "id": "long"
+        },
+        "writeOps": [
+          {
+            "type": "Long",
+            "field": "id"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Long",
+            "field": "id"
+          }
+        ]
+      },
+      {
+        "name": "LockDifficultyPacket",
+        "type": "guess",
+        "struct": {
+          "locked": "boolean"
+        },
+        "writeOps": [
+          {
+            "type": "Boolean",
+            "field": "locked"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Boolean",
+            "field": "locked"
+          }
+        ]
+      },
+      null,
+      null,
+      null,
+      {
+        "name": "MovePlayerPacket",
+        "type": "guess",
+        "struct": {
+          "x": "double",
+          "y": "double",
+          "z": "double",
+          "yRot": "float",
+          "xRot": "float",
+          "onGround": "boolean",
+          "hasPos": "boolean",
+          "hasRot": "boolean"
+        },
+        "writeOps": [
+          {
+            "type": "raw",
+            "raw": "var1.writeByte(this.onGround ? 1 : 0);"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.onGround = var1.readUnsignedByte() != 0;"
+          }
+        ]
+      },
+      {
+        "name": "MoveVehiclePacket",
+        "type": "guess",
+        "struct": {
+          "x": "double",
+          "y": "double",
+          "z": "double",
+          "yRot": "float",
+          "xRot": "float"
+        },
+        "writeOps": [
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Float",
+            "field": "yRot"
+          },
+          {
+            "type": "Float",
+            "field": "xRot"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Float",
+            "field": "yRot"
+          },
+          {
+            "type": "Float",
+            "field": "xRot"
+          }
+        ]
+      },
+      {
+        "name": "PaddleBoatPacket",
+        "type": "guess",
+        "struct": {
+          "left": "boolean",
+          "right": "boolean"
+        },
+        "writeOps": [
+          {
+            "type": "Boolean",
+            "field": "left"
+          },
+          {
+            "type": "Boolean",
+            "field": "right"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Boolean",
+            "field": "left"
+          },
+          {
+            "type": "Boolean",
+            "field": "right"
+          }
+        ]
+      },
+      {
+        "name": "PickItemPacket",
+        "type": "guess",
+        "struct": {
+          "slot": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "slot"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "slot"
+          }
+        ]
+      },
+      {
+        "name": "PlaceRecipePacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int",
+          "recipe": "ResourceLocation",
+          "shiftDown": "boolean"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "ResourceLocation",
+            "field": "recipe"
+          },
+          {
+            "type": "Boolean",
+            "field": "shiftDown"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "ResourceLocation",
+            "field": "recipe"
+          },
+          {
+            "type": "Boolean",
+            "field": "shiftDown"
+          }
+        ]
+      },
+      {
+        "name": "PlayerAbilitiesPacket",
+        "type": "guess",
+        "struct": {
+          "invulnerable": "boolean",
+          "isFlying": "boolean",
+          "canFly": "boolean",
+          "instabuild": "boolean",
+          "flyingSpeed": "float",
+          "walkingSpeed": "float"
+        },
+        "writeOps": null,
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "byte var2 = var1.readByte();"
+          },
+          {
+            "type": "extra",
+            "raw": "this.setInvulnerable((var2 & 1) > 0);"
+          },
+          {
+            "type": "extra",
+            "raw": "this.setFlying((var2 & 2) > 0);"
+          },
+          {
+            "type": "extra",
+            "raw": "this.setCanFly((var2 & 4) > 0);"
+          },
+          {
+            "type": "extra",
+            "raw": "this.setInstabuild((var2 & 8) > 0);"
+          },
+          {
+            "type": "raw",
+            "raw": "this.setFlyingSpeed(var1.readFloat());"
+          },
+          {
+            "type": "raw",
+            "raw": "this.setWalkingSpeed(var1.readFloat());"
+          }
+        ]
+      },
+      {
+        "name": "PlayerActionPacket",
+        "type": "guess",
+        "struct": {
+          "pos": "BlockPos",
+          "direction": "Direction",
+          "action": "ServerboundPlayerActionPacket.Action"
+        },
+        "writeOps": [
+          {
+            "type": "Enum",
+            "field": "action"
+          },
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeByte(this.direction.get3DDataValue());"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.action = (ServerboundPlayerActionPacket.Action)var1.readEnum(ServerboundPlayerActionPacket.Action.class);"
+          },
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "raw",
+            "raw": "this.direction = Direction.from3DDataValue(var1.readUnsignedByte());"
+          }
+        ]
+      },
+      {
+        "name": "PlayerCommandPacket",
+        "type": "guess",
+        "struct": {
+          "id": "int",
+          "action": "ServerboundPlayerCommandPacket.Action",
+          "data": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "Enum",
+            "field": "action"
+          },
+          {
+            "type": "VarInt",
+            "field": "data"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "raw",
+            "raw": "this.action = (ServerboundPlayerCommandPacket.Action)var1.readEnum(ServerboundPlayerCommandPacket.Action.class);"
+          },
+          {
+            "type": "VarInt",
+            "field": "data"
+          }
+        ]
+      },
+      {
+        "name": "PlayerInputPacket",
+        "type": "guess",
+        "struct": {
+          "xxa": "float",
+          "zza": "float",
+          "isJumping": "boolean",
+          "isShiftKeyDown": "boolean"
+        },
+        "writeOps": null,
+        "readOps": [
+          {
+            "type": "Float",
+            "field": "xxa"
+          },
+          {
+            "type": "Float",
+            "field": "zza"
+          },
+          {
+            "type": "raw",
+            "raw": "byte var2 = var1.readByte();"
+          },
+          {
+            "type": "extra",
+            "raw": "this.isJumping = (var2 & 1) > 0;"
+          },
+          {
+            "type": "extra",
+            "raw": "this.isShiftKeyDown = (var2 & 2) > 0;"
+          }
+        ]
+      },
+      {
+        "name": "RecipeBookUpdatePacket",
+        "type": "guess",
+        "struct": {
+          "purpose": "ServerboundRecipeBookUpdatePacket.Purpose",
+          "recipe": "ResourceLocation",
+          "guiOpen": "boolean",
+          "filteringCraftable": "boolean",
+          "furnaceGuiOpen": "boolean",
+          "furnaceFilteringCraftable": "boolean",
+          "blastFurnaceGuiOpen": "boolean",
+          "blastFurnaceFilteringCraftable": "boolean",
+          "smokerGuiOpen": "boolean",
+          "smokerFilteringCraftable": "boolean"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "RenameItemPacket",
+        "type": "guess",
+        "struct": {
+          "name": "String"
+        },
+        "writeOps": [
+          {
+            "type": "Utf",
+            "field": "name"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Utf",
+            "field": "name",
+            "max": 32767
+          }
+        ]
+      },
+      {
+        "name": "ResourcePackPacket",
+        "type": "guess",
+        "struct": {
+          "action": "ServerboundResourcePackPacket.Action"
+        },
+        "writeOps": [
+          {
+            "type": "Enum",
+            "field": "action"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.action = (ServerboundResourcePackPacket.Action)var1.readEnum(ServerboundResourcePackPacket.Action.class);"
+          }
+        ]
+      },
+      {
+        "name": "SeenAdvancementsPacket",
+        "type": "guess",
+        "struct": {
+          "action": "ServerboundSeenAdvancementsPacket.Action",
+          "tab": "ResourceLocation"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "SelectTradePacket",
+        "type": "guess",
+        "struct": {
+          "item": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "item"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "item"
+          }
+        ]
+      },
+      {
+        "name": "SetBeaconPacket",
+        "type": "guess",
+        "struct": {
+          "primary": "int",
+          "secondary": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "primary"
+          },
+          {
+            "type": "VarInt",
+            "field": "secondary"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "primary"
+          },
+          {
+            "type": "VarInt",
+            "field": "secondary"
+          }
+        ]
+      },
+      {
+        "name": "SetCarriedItemPacket",
+        "type": "guess",
+        "struct": {
+          "slot": "int"
+        },
+        "writeOps": [
+          {
+            "type": "Short",
+            "field": "slot"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Short",
+            "field": "slot"
+          }
+        ]
+      },
+      {
+        "name": "SetCommandBlockPacket",
+        "type": "guess",
+        "struct": {
+          "pos": "BlockPos",
+          "command": "String",
+          "trackOutput": "boolean",
+          "conditional": "boolean",
+          "automatic": "boolean",
+          "mode": "CommandBlockEntity.Mode"
+        },
+        "writeOps": null,
+        "readOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "Utf",
+            "field": "command",
+            "max": 32767
+          },
+          {
+            "type": "raw",
+            "raw": "this.mode = (CommandBlockEntity.Mode)var1.readEnum(CommandBlockEntity.Mode.class);"
+          },
+          {
+            "type": "raw",
+            "raw": "byte var2 = var1.readByte();"
+          },
+          {
+            "type": "extra",
+            "raw": "this.trackOutput = (var2 & 1) != 0;"
+          },
+          {
+            "type": "extra",
+            "raw": "this.conditional = (var2 & 2) != 0;"
+          },
+          {
+            "type": "extra",
+            "raw": "this.automatic = (var2 & 4) != 0;"
+          }
+        ]
+      },
+      {
+        "name": "SetCommandMinecartPacket",
+        "type": "guess",
+        "struct": {
+          "entity": "int",
+          "command": "String",
+          "trackOutput": "boolean"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "entity"
+          },
+          {
+            "type": "Utf",
+            "field": "command"
+          },
+          {
+            "type": "Boolean",
+            "field": "trackOutput"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "entity"
+          },
+          {
+            "type": "Utf",
+            "field": "command",
+            "max": 32767
+          },
+          {
+            "type": "Boolean",
+            "field": "trackOutput"
+          }
+        ]
+      },
+      {
+        "name": "SetCreativeModeSlotPacket",
+        "type": "guess",
+        "struct": {
+          "slotNum": "int",
+          "itemStack": "ItemStack"
+        },
+        "writeOps": [
+          {
+            "type": "Short",
+            "field": "slotNum"
+          },
+          {
+            "type": "Item",
+            "field": "itemStack"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Short",
+            "field": "slotNum"
+          },
+          {
+            "type": "Item",
+            "field": "itemStack"
+          }
+        ]
+      },
+      {
+        "name": "SetJigsawBlockPacket",
+        "type": "guess",
+        "struct": {
+          "pos": "BlockPos",
+          "attachementType": "ResourceLocation",
+          "targetPool": "ResourceLocation",
+          "finalState": "String"
+        },
+        "writeOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "ResourceLocation",
+            "field": "attachementType"
+          },
+          {
+            "type": "ResourceLocation",
+            "field": "targetPool"
+          },
+          {
+            "type": "Utf",
+            "field": "finalState"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "ResourceLocation",
+            "field": "attachementType"
+          },
+          {
+            "type": "ResourceLocation",
+            "field": "targetPool"
+          },
+          {
+            "type": "Utf",
+            "field": "finalState",
+            "max": 32767
+          }
+        ]
+      },
+      {
+        "name": "SetStructureBlockPacket",
+        "type": "guess",
+        "struct": {
+          "pos": "BlockPos",
+          "updateType": "StructureBlockEntity.UpdateType",
+          "mode": "StructureMode",
+          "name": "String",
+          "offset": "BlockPos",
+          "size": "BlockPos",
+          "mirror": "Mirror",
+          "rotation": "Rotation",
+          "data": "String",
+          "ignoreEntities": "boolean",
+          "showAir": "boolean",
+          "showBoundingBox": "boolean",
+          "integrity": "float",
+          "seed": "long"
+        },
+        "writeOps": null,
+        "readOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "raw",
+            "raw": "this.updateType = (StructureBlockEntity.UpdateType)var1.readEnum(StructureBlockEntity.UpdateType.class);"
+          },
+          {
+            "type": "raw",
+            "raw": "this.mode = (StructureMode)var1.readEnum(StructureMode.class);"
+          },
+          {
+            "type": "Utf",
+            "field": "name",
+            "max": 32767
+          },
+          {
+            "type": "raw",
+            "raw": "this.offset = new BlockPos(Mth.clamp(var1.readByte(), -32, 32), Mth.clamp(var1.readByte(), -32, 32), Mth.clamp(var1.readByte(), -32, 32));"
+          },
+          {
+            "type": "raw",
+            "raw": "this.size = new BlockPos(Mth.clamp(var1.readByte(), 0, 32), Mth.clamp(var1.readByte(), 0, 32), Mth.clamp(var1.readByte(), 0, 32));"
+          },
+          {
+            "type": "raw",
+            "raw": "this.mirror = (Mirror)var1.readEnum(Mirror.class);"
+          },
+          {
+            "type": "raw",
+            "raw": "this.rotation = (Rotation)var1.readEnum(Rotation.class);"
+          },
+          {
+            "type": "Utf",
+            "field": "data",
+            "max": 12
+          },
+          {
+            "type": "raw",
+            "raw": "this.integrity = Mth.clamp(var1.readFloat(), 0.0F, 1.0F);"
+          },
+          {
+            "type": "VarLong",
+            "field": "seed"
+          },
+          {
+            "type": "raw",
+            "raw": "byte var2 = var1.readByte();"
+          },
+          {
+            "type": "extra",
+            "raw": "this.ignoreEntities = (var2 & 1) != 0;"
+          },
+          {
+            "type": "extra",
+            "raw": "this.showAir = (var2 & 2) != 0;"
+          },
+          {
+            "type": "extra",
+            "raw": "this.showBoundingBox = (var2 & 4) != 0;"
+          }
+        ]
+      },
+      {
+        "name": "SignUpdatePacket",
+        "type": "guess",
+        "struct": {
+          "pos": "BlockPos",
+          "lines": "String[]"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "SwingPacket",
+        "type": "guess",
+        "struct": {
+          "hand": "InteractionHand"
+        },
+        "writeOps": [
+          {
+            "type": "Enum",
+            "field": "hand"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.hand = (InteractionHand)var1.readEnum(InteractionHand.class);"
+          }
+        ]
+      },
+      {
+        "name": "TeleportToEntityPacket",
+        "type": "guess",
+        "struct": {
+          "uuid": "UUID"
+        },
+        "writeOps": [
+          {
+            "type": "UUID",
+            "field": "uuid"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "UUID",
+            "field": "uuid"
+          }
+        ]
+      },
+      {
+        "name": "UseItemOnPacket",
+        "type": "guess",
+        "struct": {
+          "blockHit": "BlockHitResult",
+          "hand": "InteractionHand"
+        },
+        "writeOps": [
+          {
+            "type": "Enum",
+            "field": "hand"
+          },
+          {
+            "type": "BlockHitResult",
+            "field": "blockHit"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.hand = (InteractionHand)var1.readEnum(InteractionHand.class);"
+          },
+          {
+            "type": "BlockHitResult",
+            "field": "blockHit"
+          }
+        ]
+      },
+      {
+        "name": "UseItemPacket",
+        "type": "guess",
+        "struct": {
+          "hand": "InteractionHand"
+        },
+        "writeOps": [
+          {
+            "type": "Enum",
+            "field": "hand"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.hand = (InteractionHand)var1.readEnum(InteractionHand.class);"
+          }
+        ]
+      }
+    ],
+    "clientbound": [
+      {
+        "name": "AddEntityPacket",
+        "type": "guess",
+        "struct": {
+          "id": "int",
+          "uuid": "UUID",
+          "x": "double",
+          "y": "double",
+          "z": "double",
+          "xa": "int",
+          "ya": "int",
+          "za": "int",
+          "xRot": "int",
+          "yRot": "int",
+          "type": "EntityType",
+          "data": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "UUID",
+            "field": "uuid"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeVarInt(Registry.ENTITY_TYPE.getId(this.type));"
+          },
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Byte",
+            "field": "xRot"
+          },
+          {
+            "type": "Byte",
+            "field": "yRot"
+          },
+          {
+            "type": "Int",
+            "field": "data"
+          },
+          {
+            "type": "Short",
+            "field": "xa"
+          },
+          {
+            "type": "Short",
+            "field": "ya"
+          },
+          {
+            "type": "Short",
+            "field": "za"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "UUID",
+            "field": "uuid"
+          },
+          {
+            "type": "raw",
+            "raw": "this.type = (EntityType)Registry.ENTITY_TYPE.byId(var1.readVarInt());"
+          },
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Byte",
+            "field": "xRot"
+          },
+          {
+            "type": "Byte",
+            "field": "yRot"
+          },
+          {
+            "type": "Int",
+            "field": "data"
+          },
+          {
+            "type": "Short",
+            "field": "xa"
+          },
+          {
+            "type": "Short",
+            "field": "ya"
+          },
+          {
+            "type": "Short",
+            "field": "za"
+          }
+        ]
+      },
+      {
+        "name": "AddExperienceOrbPacket",
+        "type": "guess",
+        "struct": {
+          "id": "int",
+          "x": "double",
+          "y": "double",
+          "z": "double",
+          "value": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Short",
+            "field": "value"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Short",
+            "field": "value"
+          }
+        ]
+      },
+      {
+        "name": "AddGlobalEntityPacket",
+        "type": "guess",
+        "struct": {
+          "id": "int",
+          "x": "double",
+          "y": "double",
+          "z": "double",
+          "type": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "Byte",
+            "field": "type"
+          },
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "Byte",
+            "field": "type"
+          },
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          }
+        ]
+      },
+      {
+        "name": "AddMobPacket",
+        "type": "guess",
+        "struct": {
+          "id": "int",
+          "uuid": "UUID",
+          "type": "int",
+          "x": "double",
+          "y": "double",
+          "z": "double",
+          "xd": "int",
+          "yd": "int",
+          "zd": "int",
+          "yRot": "byte",
+          "xRot": "byte",
+          "yHeadRot": "byte"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "UUID",
+            "field": "uuid"
+          },
+          {
+            "type": "VarInt",
+            "field": "type"
+          },
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Byte",
+            "field": "yRot"
+          },
+          {
+            "type": "Byte",
+            "field": "xRot"
+          },
+          {
+            "type": "Byte",
+            "field": "yHeadRot"
+          },
+          {
+            "type": "Short",
+            "field": "xd"
+          },
+          {
+            "type": "Short",
+            "field": "yd"
+          },
+          {
+            "type": "Short",
+            "field": "zd"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "UUID",
+            "field": "uuid"
+          },
+          {
+            "type": "VarInt",
+            "field": "type"
+          },
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Byte",
+            "field": "yRot"
+          },
+          {
+            "type": "Byte",
+            "field": "xRot"
+          },
+          {
+            "type": "Byte",
+            "field": "yHeadRot"
+          },
+          {
+            "type": "Short",
+            "field": "xd"
+          },
+          {
+            "type": "Short",
+            "field": "yd"
+          },
+          {
+            "type": "Short",
+            "field": "zd"
+          }
+        ]
+      },
+      {
+        "name": "AddPaintingPacket",
+        "type": "guess",
+        "struct": {
+          "id": "int",
+          "uuid": "UUID",
+          "pos": "BlockPos",
+          "direction": "Direction",
+          "motive": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "UUID",
+            "field": "uuid"
+          },
+          {
+            "type": "VarInt",
+            "field": "motive"
+          },
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeByte(this.direction.get2DDataValue());"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "UUID",
+            "field": "uuid"
+          },
+          {
+            "type": "VarInt",
+            "field": "motive"
+          },
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "raw",
+            "raw": "this.direction = Direction.from2DDataValue(var1.readUnsignedByte());"
+          }
+        ]
+      },
+      {
+        "name": "AddPlayerPacket",
+        "type": "guess",
+        "struct": {
+          "entityId": "int",
+          "playerId": "UUID",
+          "x": "double",
+          "y": "double",
+          "z": "double",
+          "yRot": "byte",
+          "xRot": "byte"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "entityId"
+          },
+          {
+            "type": "UUID",
+            "field": "playerId"
+          },
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Byte",
+            "field": "yRot"
+          },
+          {
+            "type": "Byte",
+            "field": "xRot"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "entityId"
+          },
+          {
+            "type": "UUID",
+            "field": "playerId"
+          },
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Byte",
+            "field": "yRot"
+          },
+          {
+            "type": "Byte",
+            "field": "xRot"
+          }
+        ]
+      },
+      {
+        "name": "AnimatePacket",
+        "type": "guess",
+        "struct": {
+          "id": "int",
+          "action": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "Byte",
+            "field": "action"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "UnsignedByte",
+            "field": "action"
+          }
+        ]
+      },
+      {
+        "name": "AwardStatsPacket",
+        "type": "guess",
+        "struct": {},
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "BlockBreakAckPacket",
+        "type": "guess",
+        "struct": {
+          "pos": "BlockPos",
+          "state": "BlockState",
+          "allGood": "boolean"
+        },
+        "writeOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeVarInt(Block.getId(this.state));"
+          },
+          {
+            "type": "Enum",
+            "field": "action"
+          },
+          {
+            "type": "Boolean",
+            "field": "allGood"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "raw",
+            "raw": "this.state = (BlockState)Block.BLOCK_STATE_REGISTRY.byId(var1.readVarInt());"
+          },
+          {
+            "type": "raw",
+            "raw": "this.action = (ServerboundPlayerActionPacket.Action)var1.readEnum(ServerboundPlayerActionPacket.Action.class);"
+          },
+          {
+            "type": "Boolean",
+            "field": "allGood"
+          }
+        ]
+      },
+      {
+        "name": "BlockDestructionPacket",
+        "type": "guess",
+        "struct": {
+          "id": "int",
+          "pos": "BlockPos",
+          "progress": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "Byte",
+            "field": "progress"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "UnsignedByte",
+            "field": "progress"
+          }
+        ]
+      },
+      {
+        "name": "BlockEntityDataPacket",
+        "type": "guess",
+        "struct": {
+          "pos": "BlockPos",
+          "type": "int",
+          "tag": "CompoundTag"
+        },
+        "writeOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeByte((byte)this.type);"
+          },
+          {
+            "type": "Nbt",
+            "field": "tag"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "UnsignedByte",
+            "field": "type"
+          },
+          {
+            "type": "Nbt",
+            "field": "tag"
+          }
+        ]
+      },
+      {
+        "name": "BlockEventPacket",
+        "type": "guess",
+        "struct": {
+          "pos": "BlockPos",
+          "block": "Block"
+        },
+        "writeOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "Byte",
+            "field": "b0"
+          },
+          {
+            "type": "Byte",
+            "field": "b1"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeVarInt(Registry.BLOCK.getId(this.block));"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "UnsignedByte",
+            "field": "b0"
+          },
+          {
+            "type": "UnsignedByte",
+            "field": "b1"
+          },
+          {
+            "type": "raw",
+            "raw": "this.block = (Block)Registry.BLOCK.byId(var1.readVarInt());"
+          }
+        ]
+      },
+      {
+        "name": "BlockUpdatePacket",
+        "type": "guess",
+        "struct": {
+          "pos": "BlockPos",
+          "blockState": "BlockState"
+        },
+        "writeOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeVarInt(Block.getId(this.blockState));"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "raw",
+            "raw": "this.blockState = (BlockState)Block.BLOCK_STATE_REGISTRY.byId(var1.readVarInt());"
+          }
+        ]
+      },
+      {
+        "name": "BossEventPacket",
+        "type": "guess",
+        "struct": {
+          "id": "UUID",
+          "operation": "ClientboundBossEventPacket.Operation",
+          "name": "Component",
+          "pct": "float",
+          "color": "BossEvent.BossBarColor",
+          "overlay": "BossEvent.BossBarOverlay",
+          "darkenScreen": "boolean",
+          "playMusic": "boolean",
+          "createWorldFog": "boolean"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "ChangeDifficultyPacket",
+        "type": "guess",
+        "struct": {
+          "difficulty": "Difficulty",
+          "locked": "boolean"
+        },
+        "writeOps": [
+          {
+            "type": "raw",
+            "raw": "var1.writeByte(this.difficulty.getId());"
+          },
+          {
+            "type": "Boolean",
+            "field": "locked"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.difficulty = Difficulty.byId(var1.readUnsignedByte());"
+          },
+          {
+            "type": "Boolean",
+            "field": "locked"
+          }
+        ]
+      },
+      {
+        "name": "ChatPacket",
+        "type": "guess",
+        "struct": {
+          "message": "Component",
+          "type": "ChatType"
+        },
+        "writeOps": [
+          {
+            "type": "Component",
+            "field": "message"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeByte(this.type.getIndex());"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Component",
+            "field": "message"
+          },
+          {
+            "type": "raw",
+            "raw": "this.type = ChatType.getForIndex(var1.readByte());"
+          }
+        ]
+      },
+      {
+        "name": "ChunkBlocksUpdatePacket",
+        "type": "guess",
+        "struct": {
+          "chunkPos": "ChunkPos",
+          "updates": "ClientboundChunkBlocksUpdatePacket.BlockUpdate[]"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "CommandSuggestionsPacket",
+        "type": "guess",
+        "struct": {
+          "id": "int",
+          "suggestions": "Suggestions"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "CommandsPacket",
+        "type": "guess",
+        "struct": {
+          "root": "RootCommandNode",
+          "node": "CommandNode"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "ContainerAckPacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int",
+          "uid": "short",
+          "accepted": "boolean"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "Short",
+            "field": "uid"
+          },
+          {
+            "type": "Boolean",
+            "field": "accepted"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "UnsignedByte",
+            "field": "containerId"
+          },
+          {
+            "type": "Short",
+            "field": "uid"
+          },
+          {
+            "type": "Boolean",
+            "field": "accepted"
+          }
+        ]
+      },
+      {
+        "name": "ContainerClosePacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "UnsignedByte",
+            "field": "containerId"
+          }
+        ]
+      },
+      {
+        "name": "ContainerSetContentPacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int",
+          "items": "List"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "ContainerSetDataPacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int",
+          "id": "int",
+          "value": "int"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "Short",
+            "field": "id"
+          },
+          {
+            "type": "Short",
+            "field": "value"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "UnsignedByte",
+            "field": "containerId"
+          },
+          {
+            "type": "Short",
+            "field": "id"
+          },
+          {
+            "type": "Short",
+            "field": "value"
+          }
+        ]
+      },
+      {
+        "name": "ContainerSetSlotPacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int",
+          "slot": "int",
+          "itemStack": "ItemStack"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "Short",
+            "field": "slot"
+          },
+          {
+            "type": "Item",
+            "field": "itemStack"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "Short",
+            "field": "slot"
+          },
+          {
+            "type": "Item",
+            "field": "itemStack"
+          }
+        ]
+      },
+      {
+        "name": "CooldownPacket",
+        "type": "guess",
+        "struct": {
+          "item": "Item",
+          "duration": "int"
+        },
+        "writeOps": [
+          {
+            "type": "raw",
+            "raw": "var1.writeVarInt(Item.getId(this.item));"
+          },
+          {
+            "type": "VarInt",
+            "field": "duration"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.item = Item.byId(var1.readVarInt());"
+          },
+          {
+            "type": "VarInt",
+            "field": "duration"
+          }
+        ]
+      },
+      {
+        "name": "CustomPayloadPacket",
+        "type": "guess",
+        "struct": {
+          "identifier": "ResourceLocation",
+          "data": "FriendlyByteBuf"
+        },
+        "writeOps": [
+          {
+            "type": "ResourceLocation",
+            "field": "identifier"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeBytes(this.data.copy());"
+          }
+        ],
+        "readOps": null
+      },
+      {
+        "name": "CustomSoundPacket",
+        "type": "guess",
+        "struct": {
+          "name": "ResourceLocation",
+          "source": "SoundSource",
+          "x": "int",
+          "y": "int",
+          "z": "int",
+          "volume": "float",
+          "pitch": "float"
+        },
+        "writeOps": [
+          {
+            "type": "ResourceLocation",
+            "field": "name"
+          },
+          {
+            "type": "Enum",
+            "field": "source"
+          },
+          {
+            "type": "Int",
+            "field": "x"
+          },
+          {
+            "type": "Int",
+            "field": "y"
+          },
+          {
+            "type": "Int",
+            "field": "z"
+          },
+          {
+            "type": "Float",
+            "field": "volume"
+          },
+          {
+            "type": "Float",
+            "field": "pitch"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "ResourceLocation",
+            "field": "name"
+          },
+          {
+            "type": "raw",
+            "raw": "this.source = (SoundSource)var1.readEnum(SoundSource.class);"
+          },
+          {
+            "type": "Int",
+            "field": "x"
+          },
+          {
+            "type": "Int",
+            "field": "y"
+          },
+          {
+            "type": "Int",
+            "field": "z"
+          },
+          {
+            "type": "Float",
+            "field": "volume"
+          },
+          {
+            "type": "Float",
+            "field": "pitch"
+          }
+        ]
+      },
+      {
+        "name": "DisconnectPacket",
+        "type": "guess",
+        "struct": {
+          "reason": "Component"
+        },
+        "writeOps": [
+          {
+            "type": "Component",
+            "field": "reason"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Component",
+            "field": "reason"
+          }
+        ]
+      },
+      {
+        "name": "EntityEventPacket",
+        "type": "guess",
+        "struct": {
+          "entityId": "int",
+          "eventId": "byte"
+        },
+        "writeOps": [
+          {
+            "type": "Int",
+            "field": "entityId"
+          },
+          {
+            "type": "Byte",
+            "field": "eventId"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Int",
+            "field": "entityId"
+          },
+          {
+            "type": "Byte",
+            "field": "eventId"
+          }
+        ]
+      },
+      {
+        "name": "ExplodePacket",
+        "type": "guess",
+        "struct": {
+          "x": "double",
+          "y": "double",
+          "z": "double",
+          "power": "float",
+          "toBlow": "List",
+          "knockbackX": "float",
+          "knockbackY": "float",
+          "knockbackZ": "float"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "ForgetLevelChunkPacket",
+        "type": "guess",
+        "struct": {
+          "x": "int",
+          "z": "int"
+        },
+        "writeOps": [
+          {
+            "type": "Int",
+            "field": "x"
+          },
+          {
+            "type": "Int",
+            "field": "z"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Int",
+            "field": "x"
+          },
+          {
+            "type": "Int",
+            "field": "z"
+          }
+        ]
+      },
+      {
+        "name": "GameEventPacket",
+        "type": "guess",
+        "struct": {
+          "event": "int",
+          "param": "float"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "event"
+          },
+          {
+            "type": "Float",
+            "field": "param"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "UnsignedByte",
+            "field": "event"
+          },
+          {
+            "type": "Float",
+            "field": "param"
+          }
+        ]
+      },
+      {
+        "name": "HorseScreenOpenPacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int",
+          "size": "int",
+          "entityId": "int"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "VarInt",
+            "field": "size"
+          },
+          {
+            "type": "Int",
+            "field": "entityId"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "UnsignedByte",
+            "field": "containerId"
+          },
+          {
+            "type": "VarInt",
+            "field": "size"
+          },
+          {
+            "type": "Int",
+            "field": "entityId"
+          }
+        ]
+      },
+      {
+        "name": "KeepAlivePacket",
+        "type": "guess",
+        "struct": {
+          "id": "long"
+        },
+        "writeOps": [
+          {
+            "type": "Long",
+            "field": "id"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Long",
+            "field": "id"
+          }
+        ]
+      },
+      {
+        "name": "LevelChunkPacket",
+        "type": "guess",
+        "struct": {
+          "x": "int",
+          "z": "int",
+          "availableSections": "int",
+          "heightmaps": "CompoundTag",
+          "biomes": "ChunkBiomeContainer",
+          "buffer": "byte[]",
+          "blockEntitiesTags": "List",
+          "fullChunk": "boolean"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "LevelEventPacket",
+        "type": "guess",
+        "struct": {
+          "type": "int",
+          "pos": "BlockPos",
+          "data": "int",
+          "globalEvent": "boolean"
+        },
+        "writeOps": [
+          {
+            "type": "Int",
+            "field": "type"
+          },
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "Int",
+            "field": "data"
+          },
+          {
+            "type": "Boolean",
+            "field": "globalEvent"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Int",
+            "field": "type"
+          },
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          },
+          {
+            "type": "Int",
+            "field": "data"
+          },
+          {
+            "type": "Boolean",
+            "field": "globalEvent"
+          }
+        ]
+      },
+      {
+        "name": "LevelParticlesPacket",
+        "type": "guess",
+        "struct": {
+          "x": "double",
+          "y": "double",
+          "z": "double",
+          "xDist": "float",
+          "yDist": "float",
+          "zDist": "float",
+          "maxSpeed": "float",
+          "count": "int",
+          "overrideLimiter": "boolean",
+          "particle": "ParticleOptions"
+        },
+        "writeOps": [
+          {
+            "type": "raw",
+            "raw": "var1.writeInt(Registry.PARTICLE_TYPE.getId(this.particle.getType()));"
+          },
+          {
+            "type": "Boolean",
+            "field": "overrideLimiter"
+          },
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Float",
+            "field": "xDist"
+          },
+          {
+            "type": "Float",
+            "field": "yDist"
+          },
+          {
+            "type": "Float",
+            "field": "zDist"
+          },
+          {
+            "type": "Float",
+            "field": "maxSpeed"
+          },
+          {
+            "type": "Int",
+            "field": "count"
+          },
+          {
+            "type": "extra",
+            "raw": "this.particle.writeToNetwork(var1);"
+          }
+        ],
+        "readOps": null
+      },
+      {
+        "name": "LightUpdatePacket",
+        "type": "guess",
+        "struct": {
+          "x": "int",
+          "z": "int",
+          "skyYMask": "int",
+          "blockYMask": "int",
+          "emptySkyYMask": "int",
+          "emptyBlockYMask": "int",
+          "skyUpdates": "List",
+          "blockUpdates": "List"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "LoginPacket",
+        "type": "guess",
+        "struct": {
+          "playerId": "int",
+          "seed": "long",
+          "hardcore": "boolean",
+          "gameType": "GameType",
+          "dimension": "DimensionType",
+          "maxPlayers": "int",
+          "levelType": "LevelType",
+          "chunkRadius": "int",
+          "reducedDebugInfo": "boolean",
+          "showDeathScreen": "boolean"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "MapItemDataPacket",
+        "type": "guess",
+        "struct": {
+          "mapId": "int",
+          "scale": "byte",
+          "trackingPosition": "boolean",
+          "locked": "boolean",
+          "decorations": "MapDecoration[]",
+          "startX": "int",
+          "startY": "int",
+          "width": "int",
+          "height": "int",
+          "mapColors": "byte[]"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "MerchantOffersPacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int",
+          "offers": "MerchantOffers",
+          "villagerLevel": "int",
+          "villagerXp": "int",
+          "showProgress": "boolean",
+          "canRestock": "boolean"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "containerId"
+          },
+          {
+            "type": "extra",
+            "raw": "this.offers.writeToStream(var1);"
+          },
+          {
+            "type": "VarInt",
+            "field": "villagerLevel"
+          },
+          {
+            "type": "VarInt",
+            "field": "villagerXp"
+          },
+          {
+            "type": "Boolean",
+            "field": "showProgress"
+          },
+          {
+            "type": "Boolean",
+            "field": "canRestock"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "containerId"
+          },
+          {
+            "type": "extra",
+            "raw": "this.offers = MerchantOffers.createFromStream(var1);"
+          },
+          {
+            "type": "VarInt",
+            "field": "villagerLevel"
+          },
+          {
+            "type": "VarInt",
+            "field": "villagerXp"
+          },
+          {
+            "type": "Boolean",
+            "field": "showProgress"
+          },
+          {
+            "type": "Boolean",
+            "field": "canRestock"
+          }
+        ]
+      },
+      null,
+      null,
+      null,
+      {
+        "name": "MoveEntityPacket",
+        "type": "guess",
+        "struct": {
+          "entityId": "int",
+          "xa": "short",
+          "ya": "short",
+          "za": "short",
+          "yRot": "byte",
+          "xRot": "byte",
+          "onGround": "boolean",
+          "hasRot": "boolean",
+          "hasPos": "boolean"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "entityId"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "entityId"
+          }
+        ]
+      },
+      {
+        "name": "MoveVehiclePacket",
+        "type": "guess",
+        "struct": {
+          "x": "double",
+          "y": "double",
+          "z": "double",
+          "yRot": "float",
+          "xRot": "float"
+        },
+        "writeOps": [
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Float",
+            "field": "yRot"
+          },
+          {
+            "type": "Float",
+            "field": "xRot"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Float",
+            "field": "yRot"
+          },
+          {
+            "type": "Float",
+            "field": "xRot"
+          }
+        ]
+      },
+      {
+        "name": "OpenBookPacket",
+        "type": "guess",
+        "struct": {
+          "hand": "InteractionHand"
+        },
+        "writeOps": [
+          {
+            "type": "Enum",
+            "field": "hand"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.hand = (InteractionHand)var1.readEnum(InteractionHand.class);"
+          }
+        ]
+      },
+      {
+        "name": "OpenScreenPacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int",
+          "type": "int",
+          "title": "Component"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "containerId"
+          },
+          {
+            "type": "VarInt",
+            "field": "type"
+          },
+          {
+            "type": "Component",
+            "field": "title"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "containerId"
+          },
+          {
+            "type": "VarInt",
+            "field": "type"
+          },
+          {
+            "type": "Component",
+            "field": "title"
+          }
+        ]
+      },
+      {
+        "name": "OpenSignEditorPacket",
+        "type": "guess",
+        "struct": {
+          "pos": "BlockPos"
+        },
+        "writeOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          }
+        ]
+      },
+      {
+        "name": "PlaceGhostRecipePacket",
+        "type": "guess",
+        "struct": {
+          "containerId": "int",
+          "recipe": "ResourceLocation"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "ResourceLocation",
+            "field": "recipe"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Byte",
+            "field": "containerId"
+          },
+          {
+            "type": "ResourceLocation",
+            "field": "recipe"
+          }
+        ]
+      },
+      {
+        "name": "PlayerAbilitiesPacket",
+        "type": "guess",
+        "struct": {
+          "invulnerable": "boolean",
+          "isFlying": "boolean",
+          "canFly": "boolean",
+          "instabuild": "boolean",
+          "flyingSpeed": "float",
+          "walkingSpeed": "float"
+        },
+        "writeOps": null,
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "byte var2 = var1.readByte();"
+          },
+          {
+            "type": "extra",
+            "raw": "this.setInvulnerable((var2 & 1) > 0);"
+          },
+          {
+            "type": "extra",
+            "raw": "this.setFlying((var2 & 2) > 0);"
+          },
+          {
+            "type": "extra",
+            "raw": "this.setCanFly((var2 & 4) > 0);"
+          },
+          {
+            "type": "extra",
+            "raw": "this.setInstabuild((var2 & 8) > 0);"
+          },
+          {
+            "type": "raw",
+            "raw": "this.setFlyingSpeed(var1.readFloat());"
+          },
+          {
+            "type": "raw",
+            "raw": "this.setWalkingSpeed(var1.readFloat());"
+          }
+        ]
+      },
+      {
+        "name": "PlayerCombatPacket",
+        "type": "guess",
+        "struct": {
+          "event": "ClientboundPlayerCombatPacket.Event",
+          "playerId": "int",
+          "killerId": "int",
+          "duration": "int",
+          "message": "Component"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "PlayerInfoPacket",
+        "type": "guess",
+        "struct": {
+          "action": "ClientboundPlayerInfoPacket.Action"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "PlayerLookAtPacket",
+        "type": "guess",
+        "struct": {
+          "x": "double",
+          "y": "double",
+          "z": "double",
+          "entity": "int",
+          "fromAnchor": "EntityAnchorArgument.Anchor",
+          "toAnchor": "EntityAnchorArgument.Anchor",
+          "atEntity": "boolean"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "PlayerPositionPacket",
+        "type": "guess",
+        "struct": {
+          "x": "double",
+          "y": "double",
+          "z": "double",
+          "yRot": "float",
+          "xRot": "float",
+          "relativeArguments": "Set",
+          "id": "int"
+        },
+        "writeOps": [
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Float",
+            "field": "yRot"
+          },
+          {
+            "type": "Float",
+            "field": "xRot"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeByte(ClientboundPlayerPositionPacket.RelativeArgument.pack(this.relativeArguments));"
+          },
+          {
+            "type": "VarInt",
+            "field": "id"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Float",
+            "field": "yRot"
+          },
+          {
+            "type": "Float",
+            "field": "xRot"
+          },
+          {
+            "type": "raw",
+            "raw": "this.relativeArguments = ClientboundPlayerPositionPacket.RelativeArgument.unpack(var1.readUnsignedByte());"
+          },
+          {
+            "type": "VarInt",
+            "field": "id"
+          }
+        ]
+      },
+      {
+        "name": "RecipePacket",
+        "type": "guess",
+        "struct": {
+          "state": "ClientboundRecipePacket.State",
+          "recipes": "List",
+          "toHighlight": "List",
+          "guiOpen": "boolean",
+          "filteringCraftable": "boolean",
+          "furnaceGuiOpen": "boolean",
+          "furnaceFilteringCraftable": "boolean"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "RemoveEntitiesPacket",
+        "type": "guess",
+        "struct": {
+          "entityIds": "int[]"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "RemoveMobEffectPacket",
+        "type": "guess",
+        "struct": {
+          "entityId": "int",
+          "effect": "MobEffect"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "entityId"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeByte(MobEffect.getId(this.effect));"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "entityId"
+          },
+          {
+            "type": "raw",
+            "raw": "this.effect = MobEffect.byId(var1.readUnsignedByte());"
+          }
+        ]
+      },
+      {
+        "name": "ResourcePackPacket",
+        "type": "guess",
+        "struct": {
+          "url": "String",
+          "hash": "String"
+        },
+        "writeOps": [
+          {
+            "type": "Utf",
+            "field": "url"
+          },
+          {
+            "type": "Utf",
+            "field": "hash"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Utf",
+            "field": "url",
+            "max": 32767
+          },
+          {
+            "type": "Utf",
+            "field": "hash",
+            "max": 40
+          }
+        ]
+      },
+      {
+        "name": "RespawnPacket",
+        "type": "guess",
+        "struct": {
+          "dimension": "DimensionType",
+          "seed": "long",
+          "playerGameType": "GameType",
+          "levelType": "LevelType"
+        },
+        "writeOps": [
+          {
+            "type": "raw",
+            "raw": "var1.writeInt(this.dimension.getId());"
+          },
+          {
+            "type": "Long",
+            "field": "seed"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeByte(this.playerGameType.getId());"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeUtf(this.levelType.getName());"
+          }
+        ],
+        "readOps": null
+      },
+      {
+        "name": "RotateHeadPacket",
+        "type": "guess",
+        "struct": {
+          "entityId": "int",
+          "yHeadRot": "byte"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "entityId"
+          },
+          {
+            "type": "Byte",
+            "field": "yHeadRot"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "entityId"
+          },
+          {
+            "type": "Byte",
+            "field": "yHeadRot"
+          }
+        ]
+      },
+      {
+        "name": "SelectAdvancementsTabPacket",
+        "type": "guess",
+        "struct": {
+          "tab": "ResourceLocation"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "SetBorderPacket",
+        "type": "guess",
+        "struct": {
+          "type": "ClientboundSetBorderPacket.Type",
+          "newAbsoluteMaxSize": "int",
+          "newCenterX": "double",
+          "newCenterZ": "double",
+          "newSize": "double",
+          "oldSize": "double",
+          "lerpTime": "long",
+          "warningTime": "int",
+          "warningBlocks": "int"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "SetCameraPacket",
+        "type": "guess",
+        "struct": {
+          "cameraId": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "cameraId"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "cameraId"
+          }
+        ]
+      },
+      {
+        "name": "SetCarriedItemPacket",
+        "type": "guess",
+        "struct": {
+          "slot": "int"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "slot"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Byte",
+            "field": "slot"
+          }
+        ]
+      },
+      {
+        "name": "SetChunkCacheCenterPacket",
+        "type": "guess",
+        "struct": {
+          "x": "int",
+          "z": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "x"
+          },
+          {
+            "type": "VarInt",
+            "field": "z"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "x"
+          },
+          {
+            "type": "VarInt",
+            "field": "z"
+          }
+        ]
+      },
+      {
+        "name": "SetChunkCacheRadiusPacket",
+        "type": "guess",
+        "struct": {
+          "radius": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "radius"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "radius"
+          }
+        ]
+      },
+      {
+        "name": "SetDisplayObjectivePacket",
+        "type": "guess",
+        "struct": {
+          "slot": "int",
+          "objectiveName": "String"
+        },
+        "writeOps": [
+          {
+            "type": "Byte",
+            "field": "slot"
+          },
+          {
+            "type": "Utf",
+            "field": "objectiveName"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Byte",
+            "field": "slot"
+          },
+          {
+            "type": "Utf",
+            "field": "objectiveName",
+            "max": 16
+          }
+        ]
+      },
+      {
+        "name": "SetEntityDataPacket",
+        "type": "guess",
+        "struct": {
+          "id": "int",
+          "packedItems": "List"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "extra",
+            "raw": "SynchedEntityData.pack(this.packedItems, var1);"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "extra",
+            "raw": "this.packedItems = SynchedEntityData.unpack(var1);"
+          }
+        ]
+      },
+      {
+        "name": "SetEntityLinkPacket",
+        "type": "guess",
+        "struct": {
+          "sourceId": "int",
+          "destId": "int"
+        },
+        "writeOps": [
+          {
+            "type": "Int",
+            "field": "sourceId"
+          },
+          {
+            "type": "Int",
+            "field": "destId"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Int",
+            "field": "sourceId"
+          },
+          {
+            "type": "Int",
+            "field": "destId"
+          }
+        ]
+      },
+      {
+        "name": "SetEntityMotionPacket",
+        "type": "guess",
+        "struct": {
+          "id": "int",
+          "xa": "int",
+          "ya": "int",
+          "za": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "Short",
+            "field": "xa"
+          },
+          {
+            "type": "Short",
+            "field": "ya"
+          },
+          {
+            "type": "Short",
+            "field": "za"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "Short",
+            "field": "xa"
+          },
+          {
+            "type": "Short",
+            "field": "ya"
+          },
+          {
+            "type": "Short",
+            "field": "za"
+          }
+        ]
+      },
+      {
+        "name": "SetEquippedItemPacket",
+        "type": "guess",
+        "struct": {
+          "entity": "int",
+          "slot": "EquipmentSlot",
+          "itemStack": "ItemStack"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "entity"
+          },
+          {
+            "type": "Enum",
+            "field": "slot"
+          },
+          {
+            "type": "Item",
+            "field": "itemStack"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "entity"
+          },
+          {
+            "type": "raw",
+            "raw": "this.slot = (EquipmentSlot)var1.readEnum(EquipmentSlot.class);"
+          },
+          {
+            "type": "Item",
+            "field": "itemStack"
+          }
+        ]
+      },
+      {
+        "name": "SetExperiencePacket",
+        "type": "guess",
+        "struct": {
+          "experienceProgress": "float",
+          "totalExperience": "int",
+          "experienceLevel": "int"
+        },
+        "writeOps": [
+          {
+            "type": "Float",
+            "field": "experienceProgress"
+          },
+          {
+            "type": "VarInt",
+            "field": "experienceLevel"
+          },
+          {
+            "type": "VarInt",
+            "field": "totalExperience"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Float",
+            "field": "experienceProgress"
+          },
+          {
+            "type": "VarInt",
+            "field": "experienceLevel"
+          },
+          {
+            "type": "VarInt",
+            "field": "totalExperience"
+          }
+        ]
+      },
+      {
+        "name": "SetHealthPacket",
+        "type": "guess",
+        "struct": {
+          "health": "float",
+          "food": "int",
+          "saturation": "float"
+        },
+        "writeOps": [
+          {
+            "type": "Float",
+            "field": "health"
+          },
+          {
+            "type": "VarInt",
+            "field": "food"
+          },
+          {
+            "type": "Float",
+            "field": "saturation"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Float",
+            "field": "health"
+          },
+          {
+            "type": "VarInt",
+            "field": "food"
+          },
+          {
+            "type": "Float",
+            "field": "saturation"
+          }
+        ]
+      },
+      {
+        "name": "SetObjectivePacket",
+        "type": "guess",
+        "struct": {
+          "objectiveName": "String",
+          "displayName": "Component",
+          "renderType": "ObjectiveCriteria.RenderType",
+          "method": "int"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "SetPassengersPacket",
+        "type": "guess",
+        "struct": {
+          "vehicle": "int",
+          "passengers": "int[]"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "vehicle"
+          },
+          {
+            "type": "VarIntArray",
+            "field": "passengers"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "vehicle"
+          },
+          {
+            "type": "VarIntArray",
+            "field": "passengers"
+          }
+        ]
+      },
+      {
+        "name": "SetPlayerTeamPacket",
+        "type": "guess",
+        "struct": {
+          "name": "String",
+          "displayName": "Component",
+          "playerPrefix": "Component",
+          "playerSuffix": "Component",
+          "nametagVisibility": "String",
+          "collisionRule": "String",
+          "color": "ChatFormatting",
+          "method": "int",
+          "options": "int"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "SetScorePacket",
+        "type": "guess",
+        "struct": {
+          "owner": "String",
+          "objectiveName": "String",
+          "score": "int",
+          "method": "ServerScoreboard.Method"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "SetSpawnPositionPacket",
+        "type": "guess",
+        "struct": {
+          "pos": "BlockPos"
+        },
+        "writeOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "BlockPos",
+            "field": "pos"
+          }
+        ]
+      },
+      {
+        "name": "SetTimePacket",
+        "type": "guess",
+        "struct": {
+          "gameTime": "long",
+          "dayTime": "long"
+        },
+        "writeOps": [
+          {
+            "type": "Long",
+            "field": "gameTime"
+          },
+          {
+            "type": "Long",
+            "field": "dayTime"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Long",
+            "field": "gameTime"
+          },
+          {
+            "type": "Long",
+            "field": "dayTime"
+          }
+        ]
+      },
+      {
+        "name": "SetTitlesPacket",
+        "type": "guess",
+        "struct": {
+          "type": "ClientboundSetTitlesPacket.Type",
+          "text": "Component",
+          "fadeInTime": "int",
+          "stayTime": "int",
+          "fadeOutTime": "int"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "SoundEntityPacket",
+        "type": "guess",
+        "struct": {
+          "sound": "SoundEvent",
+          "source": "SoundSource",
+          "id": "int",
+          "volume": "float",
+          "pitch": "float"
+        },
+        "writeOps": [
+          {
+            "type": "raw",
+            "raw": "var1.writeVarInt(Registry.SOUND_EVENT.getId(this.sound));"
+          },
+          {
+            "type": "Enum",
+            "field": "source"
+          },
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "Float",
+            "field": "volume"
+          },
+          {
+            "type": "Float",
+            "field": "pitch"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.sound = (SoundEvent)Registry.SOUND_EVENT.byId(var1.readVarInt());"
+          },
+          {
+            "type": "raw",
+            "raw": "this.source = (SoundSource)var1.readEnum(SoundSource.class);"
+          },
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "Float",
+            "field": "volume"
+          },
+          {
+            "type": "Float",
+            "field": "pitch"
+          }
+        ]
+      },
+      {
+        "name": "SoundPacket",
+        "type": "guess",
+        "struct": {
+          "sound": "SoundEvent",
+          "source": "SoundSource",
+          "x": "int",
+          "y": "int",
+          "z": "int",
+          "volume": "float",
+          "pitch": "float"
+        },
+        "writeOps": [
+          {
+            "type": "raw",
+            "raw": "var1.writeVarInt(Registry.SOUND_EVENT.getId(this.sound));"
+          },
+          {
+            "type": "Enum",
+            "field": "source"
+          },
+          {
+            "type": "Int",
+            "field": "x"
+          },
+          {
+            "type": "Int",
+            "field": "y"
+          },
+          {
+            "type": "Int",
+            "field": "z"
+          },
+          {
+            "type": "Float",
+            "field": "volume"
+          },
+          {
+            "type": "Float",
+            "field": "pitch"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.sound = (SoundEvent)Registry.SOUND_EVENT.byId(var1.readVarInt());"
+          },
+          {
+            "type": "raw",
+            "raw": "this.source = (SoundSource)var1.readEnum(SoundSource.class);"
+          },
+          {
+            "type": "Int",
+            "field": "x"
+          },
+          {
+            "type": "Int",
+            "field": "y"
+          },
+          {
+            "type": "Int",
+            "field": "z"
+          },
+          {
+            "type": "Float",
+            "field": "volume"
+          },
+          {
+            "type": "Float",
+            "field": "pitch"
+          }
+        ]
+      },
+      {
+        "name": "StopSoundPacket",
+        "type": "guess",
+        "struct": {
+          "name": "ResourceLocation",
+          "source": "SoundSource"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "TabListPacket",
+        "type": "guess",
+        "struct": {
+          "header": "Component",
+          "footer": "Component"
+        },
+        "writeOps": [
+          {
+            "type": "Component",
+            "field": "header"
+          },
+          {
+            "type": "Component",
+            "field": "footer"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Component",
+            "field": "header"
+          },
+          {
+            "type": "Component",
+            "field": "footer"
+          }
+        ]
+      },
+      {
+        "name": "TagQueryPacket",
+        "type": "guess",
+        "struct": {
+          "transactionId": "int",
+          "tag": "CompoundTag"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "transactionId"
+          },
+          {
+            "type": "Nbt",
+            "field": "tag"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "transactionId"
+          },
+          {
+            "type": "Nbt",
+            "field": "tag"
+          }
+        ]
+      },
+      {
+        "name": "TakeItemEntityPacket",
+        "type": "guess",
+        "struct": {
+          "itemId": "int",
+          "playerId": "int",
+          "amount": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "itemId"
+          },
+          {
+            "type": "VarInt",
+            "field": "playerId"
+          },
+          {
+            "type": "VarInt",
+            "field": "amount"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "itemId"
+          },
+          {
+            "type": "VarInt",
+            "field": "playerId"
+          },
+          {
+            "type": "VarInt",
+            "field": "amount"
+          }
+        ]
+      },
+      {
+        "name": "TeleportEntityPacket",
+        "type": "guess",
+        "struct": {
+          "id": "int",
+          "x": "double",
+          "y": "double",
+          "z": "double",
+          "yRot": "byte",
+          "xRot": "byte",
+          "onGround": "boolean"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Byte",
+            "field": "yRot"
+          },
+          {
+            "type": "Byte",
+            "field": "xRot"
+          },
+          {
+            "type": "Boolean",
+            "field": "onGround"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "id"
+          },
+          {
+            "type": "Double",
+            "field": "x"
+          },
+          {
+            "type": "Double",
+            "field": "y"
+          },
+          {
+            "type": "Double",
+            "field": "z"
+          },
+          {
+            "type": "Byte",
+            "field": "yRot"
+          },
+          {
+            "type": "Byte",
+            "field": "xRot"
+          },
+          {
+            "type": "Boolean",
+            "field": "onGround"
+          }
+        ]
+      },
+      {
+        "name": "UpdateAdvancementsPacket",
+        "type": "guess",
+        "struct": {
+          "reset": "boolean",
+          "added": "Map",
+          "removed": "Set",
+          "progress": "Map"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "UpdateAttributesPacket",
+        "type": "guess",
+        "struct": {
+          "entityId": "int"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "UpdateMobEffectPacket",
+        "type": "guess",
+        "struct": {
+          "entityId": "int",
+          "effectId": "byte",
+          "effectAmplifier": "byte",
+          "effectDurationTicks": "int",
+          "flags": "byte"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "entityId"
+          },
+          {
+            "type": "Byte",
+            "field": "effectId"
+          },
+          {
+            "type": "Byte",
+            "field": "effectAmplifier"
+          },
+          {
+            "type": "VarInt",
+            "field": "effectDurationTicks"
+          },
+          {
+            "type": "Byte",
+            "field": "flags"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "entityId"
+          },
+          {
+            "type": "Byte",
+            "field": "effectId"
+          },
+          {
+            "type": "Byte",
+            "field": "effectAmplifier"
+          },
+          {
+            "type": "VarInt",
+            "field": "effectDurationTicks"
+          },
+          {
+            "type": "Byte",
+            "field": "flags"
+          }
+        ]
+      },
+      {
+        "name": "UpdateRecipesPacket",
+        "type": "guess",
+        "struct": {
+          "recipes": "List"
+        },
+        "writeOps": null,
+        "readOps": null
+      },
+      {
+        "name": "UpdateTagsPacket",
+        "type": "guess",
+        "struct": {
+          "tags": "TagManager"
+        },
+        "writeOps": [
+          {
+            "type": "extra",
+            "raw": "this.tags.serializeToNetwork(var1);"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "extra",
+            "raw": "this.tags = TagManager.deserializeFromNetwork(var1);"
+          }
+        ]
+      }
+    ]
+  },
+  "handshake": {
+    "serverbound": [
+      {
+        "name": "ClientIntentionPacket",
+        "type": "guess",
+        "struct": {
+          "protocolVersion": "int",
+          "hostName": "String",
+          "port": "int",
+          "intention": "ConnectionProtocol"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "protocolVersion"
+          },
+          {
+            "type": "Utf",
+            "field": "hostName"
+          },
+          {
+            "type": "Short",
+            "field": "port"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeVarInt(this.intention.getId());"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "protocolVersion"
+          },
+          {
+            "type": "Utf",
+            "field": "hostName",
+            "max": 255
+          },
+          {
+            "type": "UnsignedShort",
+            "field": "port"
+          },
+          {
+            "type": "raw",
+            "raw": "this.intention = ConnectionProtocol.getById(var1.readVarInt());"
+          }
+        ]
+      }
+    ],
+    "clientbound": []
+  },
+  "login": {
+    "serverbound": [
+      {
+        "name": "HelloPacket",
+        "type": "guess",
+        "struct": {
+          "gameProfile": "GameProfile"
+        },
+        "writeOps": [
+          {
+            "type": "raw",
+            "raw": "var1.writeUtf(this.gameProfile.getName());"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.gameProfile = new GameProfile((UUID)null, var1.readUtf(16));"
+          }
+        ]
+      },
+      {
+        "name": "KeyPacket",
+        "type": "guess",
+        "struct": {
+          "keybytes": "byte[]",
+          "nonce": "byte[]"
+        },
+        "writeOps": [
+          {
+            "type": "ByteArray",
+            "field": "keybytes"
+          },
+          {
+            "type": "ByteArray",
+            "field": "nonce"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "ByteArray",
+            "field": "keybytes"
+          },
+          {
+            "type": "ByteArray",
+            "field": "nonce"
+          }
+        ]
+      },
+      {
+        "name": "CustomQueryPacket",
+        "type": "guess",
+        "struct": {
+          "transactionId": "int",
+          "data": "FriendlyByteBuf"
+        },
+        "writeOps": null,
+        "readOps": null
+      }
+    ],
+    "clientbound": [
+      {
+        "name": "LoginDisconnectPacket",
+        "type": "guess",
+        "struct": {
+          "reason": "Component"
+        },
+        "writeOps": [
+          {
+            "type": "Component",
+            "field": "reason"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.reason = Component.Serializer.fromJsonLenient(var1.readUtf(262144));"
+          }
+        ]
+      },
+      {
+        "name": "HelloPacket",
+        "type": "guess",
+        "struct": {
+          "serverId": "String",
+          "publicKey": "PublicKey",
+          "nonce": "byte[]"
+        },
+        "writeOps": [
+          {
+            "type": "Utf",
+            "field": "serverId"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeByteArray(this.publicKey.getEncoded());"
+          },
+          {
+            "type": "ByteArray",
+            "field": "nonce"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Utf",
+            "field": "serverId",
+            "max": 20
+          },
+          {
+            "type": "raw",
+            "raw": "this.publicKey = Crypt.byteToPublicKey(var1.readByteArray());"
+          },
+          {
+            "type": "ByteArray",
+            "field": "nonce"
+          }
+        ]
+      },
+      {
+        "name": "GameProfilePacket",
+        "type": "guess",
+        "struct": {
+          "gameProfile": "GameProfile"
+        },
+        "writeOps": [
+          {
+            "type": "extra",
+            "raw": "UUID var2 = this.gameProfile.getId();"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeUtf(var2 == null ? \"\" : var2.toString());"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeUtf(this.gameProfile.getName());"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "String var2 = var1.readUtf(36);"
+          },
+          {
+            "type": "raw",
+            "raw": "String var3 = var1.readUtf(16);"
+          },
+          {
+            "type": "extra",
+            "raw": "UUID var4 = UUID.fromString(var2);"
+          },
+          {
+            "type": "extra",
+            "raw": "this.gameProfile = new GameProfile(var4, var3);"
+          }
+        ]
+      },
+      {
+        "name": "LoginCompressionPacket",
+        "type": "guess",
+        "struct": {
+          "compressionThreshold": "int"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "compressionThreshold"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "VarInt",
+            "field": "compressionThreshold"
+          }
+        ]
+      },
+      {
+        "name": "CustomQueryPacket",
+        "type": "guess",
+        "struct": {
+          "transactionId": "int",
+          "identifier": "ResourceLocation",
+          "data": "FriendlyByteBuf"
+        },
+        "writeOps": [
+          {
+            "type": "VarInt",
+            "field": "transactionId"
+          },
+          {
+            "type": "ResourceLocation",
+            "field": "identifier"
+          },
+          {
+            "type": "raw",
+            "raw": "var1.writeBytes(this.data.copy());"
+          }
+        ],
+        "readOps": null
+      }
+    ]
+  },
+  "status": {
+    "serverbound": [
+      {
+        "name": "StatusRequestPacket",
+        "type": "guess",
+        "struct": {},
+        "writeOps": [],
+        "readOps": []
+      },
+      {
+        "name": "PingRequestPacket",
+        "type": "guess",
+        "struct": {
+          "time": "long"
+        },
+        "writeOps": [
+          {
+            "type": "Long",
+            "field": "time"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Long",
+            "field": "time"
+          }
+        ]
+      }
+    ],
+    "clientbound": [
+      {
+        "name": "StatusResponsePacket",
+        "type": "guess",
+        "struct": {
+          "status": "ServerStatus"
+        },
+        "writeOps": [
+          {
+            "type": "raw",
+            "raw": "var1.writeUtf(GSON.toJson((Object)this.status));"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "raw",
+            "raw": "this.status = (ServerStatus)GsonHelper.fromJson(GSON, var1.readUtf(32767), ServerStatus.class);"
+          }
+        ]
+      },
+      {
+        "name": "PongResponsePacket",
+        "type": "guess",
+        "struct": {
+          "time": "long"
+        },
+        "writeOps": [
+          {
+            "type": "Long",
+            "field": "time"
+          }
+        ],
+        "readOps": [
+          {
+            "type": "Long",
+            "field": "time"
+          }
+        ]
+      }
+    ]
+  }
+}
