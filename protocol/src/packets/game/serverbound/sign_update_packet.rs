@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SignUpdatePacket {
     pub pos: BlockPos,
@@ -18,7 +17,10 @@ impl CodablePacket for SignUpdatePacket {
         buf.set_mc_string(self.lines.3);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let pos = buf.get_mc_block_pos()?;
         let lines = (
             buf.get_mc_string(384)?,

@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct PingRequestPacket {
     pub time: i64,
@@ -13,7 +12,10 @@ impl CodablePacket for PingRequestPacket {
         buf.set_mc_i64(self.time);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let time = buf.get_mc_i64()?;
         return Ok(PingRequestPacket { time });
     }

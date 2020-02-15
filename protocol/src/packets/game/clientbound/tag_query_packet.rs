@@ -1,9 +1,8 @@
-
-use crate::packet::*;
-use crate::network::*;
-use bytes::BytesMut;
-use crate::result::*;
 use crate::nbt::Nbt;
+use crate::network::*;
+use crate::packet::*;
+use crate::result::*;
+use bytes::BytesMut;
 
 pub struct TagQueryPacket {
     pub transactionId: i32,
@@ -16,7 +15,10 @@ impl CodablePacket for TagQueryPacket {
         buf.set_mc_nbt(self.tag);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let transactionId = buf.get_mc_var_int()?;
         let tag = buf.get_mc_nbt()?;
         return Ok(TagQueryPacket { transactionId, tag });

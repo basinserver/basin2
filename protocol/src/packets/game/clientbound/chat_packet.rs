@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct ChatPacket {
     pub message: ChatComponent,
@@ -15,7 +14,10 @@ impl CodablePacket for ChatPacket {
         buf.set_mc_u8(self.chat_type as u8);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let message = buf.get_mc_chat_component()?;
         let chat_type: ChatType = buf.get_mc_enum_u8()?;
         return Ok(ChatPacket { message, chat_type });

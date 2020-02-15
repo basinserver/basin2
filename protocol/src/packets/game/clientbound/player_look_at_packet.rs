@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct PlayerLookAtPacket {
     pub x: f64,
@@ -22,27 +21,33 @@ impl CodablePacket for PlayerLookAtPacket {
             Some((entity, toAnchor)) => {
                 buf.set_mc_bool(true);
                 buf.set_mc_var_int(entity);
-                buf.set_mc_var_int(toAnchor as i32);    
-            },
+                buf.set_mc_var_int(toAnchor as i32);
+            }
             None => {
                 buf.set_mc_bool(false);
             }
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let fromAnchor: EntityAnchor = buf.get_mc_enum()?;
         let x = buf.get_mc_f64()?;
         let y = buf.get_mc_f64()?;
         let z = buf.get_mc_f64()?;
         let atEntity = if buf.get_mc_bool()? {
-            Some((
-                buf.get_mc_var_int()?,
-                buf.get_mc_enum()?,
-            ))
+            Some((buf.get_mc_var_int()?, buf.get_mc_enum()?))
         } else {
             None
         };
-        return Ok(PlayerLookAtPacket { x, y, z, fromAnchor, atEntity });
+        return Ok(PlayerLookAtPacket {
+            x,
+            y,
+            z,
+            fromAnchor,
+            atEntity,
+        });
     }
 }

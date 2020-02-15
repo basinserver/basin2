@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct UpdateTagsPacket {
     pub blocks: Vec<(String, Vec<i32>)>,
@@ -45,11 +44,19 @@ impl CodablePacket for UpdateTagsPacket {
         encode_tags(buf, self.entityTypes);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let blocks = decode_tags(buf)?;
         let items = decode_tags(buf)?;
         let fluids = decode_tags(buf)?;
         let entityTypes = decode_tags(buf)?;
-        return Ok(UpdateTagsPacket { blocks, items, fluids, entityTypes });
+        return Ok(UpdateTagsPacket {
+            blocks,
+            items,
+            fluids,
+            entityTypes,
+        });
     }
 }

@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetObjectivePacket {
     pub objectiveName: String,
@@ -21,15 +20,24 @@ impl CodablePacket for SetObjectivePacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let objectiveName = buf.get_mc_string(16)?;
         let method = buf.get_mc_i8()?;
         let (displayName, renderType) = match method {
-            0 | 2 => {
-                (Some(buf.get_mc_chat_component()?), Some(buf.get_mc_enum::<ObjectiveCriteriaRenderType>()?))
-            },
+            0 | 2 => (
+                Some(buf.get_mc_chat_component()?),
+                Some(buf.get_mc_enum::<ObjectiveCriteriaRenderType>()?),
+            ),
             _ => (None, None),
         };
-        return Ok(SetObjectivePacket { objectiveName, displayName, renderType, method });
+        return Ok(SetObjectivePacket {
+            objectiveName,
+            displayName,
+            renderType,
+            method,
+        });
     }
 }

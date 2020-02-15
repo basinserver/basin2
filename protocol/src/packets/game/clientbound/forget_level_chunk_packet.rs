@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct ForgetLevelChunkPacket {
     pub x: i32,
@@ -15,7 +14,10 @@ impl CodablePacket for ForgetLevelChunkPacket {
         buf.set_mc_i32(self.z);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let x = buf.get_mc_i32()?;
         let z = buf.get_mc_i32()?;
         return Ok(ForgetLevelChunkPacket { x, z });

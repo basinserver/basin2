@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct BlockEventPacket {
     pub pos: BlockPos,
@@ -19,7 +18,10 @@ impl CodablePacket for BlockEventPacket {
         buf.set_mc_var_int(self.block);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let pos = buf.get_mc_block_pos()?;
         let b0 = buf.get_mc_u8()?;
         let b1 = buf.get_mc_u8()?;

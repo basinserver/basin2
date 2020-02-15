@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetHealthPacket {
     pub health: f32,
@@ -17,10 +16,17 @@ impl CodablePacket for SetHealthPacket {
         buf.set_mc_f32(self.saturation);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let health = buf.get_mc_f32()?;
         let food = buf.get_mc_var_int()?;
         let saturation = buf.get_mc_f32()?;
-        return Ok(SetHealthPacket { health, food, saturation });
+        return Ok(SetHealthPacket {
+            health,
+            food,
+            saturation,
+        });
     }
 }

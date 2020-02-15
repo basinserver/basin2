@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetEntityMotionPacket {
     pub id: i32,
@@ -19,7 +18,10 @@ impl CodablePacket for SetEntityMotionPacket {
         buf.set_mc_i16(self.za);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let id = buf.get_mc_var_int()?;
         let xa = buf.get_mc_i16()?;
         let ya = buf.get_mc_i16()?;

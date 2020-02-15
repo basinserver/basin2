@@ -1,9 +1,8 @@
-
-use crate::packet::*;
 use crate::network::*;
+use crate::packet::*;
+use crate::result::*;
 use bytes::BytesMut;
 use uuid::Uuid;
-use crate::result::*;
 
 pub struct AddPaintingPacket {
     pub id: i32,
@@ -22,12 +21,21 @@ impl CodablePacket for AddPaintingPacket {
         buf.set_mc_u8(self.direction.get_2d_direction());
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let id = buf.get_mc_var_int()?;
         let uuid = buf.get_mc_uuid()?;
         let motive = buf.get_mc_var_int()?;
         let pos = buf.get_mc_block_pos()?;
         let direction = Direction::from_2d_direction(buf.get_mc_u8()?).unwrap_or(Direction::Up);
-        return Ok(AddPaintingPacket { id, uuid, pos, direction, motive });
+        return Ok(AddPaintingPacket {
+            id,
+            uuid,
+            pos,
+            direction,
+            motive,
+        });
     }
 }

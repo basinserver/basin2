@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct BlockBreakAckPacket {
     pub pos: BlockPos,
@@ -19,11 +18,19 @@ impl CodablePacket for BlockBreakAckPacket {
         buf.set_mc_bool(self.allGood);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let pos = buf.get_mc_block_pos()?;
         let state = buf.get_mc_var_int()?;
         let action: PlayerActionPacketAction = buf.get_mc_enum()?;
         let allGood = buf.get_mc_bool()?;
-        return Ok(BlockBreakAckPacket { pos, state, action, allGood });
+        return Ok(BlockBreakAckPacket {
+            pos,
+            state,
+            action,
+            allGood,
+        });
     }
 }

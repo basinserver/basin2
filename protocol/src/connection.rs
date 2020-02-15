@@ -1,21 +1,21 @@
-use tokio::sync::mpsc::{ channel, Receiver, Sender };
 use super::packets::Packet;
-use futures::stream::StreamExt;
-use log::*;
-use tokio::net::{ TcpStream };
-use std::net::SocketAddr;
-use futures::future::FutureExt;
-use futures::select;
-use futures::pin_mut;
-use crate::result::*;
-use tokio_util::codec::{Decoder, Encoder, Framed};
-use bytes::BytesMut;
-use openssl::symm::{Cipher, Crypter};
 use crate::network::*;
+use crate::result::*;
 use bytes::buf::Buf;
-use flate2::{ Compress, Decompress, FlushDecompress, FlushCompress, Compression };
-use futures_util::stream::{SplitStream, SplitSink};
+use bytes::BytesMut;
+use flate2::{Compress, Compression, Decompress, FlushCompress, FlushDecompress};
+use futures::future::FutureExt;
+use futures::pin_mut;
+use futures::select;
+use futures::stream::StreamExt;
 use futures_util::sink::SinkExt;
+use futures_util::stream::{SplitSink, SplitStream};
+use log::*;
+use openssl::symm::{Cipher, Crypter};
+use std::net::SocketAddr;
+use tokio::net::TcpStream;
+use tokio::sync::mpsc::{channel, Receiver, Sender};
+use tokio_util::codec::{Decoder, Encoder, Framed};
 
 pub struct Connection {
     incoming: Receiver<Packet>,
@@ -37,7 +37,7 @@ impl Decoder for &mut McCodec {
 
     fn decode(&mut self, buf: &mut BytesMut) -> std::result::Result<Option<Packet>, IoError> {
         if buf.len() < 4 {
-            return Ok(None)
+            return Ok(None);
         }
         let mut post_cipher = buf;
         match &mut self.read_cipher {
@@ -47,7 +47,7 @@ impl Decoder for &mut McCodec {
                 self.decrypted.extend_from_slice(&ciphertext[..count]);
                 post_cipher.advance(post_cipher.len());
                 post_cipher = &mut self.decrypted;
-            },
+            }
             _ => (),
         };
         let packet_length = post_cipher.read_var_int();
@@ -81,7 +81,11 @@ impl Decoder for &mut McCodec {
                 let mut decompressor = Decompress::new(false);
                 let compressed_packet = packet_data;
                 packet_data = BytesMut::with_capacity(decompressed_length);
-                decompressor.decompress(&compressed_packet, &mut packet_data, FlushDecompress::Finish)?;
+                decompressor.decompress(
+                    &compressed_packet,
+                    &mut packet_data,
+                    FlushDecompress::Finish,
+                )?;
             }
         }
         Ok(None) // TODO: remove
@@ -92,7 +96,11 @@ impl Encoder for &mut McCodec {
     type Item = Packet;
     type Error = IoError;
 
-    fn encode(&mut self, packet: Packet, output: &mut BytesMut) -> std::result::Result<(), IoError> {
+    fn encode(
+        &mut self,
+        packet: Packet,
+        output: &mut BytesMut,
+    ) -> std::result::Result<(), IoError> {
         let mut encoded = BytesMut::new();
         // compress
         match self.threshold {
@@ -102,9 +110,15 @@ impl Encoder for &mut McCodec {
                     let mut compressor = Compress::new(Compression::default(), false);
                     let mut decompressed = encoded;
                     let mut compressed = BytesMut::with_capacity(raw_length);
-                    compressor.compress(&mut decompressed, &mut compressed, FlushCompress::Finish)?;
+                    compressor.compress(
+                        &mut decompressed,
+                        &mut compressed,
+                        FlushCompress::Finish,
+                    )?;
                     encoded = BytesMut::with_capacity(compressed.len() + 10);
-                    encoded.write_var_int((get_var_int_len(decompressed.len() as i32) + compressed.len()) as i32);
+                    encoded.write_var_int(
+                        (get_var_int_len(decompressed.len() as i32) + compressed.len()) as i32,
+                    );
                     encoded.write_var_int(decompressed.len() as i32);
                     encoded.unsplit(compressed);
                 } else {
@@ -114,30 +128,32 @@ impl Encoder for &mut McCodec {
                     encoded.write_var_int(0);
                     encoded.unsplit(decompressed);
                 }
-            },
+            }
             None => {
                 let decompressed = encoded;
                 encoded = BytesMut::with_capacity(decompressed.len() + 10);
                 encoded.write_var_int(encoded.len() as i32);
                 encoded.unsplit(decompressed);
-            },
+            }
         };
         // encrypt
         match &mut self.write_cipher {
             Some(cipher) => {
                 output.reserve(encoded.len() + 10);
                 cipher.update(&encoded, output).unwrap();
-            },
+            }
             None => {
                 output.unsplit(encoded);
-            },
+            }
         };
         Ok(())
-
     }
 }
 
-async fn writeForward(mut incoming: Receiver<Packet>, mut to: SplitSink<Framed<TcpStream, &mut McCodec>, Packet>) -> Result<()> {
+async fn writeForward(
+    mut incoming: Receiver<Packet>,
+    mut to: SplitSink<Framed<TcpStream, &mut McCodec>, Packet>,
+) -> Result<()> {
     while let Some(packet) = incoming.recv().await {
         if to.send(packet).await.is_err() {
             break;
@@ -146,7 +162,10 @@ async fn writeForward(mut incoming: Receiver<Packet>, mut to: SplitSink<Framed<T
     Ok(())
 }
 
-async fn readForward(mut outgoing: Sender<Packet>, mut from: SplitStream<Framed<TcpStream, &mut McCodec>>) -> Result<()> {
+async fn readForward(
+    mut outgoing: Sender<Packet>,
+    mut from: SplitStream<Framed<TcpStream, &mut McCodec>>,
+) -> Result<()> {
     while let Some(Ok(request)) = from.next().await {
         if outgoing.send(request).await.is_err() {
             break;
@@ -156,10 +175,9 @@ async fn readForward(mut outgoing: Sender<Packet>, mut from: SplitStream<Framed<
 }
 
 impl Connection {
-
     pub async fn spawn(socket: TcpStream) -> Result<()> {
         let address = socket.peer_addr().unwrap();
-        
+
         let (in_outgoing, in_incoming) = channel::<Packet>(256);
         let (out_outgoing, out_incoming) = channel::<Packet>(256);
         let mut connection = Connection {

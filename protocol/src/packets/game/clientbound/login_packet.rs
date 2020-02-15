@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 use enum_primitive::FromPrimitive;
 
 pub struct LoginPacket {
@@ -35,18 +34,33 @@ impl CodablePacket for LoginPacket {
         buf.set_mc_bool(self.showDeathScreen);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let playerId = buf.get_mc_i32()?;
         let flags = buf.get_mc_u8()?;
         let hardcore = (flags & 8) != 0;
         let gameType = GameType::from_i32((flags & 0b111) as i32).unwrap_or(GameType::Survival);
-        let dimension = DimensionType::from_id(buf.get_mc_i32()?).unwrap_or(DimensionType::Overworld);
+        let dimension =
+            DimensionType::from_id(buf.get_mc_i32()?).unwrap_or(DimensionType::Overworld);
         let seed = buf.get_mc_i64()?;
         let maxPlayers = buf.get_mc_u8()?;
         let levelType = buf.get_mc_string(16)?;
         let chunkRadius = buf.get_mc_var_int()?;
         let reducedDebugInfo = buf.get_mc_bool()?;
         let showDeathScreen = buf.get_mc_bool()?;
-        return Ok(LoginPacket { playerId, seed, hardcore, gameType, dimension, maxPlayers, levelType, chunkRadius, reducedDebugInfo, showDeathScreen });
+        return Ok(LoginPacket {
+            playerId,
+            seed,
+            hardcore,
+            gameType,
+            dimension,
+            maxPlayers,
+            levelType,
+            chunkRadius,
+            reducedDebugInfo,
+            showDeathScreen,
+        });
     }
 }

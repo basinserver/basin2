@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetBeaconPacket {
     pub primary: i32,
@@ -15,7 +14,10 @@ impl CodablePacket for SetBeaconPacket {
         buf.set_mc_var_int(self.secondary);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let primary = buf.get_mc_var_int()?;
         let secondary = buf.get_mc_var_int()?;
         return Ok(SetBeaconPacket { primary, secondary });

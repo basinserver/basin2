@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct CooldownPacket {
     pub item: Item,
@@ -15,7 +14,10 @@ impl CodablePacket for CooldownPacket {
         buf.set_mc_var_int(self.duration);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let item = buf.get_mc_var_int()?;
         let duration = buf.get_mc_var_int()?;
         return Ok(CooldownPacket { item, duration });

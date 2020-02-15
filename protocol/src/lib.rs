@@ -1,10 +1,11 @@
+pub mod connection;
+pub mod nbt;
+pub mod network;
 pub mod packet;
 pub mod packets;
-pub mod server;
-pub mod connection;
 pub mod result;
-pub mod network;
-pub mod nbt;
-#[macro_use] extern crate enum_primitive;
+pub mod server;
+#[macro_use]
+extern crate enum_primitive;
 
 pub use result::*;

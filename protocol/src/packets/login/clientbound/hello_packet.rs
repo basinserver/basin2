@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct HelloPacket {
     pub serverId: String,
@@ -17,10 +16,17 @@ impl CodablePacket for HelloPacket {
         buf.set_mc_byte_array(self.nonce);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let serverId = buf.get_mc_string(20)?;
         let publicKey = buf.get_mc_byte_array()?;
         let nonce = buf.get_mc_byte_array()?;
-        return Ok(HelloPacket { serverId, publicKey, nonce });
+        return Ok(HelloPacket {
+            serverId,
+            publicKey,
+            nonce,
+        });
     }
 }

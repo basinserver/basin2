@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct LockDifficultyPacket {
     pub locked: bool,
@@ -13,7 +12,10 @@ impl CodablePacket for LockDifficultyPacket {
         buf.set_mc_bool(self.locked);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let locked = buf.get_mc_bool()?;
         return Ok(LockDifficultyPacket { locked });
     }

@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct UpdateAttributesPacket {
     pub entityId: i32,
@@ -25,7 +24,10 @@ impl CodablePacket for UpdateAttributesPacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let entityId = buf.get_mc_var_int()?;
         let attribute_count = buf.get_mc_var_int()?;
         let mut attributes: Vec<EntityAttribute> = vec![];
@@ -50,6 +52,9 @@ impl CodablePacket for UpdateAttributesPacket {
                 modifiers,
             });
         }
-        return Ok(UpdateAttributesPacket { entityId, attributes });
+        return Ok(UpdateAttributesPacket {
+            entityId,
+            attributes,
+        });
     }
 }

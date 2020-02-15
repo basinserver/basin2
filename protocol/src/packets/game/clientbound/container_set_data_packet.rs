@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct ContainerSetDataPacket {
     pub containerId: u8,
@@ -17,10 +16,17 @@ impl CodablePacket for ContainerSetDataPacket {
         buf.set_mc_i16(self.value);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let containerId = buf.get_mc_u8()?;
         let id = buf.get_mc_i16()?;
         let value = buf.get_mc_i16()?;
-        return Ok(ContainerSetDataPacket { containerId, id, value });
+        return Ok(ContainerSetDataPacket {
+            containerId,
+            id,
+            value,
+        });
     }
 }

@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 use log::*;
 
 pub struct InteractPacket {
@@ -35,20 +34,27 @@ impl CodablePacket for InteractPacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         use InteractPacketAction::*;
         let entityId = buf.get_mc_var_int()?;
         let action: InteractPacketAction = buf.get_mc_enum()?;
         let location = match action {
-            InteractAt =>
-                Some((buf.get_mc_f32()?, buf.get_mc_f32()?, buf.get_mc_f32()?)),
-            _ => None
+            InteractAt => Some((buf.get_mc_f32()?, buf.get_mc_f32()?, buf.get_mc_f32()?)),
+            _ => None,
         };
         let hand = match action {
             InteractAt => Some(buf.get_mc_enum()?),
             Interact => Some(buf.get_mc_enum()?),
             _ => None,
         };
-        return Ok(InteractPacket { entityId, action, location, hand });
+        return Ok(InteractPacket {
+            entityId,
+            action,
+            location,
+            hand,
+        });
     }
 }

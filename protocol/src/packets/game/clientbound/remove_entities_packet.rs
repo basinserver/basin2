@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct RemoveEntitiesPacket {
     pub entityIds: Vec<i32>,
@@ -16,7 +15,10 @@ impl CodablePacket for RemoveEntitiesPacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let mut entityIds: Vec<i32> = vec![];
         let count = buf.get_mc_var_int()?;
         for _ in 0..count {

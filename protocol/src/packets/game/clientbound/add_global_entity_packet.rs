@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct AddGlobalEntityPacket {
     pub id: i32,
@@ -21,12 +20,21 @@ impl CodablePacket for AddGlobalEntityPacket {
         buf.set_mc_f64(self.z);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let id = buf.get_mc_var_int()?;
         let entityType = buf.get_mc_u8()?;
         let x = buf.get_mc_f64()?;
         let y = buf.get_mc_f64()?;
         let z = buf.get_mc_f64()?;
-        return Ok(AddGlobalEntityPacket { id, x, y, z, entityType });
+        return Ok(AddGlobalEntityPacket {
+            id,
+            x,
+            y,
+            z,
+            entityType,
+        });
     }
 }

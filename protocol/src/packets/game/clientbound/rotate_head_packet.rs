@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct RotateHeadPacket {
     pub entityId: i32,
@@ -15,7 +14,10 @@ impl CodablePacket for RotateHeadPacket {
         buf.set_mc_u8(self.yHeadRot);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let entityId = buf.get_mc_var_int()?;
         let yHeadRot = buf.get_mc_u8()?;
         return Ok(RotateHeadPacket { entityId, yHeadRot });

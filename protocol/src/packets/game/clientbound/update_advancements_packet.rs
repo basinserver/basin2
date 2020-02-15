@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct UpdateAdvancementsPacket {
     pub reset: bool,
@@ -21,10 +20,10 @@ impl CodablePacket for UpdateAdvancementsPacket {
                 Some(parentId) => {
                     buf.set_mc_bool(true);
                     buf.set_mc_string(parentId);
-                },
+                }
                 None => {
                     buf.set_mc_bool(false);
-                },
+                }
             }
             match value.display {
                 Some(display) => {
@@ -49,10 +48,10 @@ impl CodablePacket for UpdateAdvancementsPacket {
                     }
                     buf.set_mc_f32(display.x);
                     buf.set_mc_f32(display.y);
-                },
+                }
                 None => {
                     buf.set_mc_bool(false);
-                },
+                }
             }
             buf.set_mc_var_int(value.criterion.len() as i32);
             for critereon in value.criterion {
@@ -77,15 +76,18 @@ impl CodablePacket for UpdateAdvancementsPacket {
                 Some(timestamp) => {
                     buf.set_mc_bool(true);
                     buf.set_mc_i64(timestamp);
-                },
+                }
                 None => {
                     buf.set_mc_bool(false);
-                },
+                }
             }
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let reset = buf.get_mc_bool()?;
         let added_count = buf.get_mc_var_int()?;
         let mut added: Vec<(ResourceLocation, Advancement)> = vec![];
@@ -157,14 +159,18 @@ impl CodablePacket for UpdateAdvancementsPacket {
         let mut progress: Vec<(ResourceLocation, Option<i64>)> = vec![];
         for _ in 0..progress_count {
             let key = buf.get_mc_string(32767)?;
-            let timestamp =
-            if buf.get_mc_bool()? {
+            let timestamp = if buf.get_mc_bool()? {
                 Some(buf.get_mc_i64()?)
             } else {
                 None
             };
             progress.push((key, timestamp));
         }
-        return Ok(UpdateAdvancementsPacket { reset, added, removed, progress });
+        return Ok(UpdateAdvancementsPacket {
+            reset,
+            added,
+            removed,
+            progress,
+        });
     }
 }

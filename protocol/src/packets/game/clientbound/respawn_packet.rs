@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct RespawnPacket {
     pub dimension: DimensionType,
@@ -19,11 +18,20 @@ impl CodablePacket for RespawnPacket {
         buf.set_mc_string(self.levelType);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
-        let dimension = DimensionType::from_id(buf.get_mc_i32()?).unwrap_or(DimensionType::Overworld);
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
+        let dimension =
+            DimensionType::from_id(buf.get_mc_i32()?).unwrap_or(DimensionType::Overworld);
         let seed = buf.get_mc_i64()?;
         let playerGameType: GameType = buf.get_mc_enum()?;
         let levelType = buf.get_mc_string(16)?;
-        return Ok(RespawnPacket { dimension, seed, playerGameType, levelType });
+        return Ok(RespawnPacket {
+            dimension,
+            seed,
+            playerGameType,
+            levelType,
+        });
     }
 }

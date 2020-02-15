@@ -1,11 +1,9 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 impl RecipeSerializer {
-
     fn name(&self) -> &'static str {
         use RecipeSerializer::*;
 
@@ -126,13 +124,12 @@ impl RecipeSerializer {
             "stonecutting" => Stonecutting {
                 group: buf.get_mc_string(32767)?,
                 ingredient: RecipeSerializer::parse_ingredient(buf)?,
-                result:  buf.get_mc_item_stack()?,
+                result: buf.get_mc_item_stack()?,
             },
             _ => return Err(Box::new(IoError::from(ErrorKind::InvalidData))),
         })
     }
 }
-
 
 pub struct UpdateRecipesPacket {
     pub recipes: Vec<(String, RecipeSerializer)>,
@@ -147,7 +144,13 @@ impl CodablePacket for UpdateRecipesPacket {
             buf.set_mc_string(recipe.name().to_string());
             buf.set_mc_string(id);
             match recipe {
-                CraftingShaped { width, height, group, recipeItems, result } => {
+                CraftingShaped {
+                    width,
+                    height,
+                    group,
+                    recipeItems,
+                    result,
+                } => {
                     buf.set_mc_var_int(width);
                     buf.set_mc_var_int(height);
                     buf.set_mc_string(group);
@@ -155,33 +158,47 @@ impl CodablePacket for UpdateRecipesPacket {
                         RecipeSerializer::write_ingredient(ingredient, buf);
                     }
                     buf.set_mc_item_stack(result);
-                },
-                CraftingShapeless { group, ingredients, result } => {
+                }
+                CraftingShapeless {
+                    group,
+                    ingredients,
+                    result,
+                } => {
                     buf.set_mc_string(group);
                     buf.set_mc_var_int(ingredients.len() as i32);
                     for ingredient in ingredients {
                         RecipeSerializer::write_ingredient(ingredient, buf);
                     }
                     buf.set_mc_item_stack(result);
-                },
-                Smelting(cooking) | Blasting(cooking) | Smoking(cooking) | CampfireCooking(cooking) => {
+                }
+                Smelting(cooking)
+                | Blasting(cooking)
+                | Smoking(cooking)
+                | CampfireCooking(cooking) => {
                     buf.set_mc_string(cooking.group);
                     RecipeSerializer::write_ingredient(cooking.ingredient, buf);
                     buf.set_mc_item_stack(cooking.result);
                     buf.set_mc_f32(cooking.experience);
                     buf.set_mc_var_int(cooking.cookingTime);
-                },
-                Stonecutting { group, ingredient, result } => {
+                }
+                Stonecutting {
+                    group,
+                    ingredient,
+                    result,
+                } => {
                     buf.set_mc_string(group);
                     RecipeSerializer::write_ingredient(ingredient, buf);
                     buf.set_mc_item_stack(result);
-                },
+                }
                 _ => (),
             }
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let count = buf.get_mc_var_int()?;
         let mut recipes: Vec<(String, RecipeSerializer)> = vec![];
         for _ in 0..count {

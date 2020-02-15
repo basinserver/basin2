@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct MapItemDataPacket {
     pub mapId: i32,
@@ -48,7 +47,10 @@ impl CodablePacket for MapItemDataPacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let mapId = buf.get_mc_var_int()?;
         let scale = buf.get_mc_u8()?;
         let trackingPosition = buf.get_mc_bool()?;
@@ -69,16 +71,25 @@ impl CodablePacket for MapItemDataPacket {
         }
         let width = buf.get_mc_u8()?;
         let (height, startX, startY, mapColors) = match width {
-            x if x > 0  => {
-                (
-                    buf.get_mc_u8()?,
-                    buf.get_mc_u8()?,
-                    buf.get_mc_u8()?,
-                    buf.to_vec(),
-                )
-            },
+            x if x > 0 => (
+                buf.get_mc_u8()?,
+                buf.get_mc_u8()?,
+                buf.get_mc_u8()?,
+                buf.to_vec(),
+            ),
             _ => (0, 0, 0, vec![]),
         };
-        return Ok(MapItemDataPacket { mapId, scale, trackingPosition, locked, decorations, startX, startY, width, height, mapColors });
+        return Ok(MapItemDataPacket {
+            mapId,
+            scale,
+            trackingPosition,
+            locked,
+            decorations,
+            startX,
+            startY,
+            width,
+            height,
+            mapColors,
+        });
     }
 }

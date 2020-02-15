@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct PlaceRecipePacket {
     pub containerId: u8,
@@ -17,10 +16,17 @@ impl CodablePacket for PlaceRecipePacket {
         buf.set_mc_bool(self.shiftDown);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let containerId = buf.get_mc_u8()?;
         let recipe = buf.get_mc_string(32767)?;
         let shiftDown = buf.get_mc_bool()?;
-        return Ok(PlaceRecipePacket { containerId, recipe, shiftDown });
+        return Ok(PlaceRecipePacket {
+            containerId,
+            recipe,
+            shiftDown,
+        });
     }
 }

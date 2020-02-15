@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct ClientInformationPacket {
     pub language: String,
@@ -23,13 +22,23 @@ impl CodablePacket for ClientInformationPacket {
         buf.set_mc_var_int(self.mainHand as i32);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let language = buf.get_mc_string(16)?;
         let viewDistance = buf.get_mc_u8()?;
         let chatVisibility: ChatVisibility = buf.get_mc_enum()?;
         let chatColors = buf.get_mc_bool()?;
         let modelCustomisation = buf.get_mc_u8()?;
         let mainHand: HumanoidArm = buf.get_mc_enum()?;
-        return Ok(ClientInformationPacket { language, viewDistance, chatVisibility, chatColors, modelCustomisation, mainHand });
+        return Ok(ClientInformationPacket {
+            language,
+            viewDistance,
+            chatVisibility,
+            chatColors,
+            modelCustomisation,
+            mainHand,
+        });
     }
 }

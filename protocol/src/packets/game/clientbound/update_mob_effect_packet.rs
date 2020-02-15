@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct UpdateMobEffectPacket {
     pub entityId: i32,
@@ -21,12 +20,21 @@ impl CodablePacket for UpdateMobEffectPacket {
         buf.set_mc_u8(self.flags);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let entityId = buf.get_mc_var_int()?;
         let effectId = buf.get_mc_u8()?;
         let effectAmplifier = buf.get_mc_u8()?;
         let effectDurationTicks = buf.get_mc_var_int()?;
         let flags = buf.get_mc_u8()?;
-        return Ok(UpdateMobEffectPacket { entityId, effectId, effectAmplifier, effectDurationTicks, flags });
+        return Ok(UpdateMobEffectPacket {
+            entityId,
+            effectId,
+            effectAmplifier,
+            effectDurationTicks,
+            flags,
+        });
     }
 }

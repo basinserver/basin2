@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct ContainerClickPacket {
     pub containerId: u8,
@@ -23,13 +22,23 @@ impl CodablePacket for ContainerClickPacket {
         buf.set_mc_item_stack(self.itemStack);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let containerId = buf.get_mc_u8()?;
         let slotNum = buf.get_mc_i16()?;
         let buttonNum = buf.get_mc_u8()?;
         let uid = buf.get_mc_i16()?;
         let clickType: ClickType = buf.get_mc_enum()?;
         let itemStack = buf.get_mc_item_stack()?;
-        return Ok(ContainerClickPacket { containerId, slotNum, buttonNum, uid, itemStack, clickType });
+        return Ok(ContainerClickPacket {
+            containerId,
+            slotNum,
+            buttonNum,
+            uid,
+            itemStack,
+            clickType,
+        });
     }
 }

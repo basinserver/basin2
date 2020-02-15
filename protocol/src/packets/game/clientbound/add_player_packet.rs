@@ -1,9 +1,8 @@
-
-use crate::packet::*;
 use crate::network::*;
+use crate::packet::*;
+use crate::result::*;
 use bytes::BytesMut;
 use uuid::Uuid;
-use crate::result::*;
 
 pub struct AddPlayerPacket {
     pub entityId: i32,
@@ -26,7 +25,10 @@ impl CodablePacket for AddPlayerPacket {
         buf.set_mc_u8(self.xRot);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let entityId = buf.get_mc_var_int()?;
         let playerId = buf.get_mc_uuid()?;
         let x = buf.get_mc_f64()?;
@@ -34,6 +36,14 @@ impl CodablePacket for AddPlayerPacket {
         let z = buf.get_mc_f64()?;
         let yRot = buf.get_mc_u8()?;
         let xRot = buf.get_mc_u8()?;
-        return Ok(AddPlayerPacket { entityId, playerId, x, y, z, yRot, xRot });
+        return Ok(AddPlayerPacket {
+            entityId,
+            playerId,
+            x,
+            y,
+            z,
+            yRot,
+            xRot,
+        });
     }
 }

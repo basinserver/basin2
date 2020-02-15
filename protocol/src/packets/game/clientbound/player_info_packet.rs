@@ -1,9 +1,8 @@
-
-use crate::packet::*;
 use crate::network::*;
+use crate::packet::*;
+use crate::result::*;
 use bytes::BytesMut;
 use uuid::Uuid;
-use crate::result::*;
 
 pub enum PlayerInfoPacketData {
     AddPlayer(String, Vec<PlayerProperty>, GameType, i32, Option<String>),
@@ -25,7 +24,16 @@ impl CodablePacket for PlayerInfoPacket {
         for (uuid, datum) in self.data {
             buf.set_mc_uuid(uuid);
             match (self.action, datum) {
-                (PlayerInfoPacketAction::AddPlayer, PlayerInfoPacketData::AddPlayer(name, properties, game_type, latency, display_name)) => {
+                (
+                    PlayerInfoPacketAction::AddPlayer,
+                    PlayerInfoPacketData::AddPlayer(
+                        name,
+                        properties,
+                        game_type,
+                        latency,
+                        display_name,
+                    ),
+                ) => {
                     buf.set_mc_string(name);
                     buf.set_mc_var_int(properties.len() as i32);
                     for property in properties {
@@ -35,10 +43,10 @@ impl CodablePacket for PlayerInfoPacket {
                             Some(signature) => {
                                 buf.set_mc_bool(true);
                                 buf.set_mc_string(signature);
-                            },
+                            }
                             None => {
                                 buf.set_mc_bool(false);
-                            },
+                            }
                         }
                     }
                     buf.set_mc_var_int(game_type as i32);
@@ -47,36 +55,49 @@ impl CodablePacket for PlayerInfoPacket {
                         Some(display_name) => {
                             buf.set_mc_bool(true);
                             buf.set_mc_string(display_name);
-                        },
+                        }
                         None => {
                             buf.set_mc_bool(false);
-                        },
+                        }
                     }
-                },
-                (PlayerInfoPacketAction::UpdateGameMode, PlayerInfoPacketData::UpdateGameMode(game_type)) => {
+                }
+                (
+                    PlayerInfoPacketAction::UpdateGameMode,
+                    PlayerInfoPacketData::UpdateGameMode(game_type),
+                ) => {
                     buf.set_mc_var_int(game_type as i32);
-                },
-                (PlayerInfoPacketAction::UpdateLatency, PlayerInfoPacketData::UpdateLatency(latency)) => {
+                }
+                (
+                    PlayerInfoPacketAction::UpdateLatency,
+                    PlayerInfoPacketData::UpdateLatency(latency),
+                ) => {
                     buf.set_mc_var_int(latency);
-                },
-                (PlayerInfoPacketAction::UpdateDisplayName, PlayerInfoPacketData::UpdateDisplayName(Some(display_name))) => {
+                }
+                (
+                    PlayerInfoPacketAction::UpdateDisplayName,
+                    PlayerInfoPacketData::UpdateDisplayName(Some(display_name)),
+                ) => {
                     buf.set_mc_bool(true);
                     buf.set_mc_string(display_name);
-                },
-                (PlayerInfoPacketAction::UpdateDisplayName, PlayerInfoPacketData::UpdateDisplayName(None)) => {
+                }
+                (
+                    PlayerInfoPacketAction::UpdateDisplayName,
+                    PlayerInfoPacketData::UpdateDisplayName(None),
+                ) => {
                     buf.set_mc_bool(false);
-                },
-                (PlayerInfoPacketAction::RemovePlayer, PlayerInfoPacketData::RemovePlayer()) => {
-
-                },
-                _ => panic!("invalid formed outgoing player_info_packet, mismatched types")
+                }
+                (PlayerInfoPacketAction::RemovePlayer, PlayerInfoPacketData::RemovePlayer()) => {}
+                _ => panic!("invalid formed outgoing player_info_packet, mismatched types"),
             }
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         use PlayerInfoPacketAction::*;
-        
+
         let action: PlayerInfoPacketAction = buf.get_mc_enum()?;
         let data_count = buf.get_mc_var_int()?;
         let mut data: Vec<(Uuid, PlayerInfoPacketData)> = vec![];
@@ -115,19 +136,15 @@ impl CodablePacket for PlayerInfoPacket {
                         latency,
                         display_name,
                     )
-                },
+                }
                 UpdateGameMode => {
                     let game_type: GameType = buf.get_mc_enum()?;
-                    PlayerInfoPacketData::UpdateGameMode(
-                        game_type,
-                    )
-                },
+                    PlayerInfoPacketData::UpdateGameMode(game_type)
+                }
                 UpdateLatency => {
                     let latency = buf.get_mc_var_int()?;
-                    PlayerInfoPacketData::UpdateLatency(
-                        latency,
-                    )
-                },
+                    PlayerInfoPacketData::UpdateLatency(latency)
+                }
                 UpdateDisplayName => {
                     let display_name = if buf.get_mc_bool()? {
                         Some(buf.get_mc_chat_component()?)
@@ -135,13 +152,9 @@ impl CodablePacket for PlayerInfoPacket {
                         None
                     };
 
-                    PlayerInfoPacketData::UpdateDisplayName(
-                        display_name,
-                    )
-                },
-                RemovePlayer => {
-                    PlayerInfoPacketData::RemovePlayer()
-                },
+                    PlayerInfoPacketData::UpdateDisplayName(display_name)
+                }
+                RemovePlayer => PlayerInfoPacketData::RemovePlayer(),
             };
             data.push((uuid, datum));
         }

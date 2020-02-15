@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetPlayerTeamPacket {
     pub name: String,
@@ -40,11 +39,22 @@ impl CodablePacket for SetPlayerTeamPacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let name = buf.get_mc_string(16)?;
         let method = buf.get_mc_i8()?;
-        let (displayName, options, nametagVisibility, collisionRule, color, playerPrefix, playerSuffix) = match method {
-            0 | 2 => {(
+        let (
+            displayName,
+            options,
+            nametagVisibility,
+            collisionRule,
+            color,
+            playerPrefix,
+            playerSuffix,
+        ) = match method {
+            0 | 2 => (
                 Some(buf.get_mc_chat_component()?),
                 Some(buf.get_mc_i8()?),
                 Some(buf.get_mc_string(40)?),
@@ -52,7 +62,7 @@ impl CodablePacket for SetPlayerTeamPacket {
                 Some(buf.get_mc_enum::<ChatFormatting>()?),
                 Some(buf.get_mc_chat_component()?),
                 Some(buf.get_mc_chat_component()?),
-            )},
+            ),
             _ => (None, None, None, None, None, None, None),
         };
         let players = match method {
@@ -63,9 +73,20 @@ impl CodablePacket for SetPlayerTeamPacket {
                     players.push(buf.get_mc_string(40)?);
                 }
                 Some(players)
-            },
+            }
             _ => None,
         };
-        return Ok(SetPlayerTeamPacket { name, displayName, playerPrefix, playerSuffix, nametagVisibility, collisionRule, color, players, method, options });
+        return Ok(SetPlayerTeamPacket {
+            name,
+            displayName,
+            playerPrefix,
+            playerSuffix,
+            nametagVisibility,
+            collisionRule,
+            color,
+            players,
+            method,
+            options,
+        });
     }
 }

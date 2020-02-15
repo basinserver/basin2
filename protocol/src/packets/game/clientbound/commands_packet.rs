@@ -1,17 +1,15 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
-use uuid::Uuid;
-use std::collections::{ HashMap, VecDeque };
+use bytes::BytesMut;
 use either::Either;
-use std::sync::Arc;
 use linked_hash_map::LinkedHashMap;
+use std::collections::{HashMap, VecDeque};
+use std::sync::Arc;
 use std::sync::RwLock;
+use uuid::Uuid;
 
 impl ArgumentType {
-
     pub fn serialize(self, buf: &mut BytesMut) {
         use ArgumentType::*;
         match self {
@@ -32,7 +30,7 @@ impl ArgumentType {
                     Some(max) => buf.set_mc_f64(max),
                     _ => (),
                 }
-            },
+            }
             Float { min, max } => {
                 let mut flags = 0;
                 if min.is_some() {
@@ -50,7 +48,7 @@ impl ArgumentType {
                     Some(max) => buf.set_mc_f32(max),
                     _ => (),
                 }
-            },
+            }
             Integer { min, max } => {
                 let mut flags = 0;
                 if min.is_some() {
@@ -68,7 +66,7 @@ impl ArgumentType {
                     Some(max) => buf.set_mc_i32(max),
                     _ => (),
                 }
-            },
+            }
             Long { min, max } => {
                 let mut flags = 0;
                 if min.is_some() {
@@ -86,12 +84,15 @@ impl ArgumentType {
                     Some(max) => buf.set_mc_i64(max),
                     _ => (),
                 }
-            },
+            }
             Str(string_type) => {
                 buf.set_mc_var_int(string_type as i32);
-            },
-            
-            Entity { single, players_only } => {
+            }
+
+            Entity {
+                single,
+                players_only,
+            } => {
                 let mut flags = 0;
                 if single {
                     flags |= 1;
@@ -100,14 +101,14 @@ impl ArgumentType {
                     flags |= 2;
                 }
                 buf.set_mc_u8(flags);
-            },
+            }
             ScoreHolder { multiple } => {
                 let mut flags = 0;
                 if multiple {
                     flags |= 1;
                 }
                 buf.set_mc_u8(flags);
-            },
+            }
             _ => (),
         }
     }
@@ -129,7 +130,7 @@ impl ArgumentType {
                     None
                 };
                 Double { min, max }
-            },
+            }
             "brigadier:float" => {
                 let flags = buf.get_mc_u8()?;
                 let min = if (flags & 1) > 0 {
@@ -143,7 +144,7 @@ impl ArgumentType {
                     None
                 };
                 Float { min, max }
-            },
+            }
             "brigadier:integer" => {
                 let flags = buf.get_mc_u8()?;
                 let min = if (flags & 1) > 0 {
@@ -157,7 +158,7 @@ impl ArgumentType {
                     None
                 };
                 Integer { min, max }
-            },
+            }
             "brigadier:long" => {
                 let flags = buf.get_mc_u8()?;
                 let min = if (flags & 1) > 0 {
@@ -171,12 +172,15 @@ impl ArgumentType {
                     None
                 };
                 Long { min, max }
-            },
+            }
             "brigadier:string" => Str(buf.get_mc_enum()?),
             "minecraft:entity" => {
                 let flags = buf.get_mc_u8()?;
-                Entity { single: (flags & 1) > 0, players_only: (flags & 2) > 0 }
-            },
+                Entity {
+                    single: (flags & 1) > 0,
+                    players_only: (flags & 2) > 0,
+                }
+            }
             "minecraft:game_profile" => GameProfile,
             "minecraft:block_pos" => BlockPos,
             "minecraft:column_pos" => ColumnPos,
@@ -200,8 +204,10 @@ impl ArgumentType {
             "minecraft:scoreboard_slot" => ScoreboardSlot,
             "minecraft:score_holder" => {
                 let flags = buf.get_mc_u8()?;
-                ScoreHolder { multiple: (flags & 1) > 0 }
-            },
+                ScoreHolder {
+                    multiple: (flags & 1) > 0,
+                }
+            }
             "minecraft:swizzle" => Swizzle,
             "minecraft:team" => Team,
             "minecraft:item_slot" => ItemSlot,
@@ -218,7 +224,6 @@ impl ArgumentType {
             _ => return Err(Box::new(IoError::from(ErrorKind::InvalidData))),
         })
     }
-
 }
 
 struct TempCommandNode {
@@ -230,7 +235,12 @@ struct TempCommandNode {
 
 impl TempCommandNode {
     // doesn't follow "redirect"
-    fn build(&self, index: i32, temp_nodes: &Vec<TempCommandNode>, output: &mut HashMap<i32, Arc<CommandNode>>) {
+    fn build(
+        &self,
+        index: i32,
+        temp_nodes: &Vec<TempCommandNode>,
+        output: &mut HashMap<i32, Arc<CommandNode>>,
+    ) {
         if output.contains_key(&index) {
             return;
         }
@@ -241,15 +251,28 @@ impl TempCommandNode {
             command: self.command,
         };
         let node = match &self.data {
-            None => { // root
-                CommandNode::Root { node: RwLock::new(base_node) }
-            },
-            Some(Either::Left((name, argument_type, custom_suggestions))) => { // argument
-                CommandNode::Argument { node: RwLock::new(base_node), name: name.clone(), argument_type: *argument_type, custom_suggestions: custom_suggestions.clone() }
-            },
-            Some(Either::Right(literal)) => { // literal
-                CommandNode::Literal { node: RwLock::new(base_node), literal: literal.clone() }
-            },
+            None => {
+                // root
+                CommandNode::Root {
+                    node: RwLock::new(base_node),
+                }
+            }
+            Some(Either::Left((name, argument_type, custom_suggestions))) => {
+                // argument
+                CommandNode::Argument {
+                    node: RwLock::new(base_node),
+                    name: name.clone(),
+                    argument_type: *argument_type,
+                    custom_suggestions: custom_suggestions.clone(),
+                }
+            }
+            Some(Either::Right(literal)) => {
+                // literal
+                CommandNode::Literal {
+                    node: RwLock::new(base_node),
+                    literal: literal.clone(),
+                }
+            }
         };
         let node = Arc::new(node);
         output.insert(index, node.clone());
@@ -269,8 +292,7 @@ impl TempCommandNode {
             };
             node.node_mut().children.insert(child_name, child_node);
         }
-        node.node_mut().redirect =
-        match self.redirect {
+        node.node_mut().redirect = match self.redirect {
             Some(child_index) => {
                 let temp_child = temp_nodes.get(child_index as usize);
                 if temp_child.is_some() {
@@ -281,15 +303,20 @@ impl TempCommandNode {
                 } else {
                     None
                 }
-            },
+            }
             None => None,
         };
     }
 }
 
 impl CommandNode {
-
-    fn mappify(self: Arc<CommandNode>) -> (HashMap<Uuid, usize>, Vec<Uuid>, HashMap<Uuid, Arc<CommandNode>>) {
+    fn mappify(
+        self: Arc<CommandNode>,
+    ) -> (
+        HashMap<Uuid, usize>,
+        Vec<Uuid>,
+        HashMap<Uuid, Arc<CommandNode>>,
+    ) {
         let mut output = HashMap::new();
         let mut all_nodes = HashMap::new();
         let mut deque: VecDeque<Arc<CommandNode>> = VecDeque::new();
@@ -324,16 +351,18 @@ impl CommandNode {
         match &*self {
             CommandNode::Root { .. } => {
                 flags |= 0; // NOP
-            },
-            CommandNode::Argument { custom_suggestions, .. } => {
+            }
+            CommandNode::Argument {
+                custom_suggestions, ..
+            } => {
                 flags |= 2;
                 if custom_suggestions.is_some() {
                     flags |= 16;
                 }
-            },
+            }
             CommandNode::Literal { .. } => {
                 flags |= 1;
-            },
+            }
         }
         buf.set_mc_u8(flags);
         buf.set_mc_var_int(base_node.children.len() as i32);
@@ -342,11 +371,20 @@ impl CommandNode {
         }
 
         if base_node.redirect.is_some() {
-            buf.set_mc_var_int(*offsets.get(&base_node.redirect.as_ref().unwrap().node().uuid).expect("malformed offsets") as i32);
+            buf.set_mc_var_int(
+                *offsets
+                    .get(&base_node.redirect.as_ref().unwrap().node().uuid)
+                    .expect("malformed offsets") as i32,
+            );
         }
 
         match &*self {
-            CommandNode::Argument { name, argument_type, custom_suggestions, .. } => {
+            CommandNode::Argument {
+                name,
+                argument_type,
+                custom_suggestions,
+                ..
+            } => {
                 buf.set_mc_string(name.clone());
                 buf.set_mc_string(argument_type.name().to_string());
                 argument_type.serialize(buf);
@@ -356,10 +394,10 @@ impl CommandNode {
                     }
                     _ => (),
                 }
-            },
+            }
             CommandNode::Literal { literal, .. } => {
                 buf.set_mc_string(literal.clone());
-            },
+            }
             _ => (),
         }
     }
@@ -419,7 +457,10 @@ impl CodablePacket for CommandsPacket {
         buf.set_mc_var_int(offsets[&self.root.node().uuid] as i32);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let node_count = buf.get_mc_var_int()?;
         let mut temp_nodes: Vec<TempCommandNode> = vec![];
         for _ in 0..node_count {
@@ -437,6 +478,8 @@ impl CodablePacket for CommandsPacket {
         if root.is_none() {
             return Err(Box::new(IoError::from(ErrorKind::InvalidData)));
         }
-        return Ok(CommandsPacket { root: root.unwrap().clone() });
+        return Ok(CommandsPacket {
+            root: root.unwrap().clone(),
+        });
     }
 }

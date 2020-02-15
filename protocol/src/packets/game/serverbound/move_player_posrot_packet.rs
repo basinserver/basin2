@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct MovePlayerPosRotPacket {
     pub x: f64,
@@ -23,13 +22,23 @@ impl CodablePacket for MovePlayerPosRotPacket {
         buf.set_mc_bool(self.onGround);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let x = buf.get_mc_f64()?;
         let y = buf.get_mc_f64()?;
         let z = buf.get_mc_f64()?;
         let yRot = buf.get_mc_f32()?;
         let xRot = buf.get_mc_f32()?;
         let onGround = buf.get_mc_bool()?;
-        return Ok(MovePlayerPosRotPacket { x, y, z, yRot, xRot, onGround });
+        return Ok(MovePlayerPosRotPacket {
+            x,
+            y,
+            z,
+            yRot,
+            xRot,
+            onGround,
+        });
     }
 }

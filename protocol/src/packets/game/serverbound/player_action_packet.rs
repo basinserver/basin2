@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct PlayerActionPacket {
     pub pos: BlockPos,
@@ -17,10 +16,17 @@ impl CodablePacket for PlayerActionPacket {
         buf.set_mc_u8(self.direction as u8);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let action: PlayerActionPacketAction = buf.get_mc_enum()?;
         let pos = buf.get_mc_block_pos()?;
         let direction: Direction = buf.get_mc_enum_u8()?;
-        return Ok(PlayerActionPacket { pos, direction, action });
+        return Ok(PlayerActionPacket {
+            pos,
+            direction,
+            action,
+        });
     }
 }

@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct ResourcePackPacket {
     pub url: String,
@@ -15,7 +14,10 @@ impl CodablePacket for ResourcePackPacket {
         buf.set_mc_string(self.hash);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let url = buf.get_mc_string(32767)?;
         let hash = buf.get_mc_string(40)?;
         return Ok(ResourcePackPacket { url, hash });

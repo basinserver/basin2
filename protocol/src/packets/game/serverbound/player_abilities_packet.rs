@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct PlayerAbilitiesPacket {
     pub invulnerable: bool,
@@ -33,7 +32,10 @@ impl CodablePacket for PlayerAbilitiesPacket {
         buf.set_mc_f32(self.walkingSpeed);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let flags = buf.get_mc_u8()?;
         let invulnerable = (flags & 1) > 0;
         let isFlying = (flags & 2) > 0;
@@ -41,6 +43,13 @@ impl CodablePacket for PlayerAbilitiesPacket {
         let instabuild = (flags & 8) > 0;
         let flyingSpeed = buf.get_mc_f32()?;
         let walkingSpeed = buf.get_mc_f32()?;
-        return Ok(PlayerAbilitiesPacket { invulnerable, isFlying, canFly, instabuild, flyingSpeed, walkingSpeed });
+        return Ok(PlayerAbilitiesPacket {
+            invulnerable,
+            isFlying,
+            canFly,
+            instabuild,
+            flyingSpeed,
+            walkingSpeed,
+        });
     }
 }

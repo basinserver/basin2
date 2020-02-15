@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct UseItemOnPacket {
     pub blockHit: BlockHitResult,
@@ -15,7 +14,10 @@ impl CodablePacket for UseItemOnPacket {
         buf.set_mc_block_hit_result(self.blockHit);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let hand: InteractionHand = buf.get_mc_enum()?;
         let blockHit = buf.get_mc_block_hit_result()?;
         return Ok(UseItemOnPacket { blockHit, hand });

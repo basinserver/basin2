@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetCommandMinecartPacket {
     pub entity: i32,
@@ -17,10 +16,17 @@ impl CodablePacket for SetCommandMinecartPacket {
         buf.set_mc_bool(self.trackOutput);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let entity = buf.get_mc_var_int()?;
         let command = buf.get_mc_string(32767)?;
         let trackOutput = buf.get_mc_bool()?;
-        return Ok(SetCommandMinecartPacket { entity, command, trackOutput });
+        return Ok(SetCommandMinecartPacket {
+            entity,
+            command,
+            trackOutput,
+        });
     }
 }

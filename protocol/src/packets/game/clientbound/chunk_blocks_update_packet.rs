@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct ChunkBlocksUpdatePacket {
     pub chunkPos: ChunkPos,
@@ -20,7 +19,10 @@ impl CodablePacket for ChunkBlocksUpdatePacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let chunkPos = ChunkPos {
             x: buf.get_mc_var_int()?,
             y: buf.get_mc_var_int()?,

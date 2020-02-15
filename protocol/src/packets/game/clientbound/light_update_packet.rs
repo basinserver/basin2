@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct LightUpdatePacket {
     pub x: i32,
@@ -31,7 +30,10 @@ impl CodablePacket for LightUpdatePacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let x = buf.get_mc_var_int()?;
         let z = buf.get_mc_var_int()?;
         let skyYMask = buf.get_mc_var_int()?;
@@ -50,6 +52,15 @@ impl CodablePacket for LightUpdatePacket {
                 blockUpdates.push(buf.get_mc_byte_array_bounded(2048)?);
             }
         }
-        return Ok(LightUpdatePacket { x, z, skyYMask, blockYMask, emptySkyYMask, emptyBlockYMask, skyUpdates, blockUpdates });
+        return Ok(LightUpdatePacket {
+            x,
+            z,
+            skyYMask,
+            blockYMask,
+            emptySkyYMask,
+            emptyBlockYMask,
+            skyUpdates,
+            blockUpdates,
+        });
     }
 }

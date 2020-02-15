@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct OpenScreenPacket {
     pub containerId: i32,
@@ -17,10 +16,17 @@ impl CodablePacket for OpenScreenPacket {
         buf.set_mc_chat_component(self.title);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let containerId = buf.get_mc_var_int()?;
         let screenType = buf.get_mc_var_int()?;
         let title = buf.get_mc_chat_component()?;
-        return Ok(OpenScreenPacket { containerId, screenType, title });
+        return Ok(OpenScreenPacket {
+            containerId,
+            screenType,
+            title,
+        });
     }
 }

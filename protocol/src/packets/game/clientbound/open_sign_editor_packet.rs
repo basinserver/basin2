@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct OpenSignEditorPacket {
     pub pos: BlockPos,
@@ -13,7 +12,10 @@ impl CodablePacket for OpenSignEditorPacket {
         buf.set_mc_block_pos(self.pos);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let pos = buf.get_mc_block_pos()?;
         return Ok(OpenSignEditorPacket { pos });
     }

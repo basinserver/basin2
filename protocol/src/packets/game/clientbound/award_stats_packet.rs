@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct AwardStatsPacketItem {
     stat_type: i32,
@@ -24,7 +23,10 @@ impl CodablePacket for AwardStatsPacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let mut stats: Vec<AwardStatsPacketItem> = vec![];
         let count = buf.get_mc_var_int()?;
         for _ in 0..count {

@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct LevelParticlesPacket {
     pub x: f64,
@@ -32,7 +31,10 @@ impl CodablePacket for LevelParticlesPacket {
         self.particle.serialize(buf);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let particle_id: Particle = buf.get_mc_enum_i32()?;
         let overrideLimiter = buf.get_mc_bool()?;
         let x = buf.get_mc_f64()?;
@@ -44,6 +46,17 @@ impl CodablePacket for LevelParticlesPacket {
         let maxSpeed = buf.get_mc_f32()?;
         let count = buf.get_mc_i32()?;
         let particle = ParticleOptions::parse(particle_id, buf)?;
-        return Ok(LevelParticlesPacket { x, y, z, xDist, yDist, zDist, maxSpeed, count, overrideLimiter, particle });
+        return Ok(LevelParticlesPacket {
+            x,
+            y,
+            z,
+            xDist,
+            yDist,
+            zDist,
+            maxSpeed,
+            count,
+            overrideLimiter,
+            particle,
+        });
     }
 }

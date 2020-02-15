@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetEquippedItemPacket {
     pub entity: i32,
@@ -17,10 +16,17 @@ impl CodablePacket for SetEquippedItemPacket {
         buf.set_mc_item_stack(self.itemStack);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let entity = buf.get_mc_var_int()?;
         let slot: EquipmentSlot = buf.get_mc_enum()?;
         let itemStack = buf.get_mc_item_stack()?;
-        return Ok(SetEquippedItemPacket { entity, slot, itemStack });
+        return Ok(SetEquippedItemPacket {
+            entity,
+            slot,
+            itemStack,
+        });
     }
 }

@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct TabListPacket {
     pub header: ChatComponent,
@@ -15,7 +14,10 @@ impl CodablePacket for TabListPacket {
         buf.set_mc_chat_component(self.footer);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let header = buf.get_mc_chat_component()?;
         let footer = buf.get_mc_chat_component()?;
         return Ok(TabListPacket { header, footer });

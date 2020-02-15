@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct PlayerInputPacket {
     pub xxa: f32,
@@ -25,12 +24,20 @@ impl CodablePacket for PlayerInputPacket {
         buf.set_mc_u8(flags);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let xxa = buf.get_mc_f32()?;
         let zza = buf.get_mc_f32()?;
         let flags = buf.get_mc_u8()?;
         let isJumping = (flags & 1) > 0;
         let isShiftKeyDown = (flags & 2) > 0;
-        return Ok(PlayerInputPacket { xxa, zza, isJumping, isShiftKeyDown });
+        return Ok(PlayerInputPacket {
+            xxa,
+            zza,
+            isJumping,
+            isShiftKeyDown,
+        });
     }
 }

@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct PlayerPositionPacket {
     pub x: f64,
@@ -41,7 +40,10 @@ impl CodablePacket for PlayerPositionPacket {
         buf.set_mc_var_int(self.id);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let x = buf.get_mc_f64()?;
         let y = buf.get_mc_f64()?;
         let z = buf.get_mc_f64()?;
@@ -56,6 +58,14 @@ impl CodablePacket for PlayerPositionPacket {
             (flags & 16) > 0,
         );
         let id = buf.get_mc_var_int()?;
-        return Ok(PlayerPositionPacket { x, y, z, yRot, xRot, relativeArguments, id });
+        return Ok(PlayerPositionPacket {
+            x,
+            y,
+            z,
+            yRot,
+            xRot,
+            relativeArguments,
+            id,
+        });
     }
 }

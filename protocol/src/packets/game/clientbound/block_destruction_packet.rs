@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct BlockDestructionPacket {
     pub id: i32,
@@ -17,7 +16,10 @@ impl CodablePacket for BlockDestructionPacket {
         buf.set_mc_u8(self.progress);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let id = buf.get_mc_var_int()?;
         let pos = buf.get_mc_block_pos()?;
         let progress = buf.get_mc_u8()?;

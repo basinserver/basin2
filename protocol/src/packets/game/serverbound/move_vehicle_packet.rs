@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct MoveVehiclePacket {
     pub x: f64,
@@ -21,12 +20,21 @@ impl CodablePacket for MoveVehiclePacket {
         buf.set_mc_f32(self.xRot);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let x = buf.get_mc_f64()?;
         let y = buf.get_mc_f64()?;
         let z = buf.get_mc_f64()?;
         let yRot = buf.get_mc_f32()?;
         let xRot = buf.get_mc_f32()?;
-        return Ok(MoveVehiclePacket { x, y, z, yRot, xRot });
+        return Ok(MoveVehiclePacket {
+            x,
+            y,
+            z,
+            yRot,
+            xRot,
+        });
     }
 }

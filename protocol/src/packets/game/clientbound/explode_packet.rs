@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct ExplodePacket {
     pub x: f32,
@@ -35,7 +34,10 @@ impl CodablePacket for ExplodePacket {
         buf.set_mc_f32(self.knockbackZ);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let x = buf.get_mc_f32()?;
         let y = buf.get_mc_f32()?;
         let z = buf.get_mc_f32()?;
@@ -55,6 +57,15 @@ impl CodablePacket for ExplodePacket {
         let knockbackX = buf.get_mc_f32()?;
         let knockbackY = buf.get_mc_f32()?;
         let knockbackZ = buf.get_mc_f32()?;
-        return Ok(ExplodePacket { x, y, z, power, toBlow, knockbackX, knockbackY, knockbackZ });
+        return Ok(ExplodePacket {
+            x,
+            y,
+            z,
+            power,
+            toBlow,
+            knockbackX,
+            knockbackY,
+            knockbackZ,
+        });
     }
 }

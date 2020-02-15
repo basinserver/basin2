@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct ChatPacket {
     pub message: String,
@@ -13,7 +12,10 @@ impl CodablePacket for ChatPacket {
         buf.set_mc_string(self.message);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let message = buf.get_mc_string(256)?;
         return Ok(ChatPacket { message });
     }

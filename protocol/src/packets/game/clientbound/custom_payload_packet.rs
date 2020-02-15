@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct CustomPayloadPacket {
     pub identifier: ResourceLocation,
@@ -15,7 +14,10 @@ impl CodablePacket for CustomPayloadPacket {
         buf.unsplit(self.data);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let identifier = buf.get_mc_string(1048576)?;
         let data = buf.clone();
         return Ok(CustomPayloadPacket { identifier, data });

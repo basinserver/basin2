@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct CustomSoundPacket {
     pub name: ResourceLocation,
@@ -25,7 +24,10 @@ impl CodablePacket for CustomSoundPacket {
         buf.set_mc_f32(self.pitch);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let name = buf.get_mc_string(32767)?;
         let source: SoundSource = buf.get_mc_enum()?;
         let x = buf.get_mc_i32()?;
@@ -33,6 +35,14 @@ impl CodablePacket for CustomSoundPacket {
         let z = buf.get_mc_i32()?;
         let volume = buf.get_mc_f32()?;
         let pitch = buf.get_mc_f32()?;
-        return Ok(CustomSoundPacket { name, source, x, y, z, volume, pitch });
+        return Ok(CustomSoundPacket {
+            name,
+            source,
+            x,
+            y,
+            z,
+            volume,
+            pitch,
+        });
     }
 }

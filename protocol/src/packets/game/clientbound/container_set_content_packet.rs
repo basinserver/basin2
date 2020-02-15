@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct ContainerSetContentPacket {
     pub containerId: u8,
@@ -18,7 +17,10 @@ impl CodablePacket for ContainerSetContentPacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let containerId = buf.get_mc_u8()?;
         let mut items: Vec<ItemStack> = vec![];
         let item_count = buf.get_mc_u16()?;

@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetEntityLinkPacket {
     pub sourceId: i32,
@@ -15,7 +14,10 @@ impl CodablePacket for SetEntityLinkPacket {
         buf.set_mc_i32(self.destId);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let sourceId = buf.get_mc_i32()?;
         let destId = buf.get_mc_i32()?;
         return Ok(SetEntityLinkPacket { sourceId, destId });

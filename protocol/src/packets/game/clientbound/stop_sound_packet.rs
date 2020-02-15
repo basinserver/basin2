@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct StopSoundPacket {
     pub name: Option<ResourceLocation>,
@@ -27,18 +26,17 @@ impl CodablePacket for StopSoundPacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let flags = buf.get_mc_u8()?;
         let source = match flags {
-            x if (x & 1) > 0 => {
-                Some(buf.get_mc_enum::<SoundSource>()?)
-            }
+            x if (x & 1) > 0 => Some(buf.get_mc_enum::<SoundSource>()?),
             _ => None,
         };
         let name = match flags {
-            x if (x & 2) > 0 => {
-                Some(buf.get_mc_string(32767)?)
-            }
+            x if (x & 2) > 0 => Some(buf.get_mc_string(32767)?),
             _ => None,
         };
         return Ok(StopSoundPacket { name, source });

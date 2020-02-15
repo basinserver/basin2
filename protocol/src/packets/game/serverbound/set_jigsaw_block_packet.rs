@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetJigsawBlockPacket {
     pub pos: BlockPos,
@@ -19,11 +18,19 @@ impl CodablePacket for SetJigsawBlockPacket {
         buf.set_mc_string(self.finalState);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let pos = buf.get_mc_block_pos()?;
         let attachementType = buf.get_mc_string(32767)?;
         let targetPool = buf.get_mc_string(32767)?;
         let finalState = buf.get_mc_string(32767)?;
-        return Ok(SetJigsawBlockPacket { pos, attachementType, targetPool, finalState });
+        return Ok(SetJigsawBlockPacket {
+            pos,
+            attachementType,
+            targetPool,
+            finalState,
+        });
     }
 }

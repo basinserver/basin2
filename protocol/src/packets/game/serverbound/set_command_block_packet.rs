@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetCommandBlockPacket {
     pub pos: BlockPos,
@@ -31,7 +30,10 @@ impl CodablePacket for SetCommandBlockPacket {
         buf.set_mc_u8(flags);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let pos = buf.get_mc_block_pos()?;
         let command = buf.get_mc_string(32767)?;
         let mode: CommandBlockEntityMode = buf.get_mc_enum()?;
@@ -39,6 +41,13 @@ impl CodablePacket for SetCommandBlockPacket {
         let trackOutput = (flags & 1) > 0;
         let conditional = (flags & 2) > 0;
         let automatic = (flags & 4) > 0;
-        return Ok(SetCommandBlockPacket { pos, command, trackOutput, conditional, automatic, mode });
+        return Ok(SetCommandBlockPacket {
+            pos,
+            command,
+            trackOutput,
+            conditional,
+            automatic,
+            mode,
+        });
     }
 }

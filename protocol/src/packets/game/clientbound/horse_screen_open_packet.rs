@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct HorseScreenOpenPacket {
     pub containerId: u8,
@@ -17,10 +16,17 @@ impl CodablePacket for HorseScreenOpenPacket {
         buf.set_mc_i32(self.entityId);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let containerId = buf.get_mc_u8()?;
         let size = buf.get_mc_var_int()?;
         let entityId = buf.get_mc_i32()?;
-        return Ok(HorseScreenOpenPacket { containerId, size, entityId });
+        return Ok(HorseScreenOpenPacket {
+            containerId,
+            size,
+            entityId,
+        });
     }
 }

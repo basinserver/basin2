@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct MerchantOffersPacket {
     pub containerId: i32,
@@ -23,7 +22,7 @@ impl CodablePacket for MerchantOffersPacket {
             match offer.cost_b.is_empty() {
                 true => {
                     buf.set_mc_bool(false);
-                },
+                }
                 false => {
                     buf.set_mc_bool(true);
                     buf.set_mc_item_stack(offer.cost_b);
@@ -43,7 +42,10 @@ impl CodablePacket for MerchantOffersPacket {
         buf.set_mc_bool(self.canRestock);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let containerId = buf.get_mc_var_int()?;
         let mut offers: Vec<MerchantOffer> = vec![];
         let offer_count = buf.get_mc_u8()?;
@@ -80,6 +82,13 @@ impl CodablePacket for MerchantOffersPacket {
         let villagerXp = buf.get_mc_var_int()?;
         let showProgress = buf.get_mc_bool()?;
         let canRestock = buf.get_mc_bool()?;
-        return Ok(MerchantOffersPacket { containerId, offers, villagerLevel, villagerXp, showProgress, canRestock });
+        return Ok(MerchantOffersPacket {
+            containerId,
+            offers,
+            villagerLevel,
+            villagerXp,
+            showProgress,
+            canRestock,
+        });
     }
 }

@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct CommandSuggestionsPacket {
     pub id: i32,
@@ -21,15 +20,18 @@ impl CodablePacket for CommandSuggestionsPacket {
                 Some(tooltip) => {
                     buf.set_mc_bool(true);
                     buf.set_mc_chat_component(tooltip);
-                },
+                }
                 None => {
                     buf.set_mc_bool(false);
-                },
+                }
             }
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let id = buf.get_mc_var_int()?;
         let start = buf.get_mc_var_int()?;
         let end = start + buf.get_mc_var_int()?;
@@ -42,15 +44,15 @@ impl CodablePacket for CommandSuggestionsPacket {
             } else {
                 None
             };
-            suggestions.push(Suggestion {
-                text,
-                tooltip,
-            })
+            suggestions.push(Suggestion { text, tooltip })
         }
-        return Ok(CommandSuggestionsPacket { id, suggestions: Suggestions {
-            start,
-            end,
-            suggestions,
-        } });
+        return Ok(CommandSuggestionsPacket {
+            id,
+            suggestions: Suggestions {
+                start,
+                end,
+                suggestions,
+            },
+        });
     }
 }

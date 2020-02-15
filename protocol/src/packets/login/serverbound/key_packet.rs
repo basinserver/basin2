@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct KeyPacket {
     pub keybytes: Vec<u8>,
@@ -15,7 +14,10 @@ impl CodablePacket for KeyPacket {
         buf.set_mc_byte_array(self.nonce);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let keybytes = buf.get_mc_byte_array()?;
         let nonce = buf.get_mc_byte_array()?;
         return Ok(KeyPacket { keybytes, nonce });

@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct CustomQueryPacket {
     pub transactionId: i32,
@@ -23,13 +22,19 @@ impl CodablePacket for CustomQueryPacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let transactionId = buf.get_mc_var_int()?;
         let data = if buf.get_mc_bool()? {
             Some(buf.clone_bounded(1048576)?)
         } else {
             None
         };
-        return Ok(CustomQueryPacket { transactionId, data });
+        return Ok(CustomQueryPacket {
+            transactionId,
+            data,
+        });
     }
 }

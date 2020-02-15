@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct LevelEventPacket {
     pub eventType: i32,
@@ -19,11 +18,19 @@ impl CodablePacket for LevelEventPacket {
         buf.set_mc_bool(self.globalEvent);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let eventType = buf.get_mc_i32()?;
         let pos = buf.get_mc_block_pos()?;
         let data = buf.get_mc_i32()?;
         let globalEvent = buf.get_mc_bool()?;
-        return Ok(LevelEventPacket { eventType, pos, data, globalEvent });
+        return Ok(LevelEventPacket {
+            eventType,
+            pos,
+            data,
+            globalEvent,
+        });
     }
 }

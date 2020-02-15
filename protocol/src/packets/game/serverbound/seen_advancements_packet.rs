@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SeenAdvancementsPacket {
     pub action: SeenAdvancementsPacketAction,
@@ -21,7 +20,10 @@ impl CodablePacket for SeenAdvancementsPacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         use SeenAdvancementsPacketAction::*;
 
         let action: SeenAdvancementsPacketAction = buf.get_mc_enum()?;

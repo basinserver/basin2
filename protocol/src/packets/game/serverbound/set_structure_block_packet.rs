@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetStructureBlockPacket {
     pub pos: BlockPos,
@@ -62,7 +61,10 @@ impl CodablePacket for SetStructureBlockPacket {
         buf.set_mc_u8(flags);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let pos = buf.get_mc_block_pos()?;
         let updateType: StructureBlockEntityUpdateType = buf.get_mc_enum()?;
         let mode: StructureMode = buf.get_mc_enum()?;
@@ -93,6 +95,21 @@ impl CodablePacket for SetStructureBlockPacket {
         let ignoreEntities = (flags & 1) > 0;
         let showAir = (flags & 2) > 0;
         let showBoundingBox = (flags & 4) > 0;
-        return Ok(SetStructureBlockPacket { pos, updateType, mode, name, offset, size, mirror, rotation, data, ignoreEntities, showAir, showBoundingBox, integrity, seed });
+        return Ok(SetStructureBlockPacket {
+            pos,
+            updateType,
+            mode,
+            name,
+            offset,
+            size,
+            mirror,
+            rotation,
+            data,
+            ignoreEntities,
+            showAir,
+            showBoundingBox,
+            integrity,
+            seed,
+        });
     }
 }

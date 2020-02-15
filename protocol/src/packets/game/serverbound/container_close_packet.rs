@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct ContainerClosePacket {
     pub containerId: u8,
@@ -13,7 +12,10 @@ impl CodablePacket for ContainerClosePacket {
         buf.set_mc_u8(self.containerId);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let containerId = buf.get_mc_u8()?;
         return Ok(ContainerClosePacket { containerId });
     }

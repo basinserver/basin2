@@ -1,15 +1,14 @@
-
-use bytes::BytesMut;
-use bytes::buf::BufMut;
-use uuid::Uuid;
 use crate::nbt::Nbt;
 use crate::result::*;
-use serde::{Deserialize, Serialize};
+use bytes::buf::Buf;
+use bytes::buf::BufMut;
+use bytes::BytesMut;
 use enum_primitive::FromPrimitive;
 use linked_hash_map::LinkedHashMap;
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use bytes::buf::Buf;
-use std::sync::{ RwLock, RwLockReadGuard, RwLockWriteGuard };
+use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
+use uuid::Uuid;
 
 pub trait McNetwork {
     fn read_var_int(&self) -> Option<(i32, usize)>;
@@ -80,7 +79,6 @@ impl McNetwork for BytesMut {
         self.put_u8(value as u8);
         i + 1
     }
-
 }
 
 pub fn get_var_int_len(value: i32) -> usize {
@@ -138,7 +136,9 @@ pub trait McPacketBuf {
     fn set_mc_u16(&mut self, value: u16);
     fn set_mc_byte_array(&mut self, value: Vec<u8>);
 
-    fn clone_bounded(&mut self, bound: i32) -> Result<Self> where Self: Sized;
+    fn clone_bounded(&mut self, bound: i32) -> Result<Self>
+    where
+        Self: Sized;
 }
 
 pub fn invalidData<T>() -> Result<T> {
@@ -151,7 +151,7 @@ impl McPacketBuf for BytesMut {
             Some((output, length)) => {
                 self.advance(length);
                 Ok(output)
-            },
+            }
             None => invalidData(),
         }
     }
@@ -161,7 +161,7 @@ impl McPacketBuf for BytesMut {
             Some((output, length)) => {
                 self.advance(length);
                 Ok(output)
-            },
+            }
             None => invalidData(),
         }
     }
@@ -333,12 +333,10 @@ impl McPacketBuf for BytesMut {
     fn get_mc_enum<T: FromPrimitive>(&mut self) -> Result<T> {
         let action = T::from_i32(self.get_mc_var_int()?);
         let action = match action {
-            Some(action) => {
-                action
-            },
+            Some(action) => action,
             None => {
                 return Err(Box::new(IoError::from(ErrorKind::InvalidData)));
-            },
+            }
         };
         return Ok(action);
     }
@@ -346,12 +344,10 @@ impl McPacketBuf for BytesMut {
     fn get_mc_enum_i32<T: FromPrimitive>(&mut self) -> Result<T> {
         let action = T::from_i32(self.get_mc_i32()?);
         let action = match action {
-            Some(action) => {
-                action
-            },
+            Some(action) => action,
             None => {
                 return Err(Box::new(IoError::from(ErrorKind::InvalidData)));
-            },
+            }
         };
         return Ok(action);
     }
@@ -359,12 +355,10 @@ impl McPacketBuf for BytesMut {
     fn get_mc_enum_u8<T: FromPrimitive>(&mut self) -> Result<T> {
         let action = T::from_u8(self.get_mc_u8()?);
         let action = match action {
-            Some(action) => {
-                action
-            },
+            Some(action) => action,
             None => {
                 return Err(Box::new(IoError::from(ErrorKind::InvalidData)));
-            },
+            }
         };
         return Ok(action);
     }
@@ -495,9 +489,7 @@ impl McPacketBuf for BytesMut {
     }
 }
 
-pub struct Command {
-    
-}
+pub struct Command {}
 
 pub struct BaseCommandNode {
     pub uuid: Uuid,
@@ -514,7 +506,7 @@ pub enum ArgumentType {
     Integer { min: Option<i32>, max: Option<i32> },
     Long { min: Option<i64>, max: Option<i64> },
     Str(ArgumentStringType),
-    
+
     Entity { single: bool, players_only: bool },
     GameProfile,
     BlockPos,
@@ -563,7 +555,7 @@ impl ArgumentType {
             Integer { .. } => "brigadier:integer",
             Long { .. } => "brigadier:long",
             Str(_) => "brigadier:string",
-            
+
             Entity { .. } => "minecraft:entity",
             GameProfile => "minecraft:game_profile",
             BlockPos => "minecraft:block_pos",
@@ -602,13 +594,22 @@ impl ArgumentType {
             Time => "minecraft:time",
         }
     }
-
 }
 
 pub enum CommandNode {
-    Root { node: RwLock<BaseCommandNode> },
-    Argument { node: RwLock<BaseCommandNode>, name: String, argument_type: ArgumentType, custom_suggestions: Option<ResourceLocation> },
-    Literal { node: RwLock<BaseCommandNode>, literal: String },
+    Root {
+        node: RwLock<BaseCommandNode>,
+    },
+    Argument {
+        node: RwLock<BaseCommandNode>,
+        name: String,
+        argument_type: ArgumentType,
+        custom_suggestions: Option<ResourceLocation>,
+    },
+    Literal {
+        node: RwLock<BaseCommandNode>,
+        literal: String,
+    },
 }
 
 impl CommandNode {
@@ -835,13 +836,18 @@ pub type Item = i32;
 
 pub enum ParticleOptions {
     Item(Particle, ItemStack),
-    Dust { particle: Particle, r: f32, g: f32, b: f32, scale: f32 },
+    Dust {
+        particle: Particle,
+        r: f32,
+        g: f32,
+        b: f32,
+        scale: f32,
+    },
     Block(Particle, BlockState),
     Simple(Particle),
 }
 
 impl ParticleOptions {
-
     pub fn id(&self) -> Particle {
         use ParticleOptions::*;
         match self {
@@ -857,17 +863,17 @@ impl ParticleOptions {
         match self {
             Item(_, item) => {
                 buf.set_mc_item_stack(item);
-            },
+            }
             Dust { r, g, b, scale, .. } => {
                 buf.set_mc_f32(r);
                 buf.set_mc_f32(g);
                 buf.set_mc_f32(b);
                 buf.set_mc_f32(scale);
-            },
+            }
             Block(_, state) => {
                 buf.set_mc_var_int(state);
-            },
-            Simple(_) => {},
+            }
+            Simple(_) => {}
         }
     }
 
@@ -875,12 +881,17 @@ impl ParticleOptions {
         use ParticleOptions::*;
         Ok(match id {
             Particle::Item => Item(id, buf.get_mc_item_stack()?),
-            Particle::Dust => Dust { particle: id, r: buf.get_mc_f32()?, g: buf.get_mc_f32()?, b: buf.get_mc_f32()?, scale: buf.get_mc_f32()? },
+            Particle::Dust => Dust {
+                particle: id,
+                r: buf.get_mc_f32()?,
+                g: buf.get_mc_f32()?,
+                b: buf.get_mc_f32()?,
+                scale: buf.get_mc_f32()?,
+            },
             Particle::Block | Particle::FallingDust => Block(id, buf.get_mc_var_int()?),
-            _ => Simple(id)
+            _ => Simple(id),
         })
     }
-
 }
 
 pub enum EntityMetadata {
@@ -892,7 +903,11 @@ pub enum EntityMetadata {
     OptionalComponent(Option<ChatComponent>),
     ItemStack(ItemStack),
     Boolean(bool),
-    Rotations { x: f32, y: f32, z: f32 },
+    Rotations {
+        x: f32,
+        y: f32,
+        z: f32,
+    },
     BlockPos(BlockPos),
     OptionalBlockPos(Option<BlockPos>),
     Direction(Direction),
@@ -900,11 +915,14 @@ pub enum EntityMetadata {
     BlockState(BlockState),
     CompoundTag(Nbt),
     Particle(ParticleOptions),
-    VillagerData { villager_type: VillagerType, villager_profession: VillagerProfession, level: i32 },
+    VillagerData {
+        villager_type: VillagerType,
+        villager_profession: VillagerProfession,
+        level: i32,
+    },
     OptionalUnsignedInt(Option<i32>),
     Pose(EntityPose),
 }
-
 
 enum_from_primitive! {
 #[derive(Clone, Copy)]
@@ -971,7 +989,7 @@ pub enum Particle {
     FallingNectar,
 }
 }
- 
+
 enum_from_primitive! {
 #[derive(Clone, Copy)]
 #[repr(i32)]
@@ -981,7 +999,7 @@ pub enum ArgumentStringType {
     GreedyPhrase
 }
 }
-    
+
 enum_from_primitive! {
 #[derive(Clone, Copy)]
 #[repr(i32)]
@@ -1051,7 +1069,7 @@ pub enum FrameType {
     Challenge,
 }
 }
-    
+
 enum_from_primitive! {
 #[derive(Clone, Copy)]
 #[repr(i32)]
@@ -1077,7 +1095,7 @@ impl DimensionType {
             1 => Some(DimensionType::Overworld),
             0 => Some(DimensionType::Nether),
             2 => Some(DimensionType::TheEnd),
-            _ => None
+            _ => None,
         }
     }
 }
@@ -1201,7 +1219,7 @@ impl Direction {
             0 => Some(Direction::Up),
             1 => Some(Direction::West),
             3 => Some(Direction::East),
-            _ => None
+            _ => None,
         }
     }
 }

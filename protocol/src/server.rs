@@ -1,8 +1,8 @@
+use super::connection::Connection;
 use futures::stream::StreamExt;
 use log::*;
 use std::error::Error;
-use tokio::net::{ TcpListener };
-use super::connection::Connection;
+use tokio::net::TcpListener;
 
 async fn start_server(address: &str) -> Result<(), Box<dyn Error>> {
     let mut listener = TcpListener::bind(address).await?;

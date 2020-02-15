@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct ClientIntentionPacket {
     pub protocolVersion: i32,
@@ -19,11 +18,19 @@ impl CodablePacket for ClientIntentionPacket {
         buf.set_mc_var_int(self.intention as i32);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let protocolVersion = buf.get_mc_var_int()?;
         let hostName = buf.get_mc_string(255)?;
         let port = buf.get_mc_u16()?;
         let intention: ConnectionProtocol = buf.get_mc_enum()?;
-        return Ok(ClientIntentionPacket { protocolVersion, hostName, port, intention });
+        return Ok(ClientIntentionPacket {
+            protocolVersion,
+            hostName,
+            port,
+            intention,
+        });
     }
 }

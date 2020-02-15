@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetExperiencePacket {
     pub experienceProgress: f32,
@@ -17,10 +16,17 @@ impl CodablePacket for SetExperiencePacket {
         buf.set_mc_var_int(self.totalExperience);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let experienceProgress = buf.get_mc_f32()?;
         let experienceLevel = buf.get_mc_var_int()?;
         let totalExperience = buf.get_mc_var_int()?;
-        return Ok(SetExperiencePacket { experienceProgress, totalExperience, experienceLevel });
+        return Ok(SetExperiencePacket {
+            experienceProgress,
+            totalExperience,
+            experienceLevel,
+        });
     }
 }

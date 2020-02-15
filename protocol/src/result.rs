@@ -1,6 +1,5 @@
-
 pub use std::io::Error as IoError;
-pub use std::io::ErrorKind; 
+pub use std::io::ErrorKind;
 
 pub type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 

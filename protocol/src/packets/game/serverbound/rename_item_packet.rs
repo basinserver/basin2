@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct RenameItemPacket {
     pub name: String,
@@ -13,7 +12,10 @@ impl CodablePacket for RenameItemPacket {
         buf.set_mc_string(self.name);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let name = buf.get_mc_string(32767)?;
         return Ok(RenameItemPacket { name });
     }

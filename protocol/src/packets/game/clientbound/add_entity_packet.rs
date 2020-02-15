@@ -1,9 +1,8 @@
-
-use crate::packet::*;
 use crate::network::*;
+use crate::packet::*;
+use crate::result::*;
 use bytes::BytesMut;
 use uuid::Uuid;
-use crate::result::*;
 
 pub struct AddEntityPacket {
     pub id: i32,
@@ -36,7 +35,10 @@ impl CodablePacket for AddEntityPacket {
         buf.set_mc_i16(self.za);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let id = buf.get_mc_var_int()?;
         let uuid = buf.get_mc_uuid()?;
         let entityType = buf.get_mc_var_int()?;
@@ -49,6 +51,19 @@ impl CodablePacket for AddEntityPacket {
         let xa = buf.get_mc_i16()?;
         let ya = buf.get_mc_i16()?;
         let za = buf.get_mc_i16()?;
-        return Ok(AddEntityPacket { id, uuid, x, y, z, xa, ya, za, xRot, yRot, entityType, data });
+        return Ok(AddEntityPacket {
+            id,
+            uuid,
+            x,
+            y,
+            z,
+            xa,
+            ya,
+            za,
+            xRot,
+            yRot,
+            entityType,
+            data,
+        });
     }
 }

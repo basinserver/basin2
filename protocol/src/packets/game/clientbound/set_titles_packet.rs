@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetTitlesPacket {
     pub titleType: SetTitlesPacketType,
@@ -20,13 +19,13 @@ impl CodablePacket for SetTitlesPacket {
         match self.titleType {
             Title => {
                 buf.set_mc_chat_component(self.text.unwrap());
-            },
+            }
             Subtitle => {
                 buf.set_mc_chat_component(self.text.unwrap());
-            },
+            }
             Actionbar => {
                 buf.set_mc_chat_component(self.text.unwrap());
-            },
+            }
             Times => {
                 buf.set_mc_i32(self.fadeInTime.unwrap());
                 buf.set_mc_i32(self.stayTime.unwrap());
@@ -36,7 +35,10 @@ impl CodablePacket for SetTitlesPacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         use SetTitlesPacketType::*;
 
         let titleType: SetTitlesPacketType = buf.get_mc_enum()?;
@@ -44,9 +46,20 @@ impl CodablePacket for SetTitlesPacket {
             Title => (Some(buf.get_mc_chat_component()?), None, None, None),
             Subtitle => (Some(buf.get_mc_chat_component()?), None, None, None),
             Actionbar => (Some(buf.get_mc_chat_component()?), None, None, None),
-            Times => (None, Some(buf.get_mc_i32()?), Some(buf.get_mc_i32()?), Some(buf.get_mc_i32()?)),
+            Times => (
+                None,
+                Some(buf.get_mc_i32()?),
+                Some(buf.get_mc_i32()?),
+                Some(buf.get_mc_i32()?),
+            ),
             _ => (None, None, None, None),
         };
-        return Ok(SetTitlesPacket { titleType, text, fadeInTime, stayTime, fadeOutTime });
+        return Ok(SetTitlesPacket {
+            titleType,
+            text,
+            fadeInTime,
+            stayTime,
+            fadeOutTime,
+        });
     }
 }

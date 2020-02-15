@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetCreativeModeSlotPacket {
     pub slotNum: i16,
@@ -15,7 +14,10 @@ impl CodablePacket for SetCreativeModeSlotPacket {
         buf.set_mc_item_stack(self.itemStack);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let slotNum = buf.get_mc_i16()?;
         let itemStack = buf.get_mc_item_stack()?;
         return Ok(SetCreativeModeSlotPacket { slotNum, itemStack });

@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct PlayerCommandPacket {
     pub id: i32,
@@ -17,7 +16,10 @@ impl CodablePacket for PlayerCommandPacket {
         buf.set_mc_var_int(self.data);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let id = buf.get_mc_var_int()?;
         let action: PlayerCommandPacketAction = buf.get_mc_enum()?;
         let data = buf.get_mc_var_int()?;

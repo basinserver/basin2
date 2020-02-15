@@ -1,9 +1,8 @@
-
-use crate::packet::*;
-use crate::network::*;
-use bytes::BytesMut;
-use crate::result::*;
 use crate::nbt::Nbt;
+use crate::network::*;
+use crate::packet::*;
+use crate::result::*;
+use bytes::BytesMut;
 
 pub struct LevelChunkPacket {
     pub x: i32,
@@ -38,22 +37,24 @@ impl CodablePacket for LevelChunkPacket {
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let x = buf.get_mc_i32()?;
         let z = buf.get_mc_i32()?;
         let has_biomes = buf.get_mc_bool()?;
         let availableSections = buf.get_mc_var_int()?;
         let heightmaps = buf.get_mc_nbt()?;
-        let biomes =
-            if has_biomes {
-                let mut biomes: Vec<i32> = vec![];
-                for _ in 0..(1 << 18) {
-                    biomes.push(buf.get_mc_i32()?)
-                }
-                Some(biomes)
-            } else {
-                None
-            };
+        let biomes = if has_biomes {
+            let mut biomes: Vec<i32> = vec![];
+            for _ in 0..(1 << 18) {
+                biomes.push(buf.get_mc_i32()?)
+            }
+            Some(biomes)
+        } else {
+            None
+        };
         let buffer_size = buf.get_mc_var_int()? as usize;
         if buffer_size > buf.len() || buffer_size > 2097152 {
             return Err(Box::new(IoError::from(ErrorKind::InvalidData)));
@@ -64,6 +65,14 @@ impl CodablePacket for LevelChunkPacket {
         for _ in 0..blockEntitiesTags_count {
             blockEntitiesTags.push(buf.get_mc_nbt()?);
         }
-        return Ok(LevelChunkPacket { x, z, availableSections, heightmaps, biomes, buffer, blockEntitiesTags });
+        return Ok(LevelChunkPacket {
+            x,
+            z,
+            availableSections,
+            heightmaps,
+            biomes,
+            buffer,
+            blockEntitiesTags,
+        });
     }
 }

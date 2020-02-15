@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct RecipePacket {
     pub state: RecipePacketState,
@@ -34,11 +33,14 @@ impl CodablePacket for RecipePacket {
                     buf.set_mc_string(highlighting);
                 }
             }
-            _=> (),
+            _ => (),
         }
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         use RecipePacketState::*;
 
         let state: RecipePacketState = buf.get_mc_enum()?;
@@ -59,9 +61,17 @@ impl CodablePacket for RecipePacket {
                     toHighlight.push(buf.get_mc_string(32767)?);
                 }
                 Some(toHighlight)
-            },
+            }
             _ => None,
         };
-        return Ok(RecipePacket { state, recipes, toHighlight, guiOpen, filteringCraftable, furnaceGuiOpen, furnaceFilteringCraftable });
+        return Ok(RecipePacket {
+            state,
+            recipes,
+            toHighlight,
+            guiOpen,
+            filteringCraftable,
+            furnaceGuiOpen,
+            furnaceFilteringCraftable,
+        });
     }
 }

@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct GameEventPacket {
     pub event: u8,
@@ -15,7 +14,10 @@ impl CodablePacket for GameEventPacket {
         buf.set_mc_f32(self.param);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let event = buf.get_mc_u8()?;
         let param = buf.get_mc_f32()?;
         return Ok(GameEventPacket { event, param });

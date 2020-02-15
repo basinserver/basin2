@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct SetDisplayObjectivePacket {
     pub slot: u8,
@@ -15,9 +14,15 @@ impl CodablePacket for SetDisplayObjectivePacket {
         buf.set_mc_string(self.objectiveName);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let slot = buf.get_mc_u8()?;
         let objectiveName = buf.get_mc_string(16)?;
-        return Ok(SetDisplayObjectivePacket { slot, objectiveName });
+        return Ok(SetDisplayObjectivePacket {
+            slot,
+            objectiveName,
+        });
     }
 }

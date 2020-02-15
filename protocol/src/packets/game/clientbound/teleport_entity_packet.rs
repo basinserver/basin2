@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct TeleportEntityPacket {
     pub id: i32,
@@ -25,7 +24,10 @@ impl CodablePacket for TeleportEntityPacket {
         buf.set_mc_bool(self.onGround);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let id = buf.get_mc_var_int()?;
         let x = buf.get_mc_f64()?;
         let y = buf.get_mc_f64()?;
@@ -33,6 +35,14 @@ impl CodablePacket for TeleportEntityPacket {
         let yRot = buf.get_mc_u8()?;
         let xRot = buf.get_mc_u8()?;
         let onGround = buf.get_mc_bool()?;
-        return Ok(TeleportEntityPacket { id, x, y, z, yRot, xRot, onGround });
+        return Ok(TeleportEntityPacket {
+            id,
+            x,
+            y,
+            z,
+            yRot,
+            xRot,
+            onGround,
+        });
     }
 }

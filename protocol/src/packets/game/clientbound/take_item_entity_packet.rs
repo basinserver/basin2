@@ -1,8 +1,7 @@
-
-use crate::packet::*;
 use crate::network::*;
-use bytes::BytesMut;
+use crate::packet::*;
 use crate::result::*;
+use bytes::BytesMut;
 
 pub struct TakeItemEntityPacket {
     pub itemId: i32,
@@ -17,10 +16,17 @@ impl CodablePacket for TakeItemEntityPacket {
         buf.set_mc_var_int(self.amount);
     }
 
-    fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
+    fn decode(buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized,
+    {
         let itemId = buf.get_mc_var_int()?;
         let playerId = buf.get_mc_var_int()?;
         let amount = buf.get_mc_var_int()?;
-        return Ok(TakeItemEntityPacket { itemId, playerId, amount });
+        return Ok(TakeItemEntityPacket {
+            itemId,
+            playerId,
+            amount,
+        });
     }
 }
