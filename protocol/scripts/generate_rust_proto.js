@@ -126,7 +126,7 @@ const readOpEncode = readOp => {
     } else if (readOp.type == 'raw') {
         return `// TODO: UNKNOWN: ${readOp.raw}`;
     } else if (readOp.type == 'Utf') {
-        return `let ${readOp.field} = buf.get_mc_string_bounded(${readOp.max})?;`;
+        return `let ${readOp.field} = buf.get_mc_string(${readOp.max})?;`;
     } else {
         return `let ${readOp.field} = buf.get_${opTypeMap[readOp.type]}()?;`;
     }

@@ -2,11 +2,10 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct SetCarriedItemPacket {
-    pub slot: i32,
+    pub slot: i16,
 }
 
 impl CodablePacket for SetCarriedItemPacket {

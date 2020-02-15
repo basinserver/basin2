@@ -11,12 +11,12 @@ pub struct AddEntityPacket {
     pub x: f64,
     pub y: f64,
     pub z: f64,
-    pub xa: i32,
-    pub ya: i32,
-    pub za: i32,
-    pub xRot: i32,
-    pub yRot: i32,
-    pub type: EntityType,
+    pub xa: i16,
+    pub ya: i16,
+    pub za: i16,
+    pub xRot: u8,
+    pub yRot: u8,
+    pub entityType: EntityType,
     pub data: i32,
 }
 
@@ -24,7 +24,7 @@ impl CodablePacket for AddEntityPacket {
     fn encode(self, buf: &mut BytesMut) {
         buf.set_mc_var_int(self.id);
         buf.set_mc_uuid(self.uuid);
-        // TODO: UNKNOWN: var1.writeVarInt(Registry.ENTITY_TYPE.getId(this.type));
+        buf.set_mc_var_int(self.entityType);
         buf.set_mc_f64(self.x);
         buf.set_mc_f64(self.y);
         buf.set_mc_f64(self.z);
@@ -39,7 +39,7 @@ impl CodablePacket for AddEntityPacket {
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
         let id = buf.get_mc_var_int()?;
         let uuid = buf.get_mc_uuid()?;
-        // TODO: UNKNOWN: this.type = (EntityType)Registry.ENTITY_TYPE.byId(var1.readVarInt());
+        let entityType = buf.get_mc_var_int()?;
         let x = buf.get_mc_f64()?;
         let y = buf.get_mc_f64()?;
         let z = buf.get_mc_f64()?;
@@ -49,6 +49,6 @@ impl CodablePacket for AddEntityPacket {
         let xa = buf.get_mc_i16()?;
         let ya = buf.get_mc_i16()?;
         let za = buf.get_mc_i16()?;
-        return Ok(AddEntityPacket { id, uuid, x, y, z, xa, ya, za, xRot, yRot, type, data });
+        return Ok(AddEntityPacket { id, uuid, x, y, z, xa, ya, za, xRot, yRot, entityType, data });
     }
 }

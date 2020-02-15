@@ -2,12 +2,11 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct ContainerButtonClickPacket {
-    pub containerId: i32,
-    pub buttonId: i32,
+    pub containerId: u8,
+    pub buttonId: u8,
 }
 
 impl CodablePacket for ContainerButtonClickPacket {

@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct SetBeaconPacket {

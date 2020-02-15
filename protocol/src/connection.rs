@@ -157,7 +157,7 @@ async fn readForward(mut outgoing: Sender<Packet>, mut from: SplitStream<Framed<
 
 impl Connection {
 
-    pub async fn spawn(mut socket: TcpStream) -> Result<()> {
+    pub async fn spawn(socket: TcpStream) -> Result<()> {
         let address = socket.peer_addr().unwrap();
         
         let (in_outgoing, in_incoming) = channel::<Packet>(256);

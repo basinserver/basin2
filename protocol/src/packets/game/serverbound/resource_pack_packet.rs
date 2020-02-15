@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct ResourcePackPacket {
@@ -11,11 +10,11 @@ pub struct ResourcePackPacket {
 
 impl CodablePacket for ResourcePackPacket {
     fn encode(self, buf: &mut BytesMut) {
-        buf.set_mc_var_int(self.action);
+        buf.set_mc_var_int(self.action as i32);
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
-        // TODO: UNKNOWN: this.action = (ServerboundResourcePackPacket.Action)var1.readEnum(ServerboundResourcePackPacket.Action.class);
+        let action: ResourcePackPacketAction = buf.get_mc_enum()?;
         return Ok(ResourcePackPacket { action });
     }
 }

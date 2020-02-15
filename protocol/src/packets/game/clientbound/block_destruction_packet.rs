@@ -2,13 +2,12 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct BlockDestructionPacket {
     pub id: i32,
     pub pos: BlockPos,
-    pub progress: i32,
+    pub progress: u8,
 }
 
 impl CodablePacket for BlockDestructionPacket {

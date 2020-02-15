@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct PlayerActionPacket {
@@ -13,15 +12,15 @@ pub struct PlayerActionPacket {
 
 impl CodablePacket for PlayerActionPacket {
     fn encode(self, buf: &mut BytesMut) {
-        buf.set_mc_var_int(self.action);
+        buf.set_mc_var_int(self.action as i32);
         buf.set_mc_block_pos(self.pos);
-        // TODO: UNKNOWN: var1.writeByte(this.direction.get3DDataValue());
+        buf.set_mc_u8(self.direction as u8);
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
-        // TODO: UNKNOWN: this.action = (ServerboundPlayerActionPacket.Action)var1.readEnum(ServerboundPlayerActionPacket.Action.class);
+        let action: PlayerActionPacketAction = buf.get_mc_enum()?;
         let pos = buf.get_mc_block_pos()?;
-        // TODO: UNKNOWN: this.direction = Direction.from3DDataValue(var1.readUnsignedByte());
+        let direction: Direction = buf.get_mc_enum_u8()?;
         return Ok(PlayerActionPacket { pos, direction, action });
     }
 }

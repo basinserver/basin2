@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct SetScorePacket {
@@ -14,11 +13,27 @@ pub struct SetScorePacket {
 
 impl CodablePacket for SetScorePacket {
     fn encode(self, buf: &mut BytesMut) {
-        /* TODO: NOT FOUND */
+        use ServerScoreboardMethod::*;
+        
+        buf.set_mc_string(self.owner);
+        buf.set_mc_var_int(self.method as i32);
+        buf.set_mc_string(self.objectiveName);
+        match self.method {
+            Remove => (),
+            _ => buf.set_mc_var_int(self.score)
+        }
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
-        /* TODO: NOT FOUND */
+        use ServerScoreboardMethod::*;
+
+        let owner = buf.get_mc_string(40)?;
+        let method: ServerScoreboardMethod = buf.get_mc_enum()?;
+        let objectiveName = buf.get_mc_string(16)?;
+        let score = match method {
+            Remove => 0,
+            _ => buf.get_mc_var_int()?
+        };
         return Ok(SetScorePacket { owner, objectiveName, score, method });
     }
 }

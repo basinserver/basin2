@@ -2,14 +2,13 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct SetEntityMotionPacket {
     pub id: i32,
-    pub xa: i32,
-    pub ya: i32,
-    pub za: i32,
+    pub xa: i16,
+    pub ya: i16,
+    pub za: i16,
 }
 
 impl CodablePacket for SetEntityMotionPacket {

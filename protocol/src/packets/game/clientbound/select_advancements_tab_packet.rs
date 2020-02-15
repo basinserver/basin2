@@ -2,20 +2,31 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct SelectAdvancementsTabPacket {
-    pub tab: ResourceLocation,
+    pub tab: Option<ResourceLocation>,
 }
 
 impl CodablePacket for SelectAdvancementsTabPacket {
     fn encode(self, buf: &mut BytesMut) {
-        /* TODO: NOT FOUND */
+        match self.tab {
+            Some(tab) => {
+                buf.set_mc_bool(true);
+                buf.set_mc_string(tab);
+            },
+            None => {
+                buf.set_mc_bool(false);
+            },
+        }
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
-        /* TODO: NOT FOUND */
+        let tab = if buf.get_mc_bool()? {
+            Some(buf.get_mc_string(32767)?)
+        } else {
+            None
+        };
         return Ok(SelectAdvancementsTabPacket { tab });
     }
 }

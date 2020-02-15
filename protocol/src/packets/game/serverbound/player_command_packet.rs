@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct PlayerCommandPacket {
@@ -14,13 +13,13 @@ pub struct PlayerCommandPacket {
 impl CodablePacket for PlayerCommandPacket {
     fn encode(self, buf: &mut BytesMut) {
         buf.set_mc_var_int(self.id);
-        buf.set_mc_var_int(self.action);
+        buf.set_mc_var_int(self.action as i32);
         buf.set_mc_var_int(self.data);
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
         let id = buf.get_mc_var_int()?;
-        // TODO: UNKNOWN: this.action = (ServerboundPlayerCommandPacket.Action)var1.readEnum(ServerboundPlayerCommandPacket.Action.class);
+        let action: PlayerCommandPacketAction = buf.get_mc_enum()?;
         let data = buf.get_mc_var_int()?;
         return Ok(PlayerCommandPacket { id, action, data });
     }

@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct SetJigsawBlockPacket {
@@ -22,9 +21,9 @@ impl CodablePacket for SetJigsawBlockPacket {
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
         let pos = buf.get_mc_block_pos()?;
-        let attachementType = buf.get_mc_string()?;
-        let targetPool = buf.get_mc_string()?;
-        let finalState = buf.get_mc_string_bounded(32767)?;
+        let attachementType = buf.get_mc_string(32767)?;
+        let targetPool = buf.get_mc_string(32767)?;
+        let finalState = buf.get_mc_string(32767)?;
         return Ok(SetJigsawBlockPacket { pos, attachementType, targetPool, finalState });
     }
 }

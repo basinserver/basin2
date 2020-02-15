@@ -2,11 +2,10 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct ContainerAckPacket {
-    pub containerId: i32,
+    pub containerId: u8,
     pub uid: i16,
     pub accepted: bool,
 }

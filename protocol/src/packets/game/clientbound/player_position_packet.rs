@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct PlayerPositionPacket {
@@ -11,7 +10,7 @@ pub struct PlayerPositionPacket {
     pub z: f64,
     pub yRot: f32,
     pub xRot: f32,
-    pub relativeArguments: undefined,
+    pub relativeArguments: (bool, bool, bool, bool, bool),
     pub id: i32,
 }
 
@@ -22,7 +21,23 @@ impl CodablePacket for PlayerPositionPacket {
         buf.set_mc_f64(self.z);
         buf.set_mc_f32(self.yRot);
         buf.set_mc_f32(self.xRot);
-        // TODO: UNKNOWN: var1.writeByte(ClientboundPlayerPositionPacket.RelativeArgument.pack(this.relativeArguments));
+        let mut flags = 0;
+        if self.relativeArguments.0 {
+            flags |= 1;
+        }
+        if self.relativeArguments.1 {
+            flags |= 2;
+        }
+        if self.relativeArguments.2 {
+            flags |= 4;
+        }
+        if self.relativeArguments.3 {
+            flags |= 8;
+        }
+        if self.relativeArguments.4 {
+            flags |= 16;
+        }
+        buf.set_mc_u8(flags);
         buf.set_mc_var_int(self.id);
     }
 
@@ -32,7 +47,14 @@ impl CodablePacket for PlayerPositionPacket {
         let z = buf.get_mc_f64()?;
         let yRot = buf.get_mc_f32()?;
         let xRot = buf.get_mc_f32()?;
-        // TODO: UNKNOWN: this.relativeArguments = ClientboundPlayerPositionPacket.RelativeArgument.unpack(var1.readUnsignedByte());
+        let flags = buf.get_mc_u8()?;
+        let relativeArguments = (
+            (flags & 1) > 0,
+            (flags & 2) > 0,
+            (flags & 4) > 0,
+            (flags & 8) > 0,
+            (flags & 16) > 0,
+        );
         let id = buf.get_mc_var_int()?;
         return Ok(PlayerPositionPacket { x, y, z, yRot, xRot, relativeArguments, id });
     }

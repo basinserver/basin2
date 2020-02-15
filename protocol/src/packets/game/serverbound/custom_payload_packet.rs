@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct CustomPayloadPacket {
@@ -13,11 +12,12 @@ pub struct CustomPayloadPacket {
 impl CodablePacket for CustomPayloadPacket {
     fn encode(self, buf: &mut BytesMut) {
         buf.set_mc_string(self.identifier);
-        // TODO: UNKNOWN: var1.writeBytes((ByteBuf)this.data);
+        buf.unsplit(self.data);
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
-        /* TODO: NOT FOUND */
+        let identifier = buf.get_mc_string(32767)?;
+        let data = buf.clone_bounded(32767)?;
         return Ok(CustomPayloadPacket { identifier, data });
     }
 }

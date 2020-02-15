@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct PlayerInputPacket {
@@ -14,15 +13,24 @@ pub struct PlayerInputPacket {
 
 impl CodablePacket for PlayerInputPacket {
     fn encode(self, buf: &mut BytesMut) {
-        /* TODO: NOT FOUND */
+        buf.set_mc_f32(self.xxa);
+        buf.set_mc_f32(self.zza);
+        let mut flags = 0;
+        if self.isJumping {
+            flags |= 1;
+        }
+        if self.isShiftKeyDown {
+            flags |= 2;
+        }
+        buf.set_mc_u8(flags);
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
         let xxa = buf.get_mc_f32()?;
         let zza = buf.get_mc_f32()?;
-        // TODO: UNKNOWN: byte var2 = var1.readByte();
-        // TODO: EXTRA: this.isJumping = (var2 & 1) > 0;
-        // TODO: EXTRA: this.isShiftKeyDown = (var2 & 2) > 0;
+        let flags = buf.get_mc_u8()?;
+        let isJumping = (flags & 1) > 0;
+        let isShiftKeyDown = (flags & 2) > 0;
         return Ok(PlayerInputPacket { xxa, zza, isJumping, isShiftKeyDown });
     }
 }

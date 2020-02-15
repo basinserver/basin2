@@ -2,12 +2,11 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct AnimatePacket {
     pub id: i32,
-    pub action: i32,
+    pub action: u8,
 }
 
 impl CodablePacket for AnimatePacket {

@@ -2,13 +2,12 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct ContainerSetDataPacket {
-    pub containerId: i32,
-    pub id: i32,
-    pub value: i32,
+    pub containerId: u8,
+    pub id: i16,
+    pub value: i16,
 }
 
 impl CodablePacket for ContainerSetDataPacket {

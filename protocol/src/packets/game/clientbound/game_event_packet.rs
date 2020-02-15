@@ -2,11 +2,10 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct GameEventPacket {
-    pub event: i32,
+    pub event: u8,
     pub param: f32,
 }
 

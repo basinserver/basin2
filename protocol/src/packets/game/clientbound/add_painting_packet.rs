@@ -19,7 +19,7 @@ impl CodablePacket for AddPaintingPacket {
         buf.set_mc_uuid(self.uuid);
         buf.set_mc_var_int(self.motive);
         buf.set_mc_block_pos(self.pos);
-        // TODO: UNKNOWN: var1.writeByte(this.direction.get2DDataValue());
+        buf.set_mc_u8(self.direction.get_2d_direction());
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
@@ -27,7 +27,7 @@ impl CodablePacket for AddPaintingPacket {
         let uuid = buf.get_mc_uuid()?;
         let motive = buf.get_mc_var_int()?;
         let pos = buf.get_mc_block_pos()?;
-        // TODO: UNKNOWN: this.direction = Direction.from2DDataValue(var1.readUnsignedByte());
+        let direction = Direction::from_2d_direction(buf.get_mc_u8()?).unwrap_or(Direction::Up);
         return Ok(AddPaintingPacket { id, uuid, pos, direction, motive });
     }
 }

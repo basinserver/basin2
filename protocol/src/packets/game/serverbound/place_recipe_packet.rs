@@ -2,11 +2,10 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct PlaceRecipePacket {
-    pub containerId: i32,
+    pub containerId: u8,
     pub recipe: ResourceLocation,
     pub shiftDown: bool,
 }
@@ -20,7 +19,7 @@ impl CodablePacket for PlaceRecipePacket {
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
         let containerId = buf.get_mc_u8()?;
-        let recipe = buf.get_mc_string()?;
+        let recipe = buf.get_mc_string(32767)?;
         let shiftDown = buf.get_mc_bool()?;
         return Ok(PlaceRecipePacket { containerId, recipe, shiftDown });
     }

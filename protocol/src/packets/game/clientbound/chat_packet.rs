@@ -2,23 +2,22 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct ChatPacket {
     pub message: ChatComponent,
-    pub type: ChatType,
+    pub chat_type: ChatType,
 }
 
 impl CodablePacket for ChatPacket {
     fn encode(self, buf: &mut BytesMut) {
         buf.set_mc_chat_component(self.message);
-        // TODO: UNKNOWN: var1.writeByte(this.type.getIndex());
+        buf.set_mc_u8(self.chat_type as u8);
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
         let message = buf.get_mc_chat_component()?;
-        // TODO: UNKNOWN: this.type = ChatType.getForIndex(var1.readByte());
-        return Ok(ChatPacket { message, type });
+        let chat_type: ChatType = buf.get_mc_enum_u8()?;
+        return Ok(ChatPacket { message, chat_type });
     }
 }

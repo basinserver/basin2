@@ -2,11 +2,10 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct SetCreativeModeSlotPacket {
-    pub slotNum: i32,
+    pub slotNum: i16,
     pub itemStack: ItemStack,
 }
 

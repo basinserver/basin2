@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct LoginDisconnectPacket {
@@ -15,7 +14,7 @@ impl CodablePacket for LoginDisconnectPacket {
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
-        // TODO: UNKNOWN: this.reason = Component.Serializer.fromJsonLenient(var1.readUtf(262144));
+        let reason = buf.get_mc_string(262144)?;
         return Ok(LoginDisconnectPacket { reason });
     }
 }

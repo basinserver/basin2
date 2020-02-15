@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct ChangeDifficultyPacket {
@@ -11,11 +10,11 @@ pub struct ChangeDifficultyPacket {
 
 impl CodablePacket for ChangeDifficultyPacket {
     fn encode(self, buf: &mut BytesMut) {
-        // TODO: UNKNOWN: var1.writeByte(this.difficulty.getId());
+        buf.set_mc_u8(self.difficulty as u8);
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
-        // TODO: UNKNOWN: this.difficulty = Difficulty.byId(var1.readUnsignedByte());
+        let difficulty: Difficulty = buf.get_mc_enum_u8()?;
         return Ok(ChangeDifficultyPacket { difficulty });
     }
 }

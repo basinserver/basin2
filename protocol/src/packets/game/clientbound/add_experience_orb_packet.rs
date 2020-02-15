@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct AddExperienceOrbPacket {
@@ -10,7 +9,7 @@ pub struct AddExperienceOrbPacket {
     pub x: f64,
     pub y: f64,
     pub z: f64,
-    pub value: i32,
+    pub value: i16,
 }
 
 impl CodablePacket for AddExperienceOrbPacket {

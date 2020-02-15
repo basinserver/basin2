@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct CommandSuggestionPacket {
@@ -13,12 +12,12 @@ pub struct CommandSuggestionPacket {
 impl CodablePacket for CommandSuggestionPacket {
     fn encode(self, buf: &mut BytesMut) {
         buf.set_mc_var_int(self.id);
-        // TODO: UNKNOWN: var1.writeUtf(this.command, 32500);
+        buf.set_mc_string(self.command);
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
         let id = buf.get_mc_var_int()?;
-        let command = buf.get_mc_string_bounded(32500)?;
+        let command = buf.get_mc_string(32500)?;
         return Ok(CommandSuggestionPacket { id, command });
     }
 }

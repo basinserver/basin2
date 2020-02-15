@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct RemoveMobEffectPacket {
@@ -13,12 +12,12 @@ pub struct RemoveMobEffectPacket {
 impl CodablePacket for RemoveMobEffectPacket {
     fn encode(self, buf: &mut BytesMut) {
         buf.set_mc_var_int(self.entityId);
-        // TODO: UNKNOWN: var1.writeByte(MobEffect.getId(this.effect));
+        buf.set_mc_u8(self.effect as u8);
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
         let entityId = buf.get_mc_var_int()?;
-        // TODO: UNKNOWN: this.effect = MobEffect.byId(var1.readUnsignedByte());
+        let effect = buf.get_mc_enum_u8()?;
         return Ok(RemoveMobEffectPacket { entityId, effect });
     }
 }

@@ -8,13 +8,13 @@ use crate::result::*;
 pub struct AddMobPacket {
     pub id: i32,
     pub uuid: Uuid,
-    pub type: i32,
+    pub entityType: i32,
     pub x: f64,
     pub y: f64,
     pub z: f64,
-    pub xd: i32,
-    pub yd: i32,
-    pub zd: i32,
+    pub xd: i16,
+    pub yd: i16,
+    pub zd: i16,
     pub yRot: u8,
     pub xRot: u8,
     pub yHeadRot: u8,
@@ -24,7 +24,7 @@ impl CodablePacket for AddMobPacket {
     fn encode(self, buf: &mut BytesMut) {
         buf.set_mc_var_int(self.id);
         buf.set_mc_uuid(self.uuid);
-        buf.set_mc_var_int(self.type);
+        buf.set_mc_var_int(self.entityType);
         buf.set_mc_f64(self.x);
         buf.set_mc_f64(self.y);
         buf.set_mc_f64(self.z);
@@ -39,7 +39,7 @@ impl CodablePacket for AddMobPacket {
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
         let id = buf.get_mc_var_int()?;
         let uuid = buf.get_mc_uuid()?;
-        let type = buf.get_mc_var_int()?;
+        let entityType = buf.get_mc_var_int()?;
         let x = buf.get_mc_f64()?;
         let y = buf.get_mc_f64()?;
         let z = buf.get_mc_f64()?;
@@ -49,6 +49,6 @@ impl CodablePacket for AddMobPacket {
         let xd = buf.get_mc_i16()?;
         let yd = buf.get_mc_i16()?;
         let zd = buf.get_mc_i16()?;
-        return Ok(AddMobPacket { id, uuid, type, x, y, z, xd, yd, zd, yRot, xRot, yHeadRot });
+        return Ok(AddMobPacket { id, uuid, entityType, x, y, z, xd, yd, zd, yRot, xRot, yHeadRot });
     }
 }

@@ -2,20 +2,38 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
+pub struct AwardStatsPacketItem {
+    stat_type: i32,
+    stat: i32,
+    value: i32,
+}
+
 pub struct AwardStatsPacket {
-    
+    pub stats: Vec<AwardStatsPacketItem>,
 }
 
 impl CodablePacket for AwardStatsPacket {
     fn encode(self, buf: &mut BytesMut) {
-        /* TODO: NOT FOUND */
+        buf.set_mc_var_int(self.stats.len() as i32);
+        for item in self.stats {
+            buf.set_mc_var_int(item.stat_type);
+            buf.set_mc_var_int(item.stat);
+            buf.set_mc_var_int(item.value);
+        }
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
-        /* TODO: NOT FOUND */
-        return Ok(AwardStatsPacket {  });
+        let mut stats: Vec<AwardStatsPacketItem> = vec![];
+        let count = buf.get_mc_var_int()?;
+        for _ in 0..count {
+            stats.push(AwardStatsPacketItem {
+                stat_type: buf.get_mc_var_int()?,
+                stat: buf.get_mc_var_int()?,
+                value: buf.get_mc_var_int()?,
+            })
+        }
+        return Ok(AwardStatsPacket { stats });
     }
 }

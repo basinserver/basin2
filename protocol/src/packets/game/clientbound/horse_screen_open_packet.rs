@@ -2,11 +2,10 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct HorseScreenOpenPacket {
-    pub containerId: i32,
+    pub containerId: u8,
     pub size: i32,
     pub entityId: i32,
 }

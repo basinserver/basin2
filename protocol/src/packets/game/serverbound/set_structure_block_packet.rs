@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct SetStructureBlockPacket {
@@ -22,27 +21,78 @@ pub struct SetStructureBlockPacket {
     pub seed: i64,
 }
 
+fn clamp(value: i8, from: i32, to: i32) -> i32 {
+    let value = value as i32;
+    return if value < from {
+        from
+    } else if value > to {
+        to
+    } else {
+        value
+    };
+}
+
 impl CodablePacket for SetStructureBlockPacket {
     fn encode(self, buf: &mut BytesMut) {
-        /* TODO: NOT FOUND */
+        buf.set_mc_block_pos(self.pos);
+        buf.set_mc_var_int(self.updateType as i32);
+        buf.set_mc_var_int(self.mode as i32);
+        buf.set_mc_string(self.name);
+        buf.set_mc_i8(self.offset.x as i8);
+        buf.set_mc_i8(self.offset.y as i8);
+        buf.set_mc_i8(self.offset.z as i8);
+        buf.set_mc_i8(self.size.x as i8);
+        buf.set_mc_i8(self.size.y as i8);
+        buf.set_mc_i8(self.size.z as i8);
+        buf.set_mc_var_int(self.mirror as i32);
+        buf.set_mc_var_int(self.rotation as i32);
+        buf.set_mc_string(self.data);
+        buf.set_mc_f32(self.integrity);
+        buf.set_mc_var_long(self.seed);
+        let mut flags: u8 = 0;
+        if self.ignoreEntities {
+            flags |= 1;
+        }
+        if self.showAir {
+            flags |= 2;
+        }
+        if self.showBoundingBox {
+            flags |= 4;
+        }
+        buf.set_mc_u8(flags);
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
         let pos = buf.get_mc_block_pos()?;
-        // TODO: UNKNOWN: this.updateType = (StructureBlockEntity.UpdateType)var1.readEnum(StructureBlockEntity.UpdateType.class);
-        // TODO: UNKNOWN: this.mode = (StructureMode)var1.readEnum(StructureMode.class);
-        let name = buf.get_mc_string_bounded(32767)?;
-        // TODO: UNKNOWN: this.offset = new BlockPos(Mth.clamp(var1.readByte(), -32, 32), Mth.clamp(var1.readByte(), -32, 32), Mth.clamp(var1.readByte(), -32, 32));
-        // TODO: UNKNOWN: this.size = new BlockPos(Mth.clamp(var1.readByte(), 0, 32), Mth.clamp(var1.readByte(), 0, 32), Mth.clamp(var1.readByte(), 0, 32));
-        // TODO: UNKNOWN: this.mirror = (Mirror)var1.readEnum(Mirror.class);
-        // TODO: UNKNOWN: this.rotation = (Rotation)var1.readEnum(Rotation.class);
-        let data = buf.get_mc_string_bounded(12)?;
-        // TODO: UNKNOWN: this.integrity = Mth.clamp(var1.readFloat(), 0.0F, 1.0F);
-        let seed = buf.get_mc_i64()?;
-        // TODO: UNKNOWN: byte var2 = var1.readByte();
-        // TODO: EXTRA: this.ignoreEntities = (var2 & 1) != 0;
-        // TODO: EXTRA: this.showAir = (var2 & 2) != 0;
-        // TODO: EXTRA: this.showBoundingBox = (var2 & 4) != 0;
+        let updateType: StructureBlockEntityUpdateType = buf.get_mc_enum()?;
+        let mode: StructureMode = buf.get_mc_enum()?;
+        let name = buf.get_mc_string(32767)?;
+        let offset = BlockPos {
+            x: clamp(buf.get_mc_i8()?, -32, 32),
+            y: clamp(buf.get_mc_i8()?, -32, 32),
+            z: clamp(buf.get_mc_i8()?, -32, 32),
+        };
+        let size = BlockPos {
+            x: clamp(buf.get_mc_i8()?, -32, 32),
+            y: clamp(buf.get_mc_i8()?, -32, 32),
+            z: clamp(buf.get_mc_i8()?, -32, 32),
+        };
+        let mirror: Mirror = buf.get_mc_enum()?;
+        let rotation: Rotation = buf.get_mc_enum()?;
+        let data = buf.get_mc_string(12)?;
+        let integrity = buf.get_mc_f32()?;
+        let integrity = if integrity < 0.0 {
+            0.0
+        } else if integrity > 1.0 {
+            1.0
+        } else {
+            integrity
+        };
+        let seed = buf.get_mc_var_long()?;
+        let flags = buf.get_mc_u8()?;
+        let ignoreEntities = (flags & 1) > 0;
+        let showAir = (flags & 2) > 0;
+        let showBoundingBox = (flags & 4) > 0;
         return Ok(SetStructureBlockPacket { pos, updateType, mode, name, offset, size, mirror, rotation, data, ignoreEntities, showAir, showBoundingBox, integrity, seed });
     }
 }

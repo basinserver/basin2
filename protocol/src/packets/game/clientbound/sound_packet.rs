@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct SoundPacket {
@@ -17,8 +16,8 @@ pub struct SoundPacket {
 
 impl CodablePacket for SoundPacket {
     fn encode(self, buf: &mut BytesMut) {
-        // TODO: UNKNOWN: var1.writeVarInt(Registry.SOUND_EVENT.getId(this.sound));
-        buf.set_mc_var_int(self.source);
+        buf.set_mc_var_int(self.sound);
+        buf.set_mc_var_int(self.source as i32);
         buf.set_mc_i32(self.x);
         buf.set_mc_i32(self.y);
         buf.set_mc_i32(self.z);
@@ -27,8 +26,8 @@ impl CodablePacket for SoundPacket {
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
-        // TODO: UNKNOWN: this.sound = (SoundEvent)Registry.SOUND_EVENT.byId(var1.readVarInt());
-        // TODO: UNKNOWN: this.source = (SoundSource)var1.readEnum(SoundSource.class);
+        let sound = buf.get_mc_var_int()?;
+        let source: SoundSource = buf.get_mc_enum()?;
         let x = buf.get_mc_i32()?;
         let y = buf.get_mc_i32()?;
         let z = buf.get_mc_i32()?;

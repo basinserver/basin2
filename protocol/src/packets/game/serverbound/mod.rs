@@ -32,6 +32,12 @@ pub mod keep_alive_packet;
 pub use keep_alive_packet::*;
 pub mod lock_difficulty_packet;
 pub use lock_difficulty_packet::*;
+pub mod move_player_pos_packet;
+pub use move_player_pos_packet::*;
+pub mod move_player_posrot_packet;
+pub use move_player_posrot_packet::*;
+pub mod move_player_rot_packet;
+pub use move_player_rot_packet::*;
 pub mod move_player_packet;
 pub use move_player_packet::*;
 pub mod move_vehicle_packet;
@@ -111,9 +117,9 @@ pub fn decode_packet(id: i32, buf: &mut BytesMut) -> Result<PacketGameServerboun
         14 => Ok(PacketGameServerbound::InteractPacket(InteractPacket::decode(buf)?)),
         15 => Ok(PacketGameServerbound::KeepAlivePacket(KeepAlivePacket::decode(buf)?)),
         16 => Ok(PacketGameServerbound::LockDifficultyPacket(LockDifficultyPacket::decode(buf)?)),
-        17 => Err(/* TODO: NYI */)
-        18 => Err(/* TODO: NYI */)
-        19 => Err(/* TODO: NYI */)
+        17 => Ok(PacketGameServerbound::MovePlayerPosPacket(MovePlayerPosPacket::decode(buf)?)),
+        18 => Ok(PacketGameServerbound::MovePlayerPosRotPacket(MovePlayerPosRotPacket::decode(buf)?)),
+        19 => Ok(PacketGameServerbound::MovePlayerRotPacket(MovePlayerRotPacket::decode(buf)?)),
         20 => Ok(PacketGameServerbound::MovePlayerPacket(MovePlayerPacket::decode(buf)?)),
         21 => Ok(PacketGameServerbound::MoveVehiclePacket(MoveVehiclePacket::decode(buf)?)),
         22 => Ok(PacketGameServerbound::PaddleBoatPacket(PaddleBoatPacket::decode(buf)?)),
@@ -145,53 +151,54 @@ pub fn decode_packet(id: i32, buf: &mut BytesMut) -> Result<PacketGameServerboun
 }
 
 pub fn encode_packet(packet: PacketGameServerbound, buf: &mut BytesMut) {
+    use PacketGameServerbound::*;
     match packet {
-        PacketGameServerbound::AcceptTeleportationPacket(deref_packet) => { buf.set_mc_var_int(0); deref_packet.encode(buf); },
-        PacketGameServerbound::BlockEntityTagQuery(deref_packet) => { buf.set_mc_var_int(1); deref_packet.encode(buf); },
-        PacketGameServerbound::ChangeDifficultyPacket(deref_packet) => { buf.set_mc_var_int(2); deref_packet.encode(buf); },
-        PacketGameServerbound::ChatPacket(deref_packet) => { buf.set_mc_var_int(3); deref_packet.encode(buf); },
-        PacketGameServerbound::ClientCommandPacket(deref_packet) => { buf.set_mc_var_int(4); deref_packet.encode(buf); },
-        PacketGameServerbound::ClientInformationPacket(deref_packet) => { buf.set_mc_var_int(5); deref_packet.encode(buf); },
-        PacketGameServerbound::CommandSuggestionPacket(deref_packet) => { buf.set_mc_var_int(6); deref_packet.encode(buf); },
-        PacketGameServerbound::ContainerAckPacket(deref_packet) => { buf.set_mc_var_int(7); deref_packet.encode(buf); },
-        PacketGameServerbound::ContainerButtonClickPacket(deref_packet) => { buf.set_mc_var_int(8); deref_packet.encode(buf); },
-        PacketGameServerbound::ContainerClickPacket(deref_packet) => { buf.set_mc_var_int(9); deref_packet.encode(buf); },
-        PacketGameServerbound::ContainerClosePacket(deref_packet) => { buf.set_mc_var_int(10); deref_packet.encode(buf); },
-        PacketGameServerbound::CustomPayloadPacket(deref_packet) => { buf.set_mc_var_int(11); deref_packet.encode(buf); },
-        PacketGameServerbound::EditBookPacket(deref_packet) => { buf.set_mc_var_int(12); deref_packet.encode(buf); },
-        PacketGameServerbound::EntityTagQuery(deref_packet) => { buf.set_mc_var_int(13); deref_packet.encode(buf); },
-        PacketGameServerbound::InteractPacket(deref_packet) => { buf.set_mc_var_int(14); deref_packet.encode(buf); },
-        PacketGameServerbound::KeepAlivePacket(deref_packet) => { buf.set_mc_var_int(15); deref_packet.encode(buf); },
-        PacketGameServerbound::LockDifficultyPacket(deref_packet) => { buf.set_mc_var_int(16); deref_packet.encode(buf); },
-        null => Err(/* TODO: NYI */)
-        null => Err(/* TODO: NYI */)
-        null => Err(/* TODO: NYI */)
-        PacketGameServerbound::MovePlayerPacket(deref_packet) => { buf.set_mc_var_int(20); deref_packet.encode(buf); },
-        PacketGameServerbound::MoveVehiclePacket(deref_packet) => { buf.set_mc_var_int(21); deref_packet.encode(buf); },
-        PacketGameServerbound::PaddleBoatPacket(deref_packet) => { buf.set_mc_var_int(22); deref_packet.encode(buf); },
-        PacketGameServerbound::PickItemPacket(deref_packet) => { buf.set_mc_var_int(23); deref_packet.encode(buf); },
-        PacketGameServerbound::PlaceRecipePacket(deref_packet) => { buf.set_mc_var_int(24); deref_packet.encode(buf); },
-        PacketGameServerbound::PlayerAbilitiesPacket(deref_packet) => { buf.set_mc_var_int(25); deref_packet.encode(buf); },
-        PacketGameServerbound::PlayerActionPacket(deref_packet) => { buf.set_mc_var_int(26); deref_packet.encode(buf); },
-        PacketGameServerbound::PlayerCommandPacket(deref_packet) => { buf.set_mc_var_int(27); deref_packet.encode(buf); },
-        PacketGameServerbound::PlayerInputPacket(deref_packet) => { buf.set_mc_var_int(28); deref_packet.encode(buf); },
-        PacketGameServerbound::RecipeBookUpdatePacket(deref_packet) => { buf.set_mc_var_int(29); deref_packet.encode(buf); },
-        PacketGameServerbound::RenameItemPacket(deref_packet) => { buf.set_mc_var_int(30); deref_packet.encode(buf); },
-        PacketGameServerbound::ResourcePackPacket(deref_packet) => { buf.set_mc_var_int(31); deref_packet.encode(buf); },
-        PacketGameServerbound::SeenAdvancementsPacket(deref_packet) => { buf.set_mc_var_int(32); deref_packet.encode(buf); },
-        PacketGameServerbound::SelectTradePacket(deref_packet) => { buf.set_mc_var_int(33); deref_packet.encode(buf); },
-        PacketGameServerbound::SetBeaconPacket(deref_packet) => { buf.set_mc_var_int(34); deref_packet.encode(buf); },
-        PacketGameServerbound::SetCarriedItemPacket(deref_packet) => { buf.set_mc_var_int(35); deref_packet.encode(buf); },
-        PacketGameServerbound::SetCommandBlockPacket(deref_packet) => { buf.set_mc_var_int(36); deref_packet.encode(buf); },
-        PacketGameServerbound::SetCommandMinecartPacket(deref_packet) => { buf.set_mc_var_int(37); deref_packet.encode(buf); },
-        PacketGameServerbound::SetCreativeModeSlotPacket(deref_packet) => { buf.set_mc_var_int(38); deref_packet.encode(buf); },
-        PacketGameServerbound::SetJigsawBlockPacket(deref_packet) => { buf.set_mc_var_int(39); deref_packet.encode(buf); },
-        PacketGameServerbound::SetStructureBlockPacket(deref_packet) => { buf.set_mc_var_int(40); deref_packet.encode(buf); },
-        PacketGameServerbound::SignUpdatePacket(deref_packet) => { buf.set_mc_var_int(41); deref_packet.encode(buf); },
-        PacketGameServerbound::SwingPacket(deref_packet) => { buf.set_mc_var_int(42); deref_packet.encode(buf); },
-        PacketGameServerbound::TeleportToEntityPacket(deref_packet) => { buf.set_mc_var_int(43); deref_packet.encode(buf); },
-        PacketGameServerbound::UseItemOnPacket(deref_packet) => { buf.set_mc_var_int(44); deref_packet.encode(buf); },
-        PacketGameServerbound::UseItemPacket(deref_packet) => { buf.set_mc_var_int(45); deref_packet.encode(buf); },
+        AcceptTeleportationPacket(deref_packet) => { buf.set_mc_var_int(0); deref_packet.encode(buf); },
+        BlockEntityTagQuery(deref_packet) => { buf.set_mc_var_int(1); deref_packet.encode(buf); },
+        ChangeDifficultyPacket(deref_packet) => { buf.set_mc_var_int(2); deref_packet.encode(buf); },
+        ChatPacket(deref_packet) => { buf.set_mc_var_int(3); deref_packet.encode(buf); },
+        ClientCommandPacket(deref_packet) => { buf.set_mc_var_int(4); deref_packet.encode(buf); },
+        ClientInformationPacket(deref_packet) => { buf.set_mc_var_int(5); deref_packet.encode(buf); },
+        CommandSuggestionPacket(deref_packet) => { buf.set_mc_var_int(6); deref_packet.encode(buf); },
+        ContainerAckPacket(deref_packet) => { buf.set_mc_var_int(7); deref_packet.encode(buf); },
+        ContainerButtonClickPacket(deref_packet) => { buf.set_mc_var_int(8); deref_packet.encode(buf); },
+        ContainerClickPacket(deref_packet) => { buf.set_mc_var_int(9); deref_packet.encode(buf); },
+        ContainerClosePacket(deref_packet) => { buf.set_mc_var_int(10); deref_packet.encode(buf); },
+        CustomPayloadPacket(deref_packet) => { buf.set_mc_var_int(11); deref_packet.encode(buf); },
+        EditBookPacket(deref_packet) => { buf.set_mc_var_int(12); deref_packet.encode(buf); },
+        EntityTagQuery(deref_packet) => { buf.set_mc_var_int(13); deref_packet.encode(buf); },
+        InteractPacket(deref_packet) => { buf.set_mc_var_int(14); deref_packet.encode(buf); },
+        KeepAlivePacket(deref_packet) => { buf.set_mc_var_int(15); deref_packet.encode(buf); },
+        LockDifficultyPacket(deref_packet) => { buf.set_mc_var_int(16); deref_packet.encode(buf); },
+        MovePlayerPosPacket(deref_packet) => { buf.set_mc_var_int(17); deref_packet.encode(buf); },
+        MovePlayerPosRotPacket(deref_packet) => { buf.set_mc_var_int(18); deref_packet.encode(buf); },
+        MovePlayerRotPacket(deref_packet) => { buf.set_mc_var_int(19); deref_packet.encode(buf); },
+        MovePlayerPacket(deref_packet) => { buf.set_mc_var_int(20); deref_packet.encode(buf); },
+        MoveVehiclePacket(deref_packet) => { buf.set_mc_var_int(21); deref_packet.encode(buf); },
+        PaddleBoatPacket(deref_packet) => { buf.set_mc_var_int(22); deref_packet.encode(buf); },
+        PickItemPacket(deref_packet) => { buf.set_mc_var_int(23); deref_packet.encode(buf); },
+        PlaceRecipePacket(deref_packet) => { buf.set_mc_var_int(24); deref_packet.encode(buf); },
+        PlayerAbilitiesPacket(deref_packet) => { buf.set_mc_var_int(25); deref_packet.encode(buf); },
+        PlayerActionPacket(deref_packet) => { buf.set_mc_var_int(26); deref_packet.encode(buf); },
+        PlayerCommandPacket(deref_packet) => { buf.set_mc_var_int(27); deref_packet.encode(buf); },
+        PlayerInputPacket(deref_packet) => { buf.set_mc_var_int(28); deref_packet.encode(buf); },
+        RecipeBookUpdatePacket(deref_packet) => { buf.set_mc_var_int(29); deref_packet.encode(buf); },
+        RenameItemPacket(deref_packet) => { buf.set_mc_var_int(30); deref_packet.encode(buf); },
+        ResourcePackPacket(deref_packet) => { buf.set_mc_var_int(31); deref_packet.encode(buf); },
+        SeenAdvancementsPacket(deref_packet) => { buf.set_mc_var_int(32); deref_packet.encode(buf); },
+        SelectTradePacket(deref_packet) => { buf.set_mc_var_int(33); deref_packet.encode(buf); },
+        SetBeaconPacket(deref_packet) => { buf.set_mc_var_int(34); deref_packet.encode(buf); },
+        SetCarriedItemPacket(deref_packet) => { buf.set_mc_var_int(35); deref_packet.encode(buf); },
+        SetCommandBlockPacket(deref_packet) => { buf.set_mc_var_int(36); deref_packet.encode(buf); },
+        SetCommandMinecartPacket(deref_packet) => { buf.set_mc_var_int(37); deref_packet.encode(buf); },
+        SetCreativeModeSlotPacket(deref_packet) => { buf.set_mc_var_int(38); deref_packet.encode(buf); },
+        SetJigsawBlockPacket(deref_packet) => { buf.set_mc_var_int(39); deref_packet.encode(buf); },
+        SetStructureBlockPacket(deref_packet) => { buf.set_mc_var_int(40); deref_packet.encode(buf); },
+        SignUpdatePacket(deref_packet) => { buf.set_mc_var_int(41); deref_packet.encode(buf); },
+        SwingPacket(deref_packet) => { buf.set_mc_var_int(42); deref_packet.encode(buf); },
+        TeleportToEntityPacket(deref_packet) => { buf.set_mc_var_int(43); deref_packet.encode(buf); },
+        UseItemOnPacket(deref_packet) => { buf.set_mc_var_int(44); deref_packet.encode(buf); },
+        UseItemPacket(deref_packet) => { buf.set_mc_var_int(45); deref_packet.encode(buf); },
     }
 }
 
@@ -213,9 +220,9 @@ pub enum PacketGameServerbound {
     InteractPacket(InteractPacket),
     KeepAlivePacket(KeepAlivePacket),
     LockDifficultyPacket(LockDifficultyPacket),
-    /* TODO: NYI */
-    /* TODO: NYI */
-    /* TODO: NYI */
+    MovePlayerPosPacket(MovePlayerPosPacket),
+    MovePlayerPosRotPacket(MovePlayerPosRotPacket),
+    MovePlayerRotPacket(MovePlayerRotPacket),
     MovePlayerPacket(MovePlayerPacket),
     MoveVehiclePacket(MoveVehiclePacket),
     PaddleBoatPacket(PaddleBoatPacket),

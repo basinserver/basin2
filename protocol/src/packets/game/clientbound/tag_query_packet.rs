@@ -2,8 +2,8 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
+use crate::nbt::Nbt;
 
 pub struct TagQueryPacket {
     pub transactionId: i32,

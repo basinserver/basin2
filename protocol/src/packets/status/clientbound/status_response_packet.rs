@@ -2,7 +2,6 @@
 use crate::packet::*;
 use crate::network::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 use crate::result::*;
 
 pub struct StatusResponsePacket {
@@ -11,11 +10,11 @@ pub struct StatusResponsePacket {
 
 impl CodablePacket for StatusResponsePacket {
     fn encode(self, buf: &mut BytesMut) {
-        // TODO: UNKNOWN: var1.writeUtf(GSON.toJson((Object)this.status));
+        buf.set_mc_string(serde_json::to_string(&self.status).unwrap());
     }
 
     fn decode(buf: &mut BytesMut) -> Result<Self> where Self: Sized {
-        // TODO: UNKNOWN: this.status = (ServerStatus)GsonHelper.fromJson(GSON, var1.readUtf(32767), ServerStatus.class);
+        let status: ServerStatus = serde_json::from_str(&*buf.get_mc_string(32767)?)?;
         return Ok(StatusResponsePacket { status });
     }
 }
