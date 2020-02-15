@@ -7,3 +7,10 @@ pub trait CodablePacket {
     where
         Self: Sized;
 }
+
+pub trait PacketContainer {
+    fn encode(self, buf: &mut BytesMut);
+    fn decode(id: i32, buf: &mut BytesMut) -> Result<Self>
+    where
+        Self: Sized;
+}

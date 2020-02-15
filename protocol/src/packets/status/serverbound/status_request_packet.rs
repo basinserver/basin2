@@ -5,9 +5,9 @@ use bytes::BytesMut;
 pub struct StatusRequestPacket {}
 
 impl CodablePacket for StatusRequestPacket {
-    fn encode(self, buf: &mut BytesMut) {}
+    fn encode(self, _buf: &mut BytesMut) {}
 
-    fn decode(buf: &mut BytesMut) -> Result<Self>
+    fn decode(_buf: &mut BytesMut) -> Result<Self>
     where
         Self: Sized,
     {

@@ -8,24 +8,26 @@ use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;
 
-pub fn decode_packet(id: i32, buf: &mut BytesMut) -> Result<PacketHandshakeServerbound> {
-    match id {
-        0 => Ok(PacketHandshakeServerbound::ClientIntentionPacket(
-            ClientIntentionPacket::decode(buf)?,
-        )),
-        _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),
-    }
-}
-
-pub fn encode_packet(packet: PacketHandshakeServerbound, buf: &mut BytesMut) {
-    match packet {
-        PacketHandshakeServerbound::ClientIntentionPacket(deref_packet) => {
-            buf.set_mc_var_int(0);
-            deref_packet.encode(buf);
-        }
-    }
-}
-
 pub enum PacketHandshakeServerbound {
     ClientIntentionPacket(ClientIntentionPacket),
+}
+
+impl PacketContainer for PacketHandshakeServerbound {
+    fn encode(self, buf: &mut BytesMut) {
+        match self {
+            PacketHandshakeServerbound::ClientIntentionPacket(deref_packet) => {
+                buf.set_mc_var_int(0);
+                deref_packet.encode(buf);
+            }
+        }
+    }
+
+    fn decode(id: i32, buf: &mut BytesMut) -> Result<PacketHandshakeServerbound> {
+        match id {
+            0 => Ok(PacketHandshakeServerbound::ClientIntentionPacket(
+                ClientIntentionPacket::decode(buf)?,
+            )),
+            _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),
+        }
+    }
 }

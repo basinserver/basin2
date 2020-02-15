@@ -98,338 +98,6 @@ use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;
 
-pub fn decode_packet(id: i32, buf: &mut BytesMut) -> Result<PacketGameServerbound> {
-    match id {
-        0 => Ok(PacketGameServerbound::AcceptTeleportationPacket(
-            AcceptTeleportationPacket::decode(buf)?,
-        )),
-        1 => Ok(PacketGameServerbound::BlockEntityTagQuery(
-            BlockEntityTagQuery::decode(buf)?,
-        )),
-        2 => Ok(PacketGameServerbound::ChangeDifficultyPacket(
-            ChangeDifficultyPacket::decode(buf)?,
-        )),
-        3 => Ok(PacketGameServerbound::ChatPacket(ChatPacket::decode(buf)?)),
-        4 => Ok(PacketGameServerbound::ClientCommandPacket(
-            ClientCommandPacket::decode(buf)?,
-        )),
-        5 => Ok(PacketGameServerbound::ClientInformationPacket(
-            ClientInformationPacket::decode(buf)?,
-        )),
-        6 => Ok(PacketGameServerbound::CommandSuggestionPacket(
-            CommandSuggestionPacket::decode(buf)?,
-        )),
-        7 => Ok(PacketGameServerbound::ContainerAckPacket(
-            ContainerAckPacket::decode(buf)?,
-        )),
-        8 => Ok(PacketGameServerbound::ContainerButtonClickPacket(
-            ContainerButtonClickPacket::decode(buf)?,
-        )),
-        9 => Ok(PacketGameServerbound::ContainerClickPacket(
-            ContainerClickPacket::decode(buf)?,
-        )),
-        10 => Ok(PacketGameServerbound::ContainerClosePacket(
-            ContainerClosePacket::decode(buf)?,
-        )),
-        11 => Ok(PacketGameServerbound::CustomPayloadPacket(
-            CustomPayloadPacket::decode(buf)?,
-        )),
-        12 => Ok(PacketGameServerbound::EditBookPacket(
-            EditBookPacket::decode(buf)?,
-        )),
-        13 => Ok(PacketGameServerbound::EntityTagQuery(
-            EntityTagQuery::decode(buf)?,
-        )),
-        14 => Ok(PacketGameServerbound::InteractPacket(
-            InteractPacket::decode(buf)?,
-        )),
-        15 => Ok(PacketGameServerbound::KeepAlivePacket(
-            KeepAlivePacket::decode(buf)?,
-        )),
-        16 => Ok(PacketGameServerbound::LockDifficultyPacket(
-            LockDifficultyPacket::decode(buf)?,
-        )),
-        17 => Ok(PacketGameServerbound::MovePlayerPosPacket(
-            MovePlayerPosPacket::decode(buf)?,
-        )),
-        18 => Ok(PacketGameServerbound::MovePlayerPosRotPacket(
-            MovePlayerPosRotPacket::decode(buf)?,
-        )),
-        19 => Ok(PacketGameServerbound::MovePlayerRotPacket(
-            MovePlayerRotPacket::decode(buf)?,
-        )),
-        20 => Ok(PacketGameServerbound::MovePlayerPacket(
-            MovePlayerPacket::decode(buf)?,
-        )),
-        21 => Ok(PacketGameServerbound::MoveVehiclePacket(
-            MoveVehiclePacket::decode(buf)?,
-        )),
-        22 => Ok(PacketGameServerbound::PaddleBoatPacket(
-            PaddleBoatPacket::decode(buf)?,
-        )),
-        23 => Ok(PacketGameServerbound::PickItemPacket(
-            PickItemPacket::decode(buf)?,
-        )),
-        24 => Ok(PacketGameServerbound::PlaceRecipePacket(
-            PlaceRecipePacket::decode(buf)?,
-        )),
-        25 => Ok(PacketGameServerbound::PlayerAbilitiesPacket(
-            PlayerAbilitiesPacket::decode(buf)?,
-        )),
-        26 => Ok(PacketGameServerbound::PlayerActionPacket(
-            PlayerActionPacket::decode(buf)?,
-        )),
-        27 => Ok(PacketGameServerbound::PlayerCommandPacket(
-            PlayerCommandPacket::decode(buf)?,
-        )),
-        28 => Ok(PacketGameServerbound::PlayerInputPacket(
-            PlayerInputPacket::decode(buf)?,
-        )),
-        29 => Ok(PacketGameServerbound::RecipeBookUpdatePacket(
-            RecipeBookUpdatePacket::decode(buf)?,
-        )),
-        30 => Ok(PacketGameServerbound::RenameItemPacket(
-            RenameItemPacket::decode(buf)?,
-        )),
-        31 => Ok(PacketGameServerbound::ResourcePackPacket(
-            ResourcePackPacket::decode(buf)?,
-        )),
-        32 => Ok(PacketGameServerbound::SeenAdvancementsPacket(
-            SeenAdvancementsPacket::decode(buf)?,
-        )),
-        33 => Ok(PacketGameServerbound::SelectTradePacket(
-            SelectTradePacket::decode(buf)?,
-        )),
-        34 => Ok(PacketGameServerbound::SetBeaconPacket(
-            SetBeaconPacket::decode(buf)?,
-        )),
-        35 => Ok(PacketGameServerbound::SetCarriedItemPacket(
-            SetCarriedItemPacket::decode(buf)?,
-        )),
-        36 => Ok(PacketGameServerbound::SetCommandBlockPacket(
-            SetCommandBlockPacket::decode(buf)?,
-        )),
-        37 => Ok(PacketGameServerbound::SetCommandMinecartPacket(
-            SetCommandMinecartPacket::decode(buf)?,
-        )),
-        38 => Ok(PacketGameServerbound::SetCreativeModeSlotPacket(
-            SetCreativeModeSlotPacket::decode(buf)?,
-        )),
-        39 => Ok(PacketGameServerbound::SetJigsawBlockPacket(
-            SetJigsawBlockPacket::decode(buf)?,
-        )),
-        40 => Ok(PacketGameServerbound::SetStructureBlockPacket(
-            SetStructureBlockPacket::decode(buf)?,
-        )),
-        41 => Ok(PacketGameServerbound::SignUpdatePacket(
-            SignUpdatePacket::decode(buf)?,
-        )),
-        42 => Ok(PacketGameServerbound::SwingPacket(SwingPacket::decode(
-            buf,
-        )?)),
-        43 => Ok(PacketGameServerbound::TeleportToEntityPacket(
-            TeleportToEntityPacket::decode(buf)?,
-        )),
-        44 => Ok(PacketGameServerbound::UseItemOnPacket(
-            UseItemOnPacket::decode(buf)?,
-        )),
-        45 => Ok(PacketGameServerbound::UseItemPacket(UseItemPacket::decode(
-            buf,
-        )?)),
-        _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),
-    }
-}
-
-pub fn encode_packet(packet: PacketGameServerbound, buf: &mut BytesMut) {
-    use PacketGameServerbound::*;
-    match packet {
-        AcceptTeleportationPacket(deref_packet) => {
-            buf.set_mc_var_int(0);
-            deref_packet.encode(buf);
-        }
-        BlockEntityTagQuery(deref_packet) => {
-            buf.set_mc_var_int(1);
-            deref_packet.encode(buf);
-        }
-        ChangeDifficultyPacket(deref_packet) => {
-            buf.set_mc_var_int(2);
-            deref_packet.encode(buf);
-        }
-        ChatPacket(deref_packet) => {
-            buf.set_mc_var_int(3);
-            deref_packet.encode(buf);
-        }
-        ClientCommandPacket(deref_packet) => {
-            buf.set_mc_var_int(4);
-            deref_packet.encode(buf);
-        }
-        ClientInformationPacket(deref_packet) => {
-            buf.set_mc_var_int(5);
-            deref_packet.encode(buf);
-        }
-        CommandSuggestionPacket(deref_packet) => {
-            buf.set_mc_var_int(6);
-            deref_packet.encode(buf);
-        }
-        ContainerAckPacket(deref_packet) => {
-            buf.set_mc_var_int(7);
-            deref_packet.encode(buf);
-        }
-        ContainerButtonClickPacket(deref_packet) => {
-            buf.set_mc_var_int(8);
-            deref_packet.encode(buf);
-        }
-        ContainerClickPacket(deref_packet) => {
-            buf.set_mc_var_int(9);
-            deref_packet.encode(buf);
-        }
-        ContainerClosePacket(deref_packet) => {
-            buf.set_mc_var_int(10);
-            deref_packet.encode(buf);
-        }
-        CustomPayloadPacket(deref_packet) => {
-            buf.set_mc_var_int(11);
-            deref_packet.encode(buf);
-        }
-        EditBookPacket(deref_packet) => {
-            buf.set_mc_var_int(12);
-            deref_packet.encode(buf);
-        }
-        EntityTagQuery(deref_packet) => {
-            buf.set_mc_var_int(13);
-            deref_packet.encode(buf);
-        }
-        InteractPacket(deref_packet) => {
-            buf.set_mc_var_int(14);
-            deref_packet.encode(buf);
-        }
-        KeepAlivePacket(deref_packet) => {
-            buf.set_mc_var_int(15);
-            deref_packet.encode(buf);
-        }
-        LockDifficultyPacket(deref_packet) => {
-            buf.set_mc_var_int(16);
-            deref_packet.encode(buf);
-        }
-        MovePlayerPosPacket(deref_packet) => {
-            buf.set_mc_var_int(17);
-            deref_packet.encode(buf);
-        }
-        MovePlayerPosRotPacket(deref_packet) => {
-            buf.set_mc_var_int(18);
-            deref_packet.encode(buf);
-        }
-        MovePlayerRotPacket(deref_packet) => {
-            buf.set_mc_var_int(19);
-            deref_packet.encode(buf);
-        }
-        MovePlayerPacket(deref_packet) => {
-            buf.set_mc_var_int(20);
-            deref_packet.encode(buf);
-        }
-        MoveVehiclePacket(deref_packet) => {
-            buf.set_mc_var_int(21);
-            deref_packet.encode(buf);
-        }
-        PaddleBoatPacket(deref_packet) => {
-            buf.set_mc_var_int(22);
-            deref_packet.encode(buf);
-        }
-        PickItemPacket(deref_packet) => {
-            buf.set_mc_var_int(23);
-            deref_packet.encode(buf);
-        }
-        PlaceRecipePacket(deref_packet) => {
-            buf.set_mc_var_int(24);
-            deref_packet.encode(buf);
-        }
-        PlayerAbilitiesPacket(deref_packet) => {
-            buf.set_mc_var_int(25);
-            deref_packet.encode(buf);
-        }
-        PlayerActionPacket(deref_packet) => {
-            buf.set_mc_var_int(26);
-            deref_packet.encode(buf);
-        }
-        PlayerCommandPacket(deref_packet) => {
-            buf.set_mc_var_int(27);
-            deref_packet.encode(buf);
-        }
-        PlayerInputPacket(deref_packet) => {
-            buf.set_mc_var_int(28);
-            deref_packet.encode(buf);
-        }
-        RecipeBookUpdatePacket(deref_packet) => {
-            buf.set_mc_var_int(29);
-            deref_packet.encode(buf);
-        }
-        RenameItemPacket(deref_packet) => {
-            buf.set_mc_var_int(30);
-            deref_packet.encode(buf);
-        }
-        ResourcePackPacket(deref_packet) => {
-            buf.set_mc_var_int(31);
-            deref_packet.encode(buf);
-        }
-        SeenAdvancementsPacket(deref_packet) => {
-            buf.set_mc_var_int(32);
-            deref_packet.encode(buf);
-        }
-        SelectTradePacket(deref_packet) => {
-            buf.set_mc_var_int(33);
-            deref_packet.encode(buf);
-        }
-        SetBeaconPacket(deref_packet) => {
-            buf.set_mc_var_int(34);
-            deref_packet.encode(buf);
-        }
-        SetCarriedItemPacket(deref_packet) => {
-            buf.set_mc_var_int(35);
-            deref_packet.encode(buf);
-        }
-        SetCommandBlockPacket(deref_packet) => {
-            buf.set_mc_var_int(36);
-            deref_packet.encode(buf);
-        }
-        SetCommandMinecartPacket(deref_packet) => {
-            buf.set_mc_var_int(37);
-            deref_packet.encode(buf);
-        }
-        SetCreativeModeSlotPacket(deref_packet) => {
-            buf.set_mc_var_int(38);
-            deref_packet.encode(buf);
-        }
-        SetJigsawBlockPacket(deref_packet) => {
-            buf.set_mc_var_int(39);
-            deref_packet.encode(buf);
-        }
-        SetStructureBlockPacket(deref_packet) => {
-            buf.set_mc_var_int(40);
-            deref_packet.encode(buf);
-        }
-        SignUpdatePacket(deref_packet) => {
-            buf.set_mc_var_int(41);
-            deref_packet.encode(buf);
-        }
-        SwingPacket(deref_packet) => {
-            buf.set_mc_var_int(42);
-            deref_packet.encode(buf);
-        }
-        TeleportToEntityPacket(deref_packet) => {
-            buf.set_mc_var_int(43);
-            deref_packet.encode(buf);
-        }
-        UseItemOnPacket(deref_packet) => {
-            buf.set_mc_var_int(44);
-            deref_packet.encode(buf);
-        }
-        UseItemPacket(deref_packet) => {
-            buf.set_mc_var_int(45);
-            deref_packet.encode(buf);
-        }
-    }
-}
-
 pub enum PacketGameServerbound {
     AcceptTeleportationPacket(AcceptTeleportationPacket),
     BlockEntityTagQuery(BlockEntityTagQuery),
@@ -477,4 +145,338 @@ pub enum PacketGameServerbound {
     TeleportToEntityPacket(TeleportToEntityPacket),
     UseItemOnPacket(UseItemOnPacket),
     UseItemPacket(UseItemPacket),
+}
+
+impl PacketContainer for PacketGameServerbound {
+    fn encode(self, buf: &mut BytesMut) {
+        use PacketGameServerbound::*;
+        match self {
+            AcceptTeleportationPacket(deref_packet) => {
+                buf.set_mc_var_int(0);
+                deref_packet.encode(buf);
+            }
+            BlockEntityTagQuery(deref_packet) => {
+                buf.set_mc_var_int(1);
+                deref_packet.encode(buf);
+            }
+            ChangeDifficultyPacket(deref_packet) => {
+                buf.set_mc_var_int(2);
+                deref_packet.encode(buf);
+            }
+            ChatPacket(deref_packet) => {
+                buf.set_mc_var_int(3);
+                deref_packet.encode(buf);
+            }
+            ClientCommandPacket(deref_packet) => {
+                buf.set_mc_var_int(4);
+                deref_packet.encode(buf);
+            }
+            ClientInformationPacket(deref_packet) => {
+                buf.set_mc_var_int(5);
+                deref_packet.encode(buf);
+            }
+            CommandSuggestionPacket(deref_packet) => {
+                buf.set_mc_var_int(6);
+                deref_packet.encode(buf);
+            }
+            ContainerAckPacket(deref_packet) => {
+                buf.set_mc_var_int(7);
+                deref_packet.encode(buf);
+            }
+            ContainerButtonClickPacket(deref_packet) => {
+                buf.set_mc_var_int(8);
+                deref_packet.encode(buf);
+            }
+            ContainerClickPacket(deref_packet) => {
+                buf.set_mc_var_int(9);
+                deref_packet.encode(buf);
+            }
+            ContainerClosePacket(deref_packet) => {
+                buf.set_mc_var_int(10);
+                deref_packet.encode(buf);
+            }
+            CustomPayloadPacket(deref_packet) => {
+                buf.set_mc_var_int(11);
+                deref_packet.encode(buf);
+            }
+            EditBookPacket(deref_packet) => {
+                buf.set_mc_var_int(12);
+                deref_packet.encode(buf);
+            }
+            EntityTagQuery(deref_packet) => {
+                buf.set_mc_var_int(13);
+                deref_packet.encode(buf);
+            }
+            InteractPacket(deref_packet) => {
+                buf.set_mc_var_int(14);
+                deref_packet.encode(buf);
+            }
+            KeepAlivePacket(deref_packet) => {
+                buf.set_mc_var_int(15);
+                deref_packet.encode(buf);
+            }
+            LockDifficultyPacket(deref_packet) => {
+                buf.set_mc_var_int(16);
+                deref_packet.encode(buf);
+            }
+            MovePlayerPosPacket(deref_packet) => {
+                buf.set_mc_var_int(17);
+                deref_packet.encode(buf);
+            }
+            MovePlayerPosRotPacket(deref_packet) => {
+                buf.set_mc_var_int(18);
+                deref_packet.encode(buf);
+            }
+            MovePlayerRotPacket(deref_packet) => {
+                buf.set_mc_var_int(19);
+                deref_packet.encode(buf);
+            }
+            MovePlayerPacket(deref_packet) => {
+                buf.set_mc_var_int(20);
+                deref_packet.encode(buf);
+            }
+            MoveVehiclePacket(deref_packet) => {
+                buf.set_mc_var_int(21);
+                deref_packet.encode(buf);
+            }
+            PaddleBoatPacket(deref_packet) => {
+                buf.set_mc_var_int(22);
+                deref_packet.encode(buf);
+            }
+            PickItemPacket(deref_packet) => {
+                buf.set_mc_var_int(23);
+                deref_packet.encode(buf);
+            }
+            PlaceRecipePacket(deref_packet) => {
+                buf.set_mc_var_int(24);
+                deref_packet.encode(buf);
+            }
+            PlayerAbilitiesPacket(deref_packet) => {
+                buf.set_mc_var_int(25);
+                deref_packet.encode(buf);
+            }
+            PlayerActionPacket(deref_packet) => {
+                buf.set_mc_var_int(26);
+                deref_packet.encode(buf);
+            }
+            PlayerCommandPacket(deref_packet) => {
+                buf.set_mc_var_int(27);
+                deref_packet.encode(buf);
+            }
+            PlayerInputPacket(deref_packet) => {
+                buf.set_mc_var_int(28);
+                deref_packet.encode(buf);
+            }
+            RecipeBookUpdatePacket(deref_packet) => {
+                buf.set_mc_var_int(29);
+                deref_packet.encode(buf);
+            }
+            RenameItemPacket(deref_packet) => {
+                buf.set_mc_var_int(30);
+                deref_packet.encode(buf);
+            }
+            ResourcePackPacket(deref_packet) => {
+                buf.set_mc_var_int(31);
+                deref_packet.encode(buf);
+            }
+            SeenAdvancementsPacket(deref_packet) => {
+                buf.set_mc_var_int(32);
+                deref_packet.encode(buf);
+            }
+            SelectTradePacket(deref_packet) => {
+                buf.set_mc_var_int(33);
+                deref_packet.encode(buf);
+            }
+            SetBeaconPacket(deref_packet) => {
+                buf.set_mc_var_int(34);
+                deref_packet.encode(buf);
+            }
+            SetCarriedItemPacket(deref_packet) => {
+                buf.set_mc_var_int(35);
+                deref_packet.encode(buf);
+            }
+            SetCommandBlockPacket(deref_packet) => {
+                buf.set_mc_var_int(36);
+                deref_packet.encode(buf);
+            }
+            SetCommandMinecartPacket(deref_packet) => {
+                buf.set_mc_var_int(37);
+                deref_packet.encode(buf);
+            }
+            SetCreativeModeSlotPacket(deref_packet) => {
+                buf.set_mc_var_int(38);
+                deref_packet.encode(buf);
+            }
+            SetJigsawBlockPacket(deref_packet) => {
+                buf.set_mc_var_int(39);
+                deref_packet.encode(buf);
+            }
+            SetStructureBlockPacket(deref_packet) => {
+                buf.set_mc_var_int(40);
+                deref_packet.encode(buf);
+            }
+            SignUpdatePacket(deref_packet) => {
+                buf.set_mc_var_int(41);
+                deref_packet.encode(buf);
+            }
+            SwingPacket(deref_packet) => {
+                buf.set_mc_var_int(42);
+                deref_packet.encode(buf);
+            }
+            TeleportToEntityPacket(deref_packet) => {
+                buf.set_mc_var_int(43);
+                deref_packet.encode(buf);
+            }
+            UseItemOnPacket(deref_packet) => {
+                buf.set_mc_var_int(44);
+                deref_packet.encode(buf);
+            }
+            UseItemPacket(deref_packet) => {
+                buf.set_mc_var_int(45);
+                deref_packet.encode(buf);
+            }
+        }
+    }
+
+    fn decode(id: i32, buf: &mut BytesMut) -> Result<PacketGameServerbound> {
+        match id {
+            0 => Ok(PacketGameServerbound::AcceptTeleportationPacket(
+                AcceptTeleportationPacket::decode(buf)?,
+            )),
+            1 => Ok(PacketGameServerbound::BlockEntityTagQuery(
+                BlockEntityTagQuery::decode(buf)?,
+            )),
+            2 => Ok(PacketGameServerbound::ChangeDifficultyPacket(
+                ChangeDifficultyPacket::decode(buf)?,
+            )),
+            3 => Ok(PacketGameServerbound::ChatPacket(ChatPacket::decode(buf)?)),
+            4 => Ok(PacketGameServerbound::ClientCommandPacket(
+                ClientCommandPacket::decode(buf)?,
+            )),
+            5 => Ok(PacketGameServerbound::ClientInformationPacket(
+                ClientInformationPacket::decode(buf)?,
+            )),
+            6 => Ok(PacketGameServerbound::CommandSuggestionPacket(
+                CommandSuggestionPacket::decode(buf)?,
+            )),
+            7 => Ok(PacketGameServerbound::ContainerAckPacket(
+                ContainerAckPacket::decode(buf)?,
+            )),
+            8 => Ok(PacketGameServerbound::ContainerButtonClickPacket(
+                ContainerButtonClickPacket::decode(buf)?,
+            )),
+            9 => Ok(PacketGameServerbound::ContainerClickPacket(
+                ContainerClickPacket::decode(buf)?,
+            )),
+            10 => Ok(PacketGameServerbound::ContainerClosePacket(
+                ContainerClosePacket::decode(buf)?,
+            )),
+            11 => Ok(PacketGameServerbound::CustomPayloadPacket(
+                CustomPayloadPacket::decode(buf)?,
+            )),
+            12 => Ok(PacketGameServerbound::EditBookPacket(
+                EditBookPacket::decode(buf)?,
+            )),
+            13 => Ok(PacketGameServerbound::EntityTagQuery(
+                EntityTagQuery::decode(buf)?,
+            )),
+            14 => Ok(PacketGameServerbound::InteractPacket(
+                InteractPacket::decode(buf)?,
+            )),
+            15 => Ok(PacketGameServerbound::KeepAlivePacket(
+                KeepAlivePacket::decode(buf)?,
+            )),
+            16 => Ok(PacketGameServerbound::LockDifficultyPacket(
+                LockDifficultyPacket::decode(buf)?,
+            )),
+            17 => Ok(PacketGameServerbound::MovePlayerPosPacket(
+                MovePlayerPosPacket::decode(buf)?,
+            )),
+            18 => Ok(PacketGameServerbound::MovePlayerPosRotPacket(
+                MovePlayerPosRotPacket::decode(buf)?,
+            )),
+            19 => Ok(PacketGameServerbound::MovePlayerRotPacket(
+                MovePlayerRotPacket::decode(buf)?,
+            )),
+            20 => Ok(PacketGameServerbound::MovePlayerPacket(
+                MovePlayerPacket::decode(buf)?,
+            )),
+            21 => Ok(PacketGameServerbound::MoveVehiclePacket(
+                MoveVehiclePacket::decode(buf)?,
+            )),
+            22 => Ok(PacketGameServerbound::PaddleBoatPacket(
+                PaddleBoatPacket::decode(buf)?,
+            )),
+            23 => Ok(PacketGameServerbound::PickItemPacket(
+                PickItemPacket::decode(buf)?,
+            )),
+            24 => Ok(PacketGameServerbound::PlaceRecipePacket(
+                PlaceRecipePacket::decode(buf)?,
+            )),
+            25 => Ok(PacketGameServerbound::PlayerAbilitiesPacket(
+                PlayerAbilitiesPacket::decode(buf)?,
+            )),
+            26 => Ok(PacketGameServerbound::PlayerActionPacket(
+                PlayerActionPacket::decode(buf)?,
+            )),
+            27 => Ok(PacketGameServerbound::PlayerCommandPacket(
+                PlayerCommandPacket::decode(buf)?,
+            )),
+            28 => Ok(PacketGameServerbound::PlayerInputPacket(
+                PlayerInputPacket::decode(buf)?,
+            )),
+            29 => Ok(PacketGameServerbound::RecipeBookUpdatePacket(
+                RecipeBookUpdatePacket::decode(buf)?,
+            )),
+            30 => Ok(PacketGameServerbound::RenameItemPacket(
+                RenameItemPacket::decode(buf)?,
+            )),
+            31 => Ok(PacketGameServerbound::ResourcePackPacket(
+                ResourcePackPacket::decode(buf)?,
+            )),
+            32 => Ok(PacketGameServerbound::SeenAdvancementsPacket(
+                SeenAdvancementsPacket::decode(buf)?,
+            )),
+            33 => Ok(PacketGameServerbound::SelectTradePacket(
+                SelectTradePacket::decode(buf)?,
+            )),
+            34 => Ok(PacketGameServerbound::SetBeaconPacket(
+                SetBeaconPacket::decode(buf)?,
+            )),
+            35 => Ok(PacketGameServerbound::SetCarriedItemPacket(
+                SetCarriedItemPacket::decode(buf)?,
+            )),
+            36 => Ok(PacketGameServerbound::SetCommandBlockPacket(
+                SetCommandBlockPacket::decode(buf)?,
+            )),
+            37 => Ok(PacketGameServerbound::SetCommandMinecartPacket(
+                SetCommandMinecartPacket::decode(buf)?,
+            )),
+            38 => Ok(PacketGameServerbound::SetCreativeModeSlotPacket(
+                SetCreativeModeSlotPacket::decode(buf)?,
+            )),
+            39 => Ok(PacketGameServerbound::SetJigsawBlockPacket(
+                SetJigsawBlockPacket::decode(buf)?,
+            )),
+            40 => Ok(PacketGameServerbound::SetStructureBlockPacket(
+                SetStructureBlockPacket::decode(buf)?,
+            )),
+            41 => Ok(PacketGameServerbound::SignUpdatePacket(
+                SignUpdatePacket::decode(buf)?,
+            )),
+            42 => Ok(PacketGameServerbound::SwingPacket(SwingPacket::decode(
+                buf,
+            )?)),
+            43 => Ok(PacketGameServerbound::TeleportToEntityPacket(
+                TeleportToEntityPacket::decode(buf)?,
+            )),
+            44 => Ok(PacketGameServerbound::UseItemOnPacket(
+                UseItemOnPacket::decode(buf)?,
+            )),
+            45 => Ok(PacketGameServerbound::UseItemPacket(UseItemPacket::decode(
+                buf,
+            )?)),
+            _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),
+        }
+    }
 }

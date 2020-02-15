@@ -1,16 +1,19 @@
+use crate::packet::*;
 use crate::Result;
 use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;
 
-pub fn decode_packet(id: i32, buf: &mut BytesMut) -> Result<PacketHandshakeClientbound> {
-    match id {
-        _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),
+pub enum PacketHandshakeClientbound {}
+
+impl PacketContainer for PacketHandshakeClientbound {
+    fn encode(self, _buf: &mut BytesMut) {
+        match self {}
+    }
+
+    fn decode(id: i32, _buf: &mut BytesMut) -> Result<PacketHandshakeClientbound> {
+        match id {
+            _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),
+        }
     }
 }
-
-pub fn encode_packet(packet: PacketHandshakeClientbound, buf: &mut BytesMut) {
-    match packet {}
-}
-
-pub enum PacketHandshakeClientbound {}

@@ -102,6 +102,7 @@ impl Encoder for &mut McCodec {
         output: &mut BytesMut,
     ) -> std::result::Result<(), IoError> {
         let mut encoded = BytesMut::new();
+        packet.encode(&mut encoded);
         // compress
         match self.threshold {
             Some(threshold) => {
