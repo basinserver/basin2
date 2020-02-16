@@ -10,106 +10,6 @@ use std::sync::Arc;
 use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 use uuid::Uuid;
 
-pub trait McNetwork {
-    fn read_var_int(&self) -> Option<(i32, usize)>;
-    fn write_var_int(&mut self, value: i32) -> usize;
-    fn read_var_long(&self) -> Option<(i64, usize)>;
-    fn write_var_long(&mut self, value: i64) -> usize;
-
-    fn read_primitive_slice<T: Sized + Clone>(&mut self, length: usize) -> Result<Vec<T>>;
-    fn write_primitive_slice<T: Sized>(&mut self, data: &[T]);
-    fn display(&self) -> String;
-}
-
-impl McNetwork for BytesMut {
-    // these are for network-layer operations and not recommended for packet-layer operations (see set_var_int and get_var_int)
-
-    fn read_var_int(&self) -> Option<(i32, usize)> {
-        let mut output: i32 = 0;
-        let mut i = 0;
-        let mut current_byte: u8 = 0xff;
-        while (current_byte & 128) == 128 {
-            if i >= self.len() {
-                return None;
-            }
-            current_byte = self[i];
-            output |= ((current_byte as u32 & 127) << (i * 7)) as i32;
-            i += 1;
-            if i > 5 {
-                break;
-            }
-        }
-        Some((output, i))
-    }
-
-    fn write_var_int(&mut self, value: i32) -> usize {
-        let mut value = value as u32;
-        self.reserve(6);
-        let mut i = 0;
-        while (value & !0b1111111) != 0 {
-            self.put_u8((value as u8 & 127) | 128);
-            value >>= 7;
-            i += 1;
-        }
-        self.put_u8(value as u8);
-        i + 1
-    }
-
-    fn read_var_long(&self) -> Option<(i64, usize)> {
-        let mut output: i64 = 0;
-        let mut i = 0;
-        let mut current_byte: u8 = 0xff;
-        while (current_byte & 128) == 128 {
-            if i >= self.len() {
-                return None;
-            }
-            current_byte = self[i];
-            output |= ((current_byte as u64 & 127) << (i * 7)) as i64;
-            i += 1;
-            if i > 10 {
-                break;
-            }
-        }
-        Some((output, i))
-    }
-
-    fn write_var_long(&mut self, value: i64) -> usize {
-        let mut value = value as u64;
-        self.reserve(12);
-        let mut i = 0;
-        while (value & !0b1111111) != 0 {
-            self.put_u8((value as u8 & 127) | 128);
-            value >>= 7;
-            i += 1;
-        }
-        self.put_u8(value as u8);
-        i + 1
-    }
-
-    fn read_primitive_slice<T: Sized + Clone>(&mut self, length: usize) -> Result<Vec<T>> {
-        let raw_length = length * std::mem::size_of::<T>();
-        if self.len() < raw_length {
-            return invalidData();
-        }
-        let raw = &self.split_to(raw_length)[..];
-        Ok(unsafe { std::slice::from_raw_parts(raw.as_ptr() as *const T, length) }.to_vec())
-    }
-
-    fn write_primitive_slice<T: Sized>(&mut self, data: &[T]) {
-        let raw = unsafe {
-            std::slice::from_raw_parts(
-                data.as_ptr() as *const u8,
-                data.len() * std::mem::size_of::<T>(),
-            )
-        };
-        self.extend_from_slice(raw);
-    }
-
-    fn display(&self) -> String {
-        return format!("{:x?}", &self.to_vec()[..]);
-    }
-}
-
 pub fn get_var_int_len(value: i32) -> usize {
     for i in 1..10 {
         if ((value & -1) << (i * 7)) == 0 {
@@ -166,6 +66,10 @@ pub trait McPacketBuf {
     fn clone_bounded(&mut self, bound: i32) -> Result<Self>
     where
         Self: Sized;
+
+    fn read_primitive_slice<T: Sized + Clone>(&mut self, length: usize) -> Result<Vec<T>>;
+    fn write_primitive_slice<T: Sized>(&mut self, data: &[T]);
+    fn display(&self) -> String;
 }
 
 pub fn invalidData<T>() -> Result<T> {
@@ -174,23 +78,33 @@ pub fn invalidData<T>() -> Result<T> {
 
 impl McPacketBuf for BytesMut {
     fn get_mc_var_int(&mut self) -> Result<i32> {
-        match self.read_var_int() {
-            Some((output, length)) => {
-                self.advance(length);
-                Ok(output)
+        let mut i = 0;
+        let mut current_byte: u8 = 0xff;
+        let mut output: i32 = 0;
+        while (current_byte & 128) == 128 {
+            current_byte = self.get_mc_u8()?;
+            output |= ((current_byte as u32 & 127) << (i * 7)) as i32;
+            i += 1;
+            if i > 5 {
+                break;
             }
-            None => invalidData(),
         }
+        Ok(output)
     }
 
     fn get_mc_var_long(&mut self) -> Result<i64> {
-        match self.read_var_long() {
-            Some((output, length)) => {
-                self.advance(length);
-                Ok(output)
+        let mut i = 0;
+        let mut current_byte: u8 = 0xff;
+        let mut output: i64 = 0;
+        while (current_byte & 128) == 128 {
+            current_byte = self.get_mc_u8()?;
+            output |= ((current_byte as u64 & 127) << (i * 7)) as i64;
+            i += 1;
+            if i > 10 {
+                break;
             }
-            None => invalidData(),
         }
+        Ok(output)
     }
 
     fn get_mc_block_pos(&mut self) -> Result<BlockPos> {
@@ -383,11 +297,23 @@ impl McPacketBuf for BytesMut {
     }
 
     fn set_mc_var_int(&mut self, value: i32) {
-        self.write_var_int(value);
+        let mut value = value as u32;
+        self.reserve(6);
+        while (value & !0b1111111) != 0 {
+            self.put_u8((value as u8 & 127) | 128);
+            value >>= 7;
+        }
+        self.put_u8(value as u8);
     }
 
     fn set_mc_var_long(&mut self, value: i64) {
-        self.write_var_long(value);
+        let mut value = value as u64;
+        self.reserve(12);
+        while (value & !0b1111111) != 0 {
+            self.put_u8((value as u8 & 127) | 128);
+            value >>= 7;
+        }
+        self.put_u8(value as u8);
     }
 
     fn set_mc_block_pos(&mut self, value: BlockPos) {
@@ -496,6 +422,29 @@ impl McPacketBuf for BytesMut {
         let advanced = self.len();
         self.advance(advanced);
         Ok(returned)
+    }
+
+    fn read_primitive_slice<T: Sized + Clone>(&mut self, length: usize) -> Result<Vec<T>> {
+        let raw_length = length * std::mem::size_of::<T>();
+        if self.len() < raw_length {
+            return invalidData();
+        }
+        let raw = &self.split_to(raw_length)[..];
+        Ok(unsafe { std::slice::from_raw_parts(raw.as_ptr() as *const T, length) }.to_vec())
+    }
+
+    fn write_primitive_slice<T: Sized>(&mut self, data: &[T]) {
+        let raw = unsafe {
+            std::slice::from_raw_parts(
+                data.as_ptr() as *const u8,
+                data.len() * std::mem::size_of::<T>(),
+            )
+        };
+        self.extend_from_slice(raw);
+    }
+
+    fn display(&self) -> String {
+        return format!("{:x?}", &self.to_vec()[..]);
     }
 }
 

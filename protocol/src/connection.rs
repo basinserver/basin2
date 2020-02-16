@@ -50,33 +50,39 @@ impl Decoder for &mut McCodec {
             }
             _ => (),
         };
-        let packet_length = post_cipher.read_var_int();
-        if packet_length.is_none() {
+        let header_len = if post_cipher.len() > 16 {
+            16
+        } else {
+            post_cipher.len()
+        };
+        let header_split = post_cipher.split_off(header_len);
+        let mut header = post_cipher.clone();
+        post_cipher.unsplit(header_split);
+
+        let packet_length = header.get_mc_var_int();
+        if packet_length.is_err() {
             return Ok(None);
         }
-        let mut count = 0;
-        let (packet_length, packet_length_count) = packet_length.unwrap();
+        let packet_length = packet_length.unwrap();
         if packet_length < 0 {
             return Err(IoError::from(ErrorKind::InvalidData));
         }
         let packet_length = packet_length as usize;
-        count += packet_length_count;
-        if post_cipher.len() - count < packet_length {
+        let header_size = header_len - header.len();
+        if post_cipher.len() - header_size < packet_length {
             return Ok(None);
         }
-        post_cipher.advance(packet_length_count);
+        post_cipher.advance(header_size);
         let mut packet_data = post_cipher.split_to(packet_length);
         if self.threshold.is_some() {
-            let decompressed_length = packet_data.read_var_int();
-            if decompressed_length.is_none() {
+            let decompressed_length = packet_data.get_mc_var_int();
+            if decompressed_length.is_err() {
                 return Err(IoError::from(ErrorKind::InvalidData));
             }
-            let (decompressed_length, _decompressed_length_length) = decompressed_length.unwrap();
-            if decompressed_length < 0 || decompressed_length as usize > 2097152 {
+            let decompressed_length = decompressed_length.unwrap() as usize;
+            if decompressed_length > 2097152 {
                 return Err(IoError::from(ErrorKind::InvalidData));
             }
-            let decompressed_length = decompressed_length as usize;
-            packet_data.advance(decompressed_length);
             if decompressed_length > 0 {
                 let mut decompressor = Decompress::new(false);
                 let compressed_packet = packet_data;
@@ -117,23 +123,23 @@ impl Encoder for &mut McCodec {
                         FlushCompress::Finish,
                     )?;
                     encoded = BytesMut::with_capacity(compressed.len() + 10);
-                    encoded.write_var_int(
+                    encoded.set_mc_var_int(
                         (get_var_int_len(decompressed.len() as i32) + compressed.len()) as i32,
                     );
-                    encoded.write_var_int(decompressed.len() as i32);
+                    encoded.set_mc_var_int(decompressed.len() as i32);
                     encoded.unsplit(compressed);
                 } else {
                     let decompressed = encoded;
                     encoded = BytesMut::with_capacity(raw_length + 10);
-                    encoded.write_var_int((get_var_int_len(0) + decompressed.len()) as i32);
-                    encoded.write_var_int(0);
+                    encoded.set_mc_var_int((get_var_int_len(0) + decompressed.len()) as i32);
+                    encoded.set_mc_var_int(0);
                     encoded.unsplit(decompressed);
                 }
             }
             None => {
                 let decompressed = encoded;
                 encoded = BytesMut::with_capacity(decompressed.len() + 10);
-                encoded.write_var_int(encoded.len() as i32);
+                encoded.set_mc_var_int(encoded.len() as i32);
                 encoded.unsplit(decompressed);
             }
         };

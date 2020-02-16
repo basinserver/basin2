@@ -1,4 +1,4 @@
-use super::network::McNetwork;
+use super::network::McPacketBuf;
 use crate::result::*;
 use bytes::BytesMut;
 
