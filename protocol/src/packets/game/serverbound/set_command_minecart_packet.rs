@@ -31,3 +31,18 @@ impl CodablePacket for SetCommandMinecartPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SetCommandMinecartPacket {
+            entity: 4321,
+            command: "do stuff".to_string(),
+            trackOutput: true,
+        })
+    }
+}

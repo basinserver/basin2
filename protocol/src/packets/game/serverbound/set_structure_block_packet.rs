@@ -114,3 +114,29 @@ impl CodablePacket for SetStructureBlockPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SetStructureBlockPacket {
+            pos: BlockPos { x: -10, y: -20, z: -30 },
+            updateType: StructureBlockEntityUpdateType::UpdateData,
+            mode: StructureMode::Save,
+            name: "structure name".to_string(),
+            offset: BlockPos { x: -1, y: 5, z: 2 },
+            size: BlockPos { x: 3, y: 3, z: 3 },
+            mirror: Mirror::LeftRight,
+            rotation: Rotation::Clockwise90,
+            data: "some data".to_string(),
+            ignoreEntities: true,
+            showAir: false,
+            showBoundingBox: true,
+            integrity: 1.0,
+            seed: 6724562345,
+        })
+    }
+}

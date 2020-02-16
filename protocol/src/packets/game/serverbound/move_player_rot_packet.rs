@@ -31,3 +31,18 @@ impl CodablePacket for MovePlayerRotPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(MovePlayerRotPacket {
+            yRot: 120.0,
+            xRot: 130.0,
+            onGround: false,
+        })
+    }
+}

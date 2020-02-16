@@ -21,3 +21,16 @@ impl CodablePacket for SelectTradePacket {
         return Ok(SelectTradePacket { item });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SelectTradePacket {
+            item: 7,
+        })
+    }
+}

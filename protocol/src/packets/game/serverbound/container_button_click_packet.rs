@@ -27,3 +27,17 @@ impl CodablePacket for ContainerButtonClickPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(ContainerButtonClickPacket {
+            containerId: 123,
+            buttonId: 2,
+        })
+    }
+}

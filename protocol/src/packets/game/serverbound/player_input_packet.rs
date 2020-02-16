@@ -42,3 +42,19 @@ impl CodablePacket for PlayerInputPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(PlayerInputPacket {
+            xxa: 12345.0,
+            zza: 54321.1253245,
+            isJumping: false,
+            isShiftKeyDown: true,
+        })
+    }
+}

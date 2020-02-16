@@ -32,3 +32,17 @@ impl CodablePacket for SignUpdatePacket {
         return Ok(SignUpdatePacket { pos, lines });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SignUpdatePacket {
+            pos: BlockPos { x: -10, y: 30, z: -30 },
+            lines: ("line1".to_string(), "line2".to_string(), "line3".to_string(), "line4".to_string()),
+        })
+    }
+}

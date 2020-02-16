@@ -21,3 +21,16 @@ impl CodablePacket for SetCarriedItemPacket {
         return Ok(SetCarriedItemPacket { slot });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SetCarriedItemPacket {
+            slot: 7,
+        })
+    }
+}

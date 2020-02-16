@@ -375,7 +375,7 @@ impl McPacketBuf for BytesMut {
         let mut raw: i64 = 0;
         raw |= (value.x as i64 & ((1 << 26) - 1)) << 38;
         raw |= value.y as i64 & ((1 << 12) - 1);
-        raw |= (value.x as i64 & ((1 << 26) - 1)) << 12;
+        raw |= (value.z as i64 & ((1 << 26) - 1)) << 12;
         self.set_mc_i64(raw);
     }
 

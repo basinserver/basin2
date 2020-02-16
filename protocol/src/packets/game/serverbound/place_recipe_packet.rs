@@ -31,3 +31,18 @@ impl CodablePacket for PlaceRecipePacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(PlaceRecipePacket {
+            containerId: 34,
+            recipe: "testRecipe".to_string(),
+            shiftDown: true,
+        })
+    }
+}

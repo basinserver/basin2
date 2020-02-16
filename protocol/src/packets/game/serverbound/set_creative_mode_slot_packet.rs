@@ -24,3 +24,17 @@ impl CodablePacket for SetCreativeModeSlotPacket {
         return Ok(SetCreativeModeSlotPacket { slotNum, itemStack });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SetCreativeModeSlotPacket {
+            slotNum: 10,
+            itemStack: ItemStack::empty(),
+        })
+    }
+}

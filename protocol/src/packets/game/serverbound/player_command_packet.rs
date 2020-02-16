@@ -27,3 +27,18 @@ impl CodablePacket for PlayerCommandPacket {
         return Ok(PlayerCommandPacket { id, action, data });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(PlayerCommandPacket {
+            id: 12345,
+            action: PlayerCommandPacketAction::StartSprinting,
+            data: 4321,
+        })
+    }
+}

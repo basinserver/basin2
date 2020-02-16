@@ -21,3 +21,16 @@ impl CodablePacket for MovePlayerPacket {
         return Ok(MovePlayerPacket { onGround });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(MovePlayerPacket {
+            onGround: false,
+        })
+    }
+}

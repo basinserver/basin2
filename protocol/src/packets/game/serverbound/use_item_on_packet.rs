@@ -24,3 +24,22 @@ impl CodablePacket for UseItemOnPacket {
         return Ok(UseItemOnPacket { blockHit, hand });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(UseItemOnPacket {
+            blockHit: BlockHitResult {
+                location: (30.0, 40.0, 50.0),
+                direction: Direction::West,
+                block_pos: BlockPos { x: 30, y: 40, z: 50 },
+                inside: false,
+            },
+            hand: InteractionHand::MainHand,
+        })
+    }
+}

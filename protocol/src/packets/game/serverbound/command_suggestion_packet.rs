@@ -24,3 +24,17 @@ impl CodablePacket for CommandSuggestionPacket {
         return Ok(CommandSuggestionPacket { id, command });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(CommandSuggestionPacket {
+            id: 123345,
+            command: "a command".to_string(),
+        })
+    }
+}

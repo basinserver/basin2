@@ -21,3 +21,16 @@ impl CodablePacket for SwingPacket {
         return Ok(SwingPacket { hand });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SwingPacket {
+            hand: InteractionHand::OffHand,
+        })
+    }
+}

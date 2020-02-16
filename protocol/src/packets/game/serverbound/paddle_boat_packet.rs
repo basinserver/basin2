@@ -24,3 +24,17 @@ impl CodablePacket for PaddleBoatPacket {
         return Ok(PaddleBoatPacket { left, right });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(PaddleBoatPacket {
+            left: true,
+            right: false,
+        })
+    }
+}

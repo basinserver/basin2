@@ -24,3 +24,17 @@ impl CodablePacket for CustomPayloadPacket {
         return Ok(CustomPayloadPacket { identifier, data });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(CustomPayloadPacket {
+            identifier: "test channel".to_string(),
+            data: BytesMut::from(&vec![0x1f, 0x2f][..]),
+        })
+    }
+}

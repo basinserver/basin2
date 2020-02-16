@@ -21,3 +21,16 @@ impl CodablePacket for UseItemPacket {
         return Ok(UseItemPacket { hand });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(UseItemPacket {
+            hand: InteractionHand::MainHand,
+        })
+    }
+}

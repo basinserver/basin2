@@ -31,3 +31,18 @@ impl CodablePacket for PlayerActionPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(PlayerActionPacket {
+            action: PlayerActionPacketAction::StartDestroyBlock,
+            pos: BlockPos { x: 1, y: 2, z: 3 },
+            direction: Direction::North,
+        })
+    }
+}

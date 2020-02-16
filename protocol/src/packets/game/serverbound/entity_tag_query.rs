@@ -27,3 +27,17 @@ impl CodablePacket for EntityTagQuery {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(EntityTagQuery {
+            transactionId: 12345,
+            entityId: 4321,
+        })
+    }
+}

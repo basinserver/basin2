@@ -52,3 +52,21 @@ impl CodablePacket for SetCommandBlockPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SetCommandBlockPacket {
+            pos: BlockPos { x: -10, y: -20, z: -30 },
+            command: "do stuff".to_string(),
+            trackOutput: true,
+            conditional: false,
+            automatic: true,
+            mode: CommandBlockEntityMode::Redstone,
+        })
+    }
+}

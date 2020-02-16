@@ -21,3 +21,16 @@ impl CodablePacket for ChatPacket {
         return Ok(ChatPacket { message });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(ChatPacket {
+            message: "test".to_string(),
+        })
+    }
+}

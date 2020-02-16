@@ -24,3 +24,17 @@ impl CodablePacket for SetBeaconPacket {
         return Ok(SetBeaconPacket { primary, secondary });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SetBeaconPacket {
+            primary: 7,
+            secondary: 10,
+        })
+    }
+}

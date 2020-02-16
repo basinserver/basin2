@@ -59,3 +59,39 @@ impl CodablePacket for InteractPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle_interact_at() -> Result<()> {
+        cycle(InteractPacket {
+            entityId: 12345,
+            action: InteractPacketAction::InteractAt,
+            location: Some((1.0, 2.0, 3.0)),
+            hand: Some(InteractionHand::MainHand),
+        })
+    }
+
+    #[test]
+    fn test_cycle_interact() -> Result<()> {
+        cycle(InteractPacket {
+            entityId: 12345,
+            action: InteractPacketAction::Interact,
+            location: None,
+            hand: Some(InteractionHand::MainHand),
+        })
+    }
+
+    #[test]
+    fn test_cycle_attack() -> Result<()> {
+        cycle(InteractPacket {
+            entityId: 12345,
+            action: InteractPacketAction::Attack,
+            location: None,
+            hand: None,
+        })
+    }
+}

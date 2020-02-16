@@ -22,3 +22,16 @@ impl CodablePacket for TeleportToEntityPacket {
         return Ok(TeleportToEntityPacket { uuid });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(TeleportToEntityPacket {
+            uuid: Uuid::new_v4(),
+        })
+    }
+}

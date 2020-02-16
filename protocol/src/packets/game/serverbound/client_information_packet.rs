@@ -43,3 +43,21 @@ impl CodablePacket for ClientInformationPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(ClientInformationPacket {
+            language: "a language".to_string(),
+            viewDistance: 12,
+            chatVisibility: ChatVisibility::Full,
+            chatColors: true,
+            modelCustomisation: 4,
+            mainHand: HumanoidArm::Right,
+        })
+    }
+}

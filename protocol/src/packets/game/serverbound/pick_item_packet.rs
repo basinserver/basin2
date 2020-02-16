@@ -21,3 +21,16 @@ impl CodablePacket for PickItemPacket {
         return Ok(PickItemPacket { slot });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(PickItemPacket {
+            slot: 34212,
+        })
+    }
+}

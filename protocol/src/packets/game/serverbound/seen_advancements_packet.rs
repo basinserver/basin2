@@ -35,3 +35,17 @@ impl CodablePacket for SeenAdvancementsPacket {
         return Ok(SeenAdvancementsPacket { action, tab });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SeenAdvancementsPacket {
+            action: SeenAdvancementsPacketAction::OpenedTab,
+            tab: Some("the_string".to_string()),
+        })
+    }
+}

@@ -31,3 +31,18 @@ impl CodablePacket for ContainerAckPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(ContainerAckPacket {
+            containerId: 123,
+            uid: 25000,
+            accepted: true,
+        })
+    }
+}

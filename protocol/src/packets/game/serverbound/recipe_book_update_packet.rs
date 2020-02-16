@@ -9,6 +9,7 @@ pub enum RecipeBookUpdatePacketData {
     Settings(bool, bool, bool, bool, bool, bool, bool, bool),
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct RecipeBookUpdatePacket {
     pub purpose: RecipeBookUpdatePacketPurpose,
     pub data: RecipeBookUpdatePacketData,
@@ -67,5 +68,29 @@ impl CodablePacket for RecipeBookUpdatePacket {
             ),
         };
         return Ok(RecipeBookUpdatePacket { purpose, data });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle_shown() -> Result<()> {
+        cycle(RecipeBookUpdatePacket {
+            purpose: RecipeBookUpdatePacketPurpose::Shown,
+            data: RecipeBookUpdatePacketData::Shown("the_recipe".to_string()),
+        })
+    }
+
+    #[test]
+    fn test_cycle_settings() -> Result<()> {
+        cycle(RecipeBookUpdatePacket {
+            purpose: RecipeBookUpdatePacketPurpose::Settings,
+            data: RecipeBookUpdatePacketData::Settings(
+                true, false, true, false, false, true, false, true
+            ),
+        })
     }
 }

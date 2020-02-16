@@ -30,3 +30,19 @@ impl CodablePacket for MovePlayerPosPacket {
         return Ok(MovePlayerPosPacket { x, y, z, onGround });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(MovePlayerPosPacket {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+            onGround: false,
+        })
+    }
+}
