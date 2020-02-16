@@ -52,6 +52,14 @@ impl Nbt {
         Nbt::Compound { children }
     }
 
+    pub fn make_compound(values: Vec<(String, Nbt)>) -> Nbt {
+        let mut children = LinkedHashMap::new();
+        for (key, value) in values {
+            children.insert(key, value);
+        }
+        Nbt::Compound { children }
+    }
+
     pub fn nbt_type(&self) -> NbtType {
         use Nbt::*;
         match self {
@@ -156,22 +164,14 @@ impl Nbt {
                 if length * 4 > buf.len() {
                     return invalidData();
                 }
-                Nbt::IntArray(
-                    unsafe { buf.split_to(length * 4).align_to::<i32>() }
-                        .1
-                        .to_vec(),
-                )
+                Nbt::IntArray(buf.read_primitive_slice(length)?)
             }
             LongArray => {
                 let length = buf.get_mc_i32()? as usize;
                 if length * 8 > buf.len() {
                     return invalidData();
                 }
-                Nbt::LongArray(
-                    unsafe { buf.split_to(length * 8).align_to::<i64>() }
-                        .1
-                        .to_vec(),
-                )
+                Nbt::LongArray(buf.read_primitive_slice(length)?)
             }
         })
     }
@@ -246,12 +246,83 @@ impl Nbt {
             }
             IntArray(value) => {
                 buf.set_mc_i32(value.len() as i32);
-                buf.extend_from_slice(unsafe { value.align_to::<u8>() }.1);
+                buf.write_primitive_slice(&value[..]);
             }
             LongArray(value) => {
                 buf.set_mc_i32(value.len() as i32);
-                buf.extend_from_slice(unsafe { value.align_to::<u8>() }.1);
+                buf.write_primitive_slice(&value[..]);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn cycle(nbt: Nbt) -> Result<()> {
+        let mut buf = BytesMut::new();
+        nbt.clone().serialize(&mut buf);
+        // let original_buf = buf.clone();
+        let decoded = Nbt::parse(&mut buf)?;
+        assert_eq!(nbt, decoded);
+        Ok(())
+    }
+
+    #[test]
+    fn test_simple_compound() -> Result<()> {
+        cycle(Nbt::make_compound(vec![
+            ("byte".to_string(), Nbt::Byte(120)),
+            ("short".to_string(), Nbt::Short(12000)),
+            ("int".to_string(), Nbt::Int(43563456)),
+            ("long".to_string(), Nbt::Long(435643563456)),
+            ("float".to_string(), Nbt::Float(345345.345345)),
+            ("double".to_string(), Nbt::Double(34532.53456)),
+            (
+                "byte_array".to_string(),
+                Nbt::ByteArray(vec![0x0a, 0x0b, 0x0c]),
+            ),
+            ("str".to_string(), Nbt::Str("a string".to_string())),
+            (
+                "int_array".to_string(),
+                Nbt::IntArray(vec![2345, 23453245, 3452345, 324523]),
+            ),
+            (
+                "long_array".to_string(),
+                Nbt::LongArray(vec![
+                    0xffffffff,
+                    345643564356,
+                    43563456,
+                    456456456,
+                    456456456345,
+                    56345634563456,
+                ]),
+            ),
+        ]))
+    }
+
+    #[test]
+    fn test_nested_compound() -> Result<()> {
+        cycle(Nbt::make_compound(vec![
+            (
+                "nest1".to_string(),
+                Nbt::make_compound(vec![("int".to_string(), Nbt::Int(43563456))]),
+            ),
+            ("tail_int".to_string(), Nbt::Int(43563456)),
+        ]))
+    }
+
+    #[test]
+    fn test_nested_list_compound() -> Result<()> {
+        cycle(Nbt::make_compound(vec![(
+            "list1".to_string(),
+            Nbt::List {
+                item_type: NbtType::Compound,
+                children: vec![
+                    Nbt::make_compound(vec![("int1".to_string(), Nbt::Int(43563456))]),
+                    Nbt::make_compound(vec![("int2".to_string(), Nbt::Int(43563456))]),
+                ],
+            },
+        )]))
     }
 }

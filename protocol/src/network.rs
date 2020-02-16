@@ -16,6 +16,8 @@ pub trait McNetwork {
     fn read_var_long(&self) -> Option<(i64, usize)>;
     fn write_var_long(&mut self, value: i64) -> usize;
 
+    fn read_primitive_slice<T: Sized + Clone>(&mut self, length: usize) -> Result<Vec<T>>;
+    fn write_primitive_slice<T: Sized>(&mut self, data: &[T]);
     fn display(&self) -> String;
 }
 
@@ -82,6 +84,25 @@ impl McNetwork for BytesMut {
         }
         self.put_u8(value as u8);
         i + 1
+    }
+
+    fn read_primitive_slice<T: Sized + Clone>(&mut self, length: usize) -> Result<Vec<T>> {
+        let raw_length = length * std::mem::size_of::<T>();
+        if self.len() < raw_length {
+            return invalidData();
+        }
+        let raw = &self.split_to(raw_length)[..];
+        Ok(unsafe { std::slice::from_raw_parts(raw.as_ptr() as *const T, length) }.to_vec())
+    }
+
+    fn write_primitive_slice<T: Sized>(&mut self, data: &[T]) {
+        let raw = unsafe {
+            std::slice::from_raw_parts(
+                data.as_ptr() as *const u8,
+                data.len() * std::mem::size_of::<T>(),
+            )
+        };
+        self.extend_from_slice(raw);
     }
 
     fn display(&self) -> String {
