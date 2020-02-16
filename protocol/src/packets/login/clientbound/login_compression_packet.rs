@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct LoginCompressionPacket {
     pub compressionThreshold: i32,
 }
@@ -20,5 +21,18 @@ impl CodablePacket for LoginCompressionPacket {
         return Ok(LoginCompressionPacket {
             compressionThreshold,
         });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(LoginCompressionPacket {
+            compressionThreshold: 256,
+        })
     }
 }

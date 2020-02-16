@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct SetHealthPacket {
     pub health: f32,
     pub food: i32,

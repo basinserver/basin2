@@ -4,6 +4,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct BlockEntityDataPacket {
     pub pos: BlockPos,
     pub entityType: u8,

@@ -4,6 +4,7 @@ use crate::result::*;
 use bytes::BytesMut;
 use enum_primitive::FromPrimitive;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct LoginPacket {
     pub playerId: i32,
     pub seed: i64,

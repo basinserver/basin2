@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct SetPassengersPacket {
     pub vehicle: i32,
     pub passengers: Vec<i32>,

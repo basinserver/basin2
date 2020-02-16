@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct RotateHeadPacket {
     pub entityId: i32,
     pub yHeadRot: u8,

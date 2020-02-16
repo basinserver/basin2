@@ -4,6 +4,7 @@ use crate::result::*;
 use bytes::BytesMut;
 use uuid::Uuid;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct AddMobPacket {
     pub id: i32,
     pub uuid: Uuid,

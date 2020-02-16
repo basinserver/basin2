@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct BlockUpdatePacket {
     pub pos: BlockPos,
     pub blockState: BlockState,

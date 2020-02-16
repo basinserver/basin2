@@ -14,3 +14,17 @@ pub trait PacketContainer {
     where
         Self: Sized;
 }
+
+#[cfg(test)]
+pub mod test {
+    use super::*;
+    use std::fmt::Debug;
+
+    pub fn cycle<T: CodablePacket + Clone + Debug + PartialEq>(initial: T) -> Result<()> {
+        let mut buf = BytesMut::new();
+        initial.clone().encode(&mut buf);
+        let decoded = T::decode(&mut buf)?;
+        assert_eq!(initial, decoded);
+        Ok(())
+    }
+}

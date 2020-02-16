@@ -131,6 +131,7 @@ impl RecipeSerializer {
     }
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct UpdateRecipesPacket {
     pub recipes: Vec<(String, RecipeSerializer)>,
 }

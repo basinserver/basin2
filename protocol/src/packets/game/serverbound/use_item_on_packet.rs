@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct UseItemOnPacket {
     pub blockHit: BlockHitResult,
     pub hand: InteractionHand,

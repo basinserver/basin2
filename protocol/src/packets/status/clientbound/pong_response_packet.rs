@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct PongResponsePacket {
     pub time: i64,
 }
@@ -18,5 +19,18 @@ impl CodablePacket for PongResponsePacket {
     {
         let time = buf.get_mc_i64()?;
         return Ok(PongResponsePacket { time });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(PongResponsePacket {
+            time: 1234567,
+        })
     }
 }

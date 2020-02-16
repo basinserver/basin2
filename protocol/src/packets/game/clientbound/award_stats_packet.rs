@@ -3,12 +3,14 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct AwardStatsPacketItem {
     stat_type: i32,
     stat: i32,
     value: i32,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct AwardStatsPacket {
     pub stats: Vec<AwardStatsPacketItem>,
 }

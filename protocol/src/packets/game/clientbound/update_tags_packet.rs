@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct UpdateTagsPacket {
     pub blocks: Vec<(String, Vec<i32>)>,
     pub items: Vec<(String, Vec<i32>)>,

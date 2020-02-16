@@ -364,13 +364,11 @@ impl McPacketBuf for BytesMut {
     }
 
     fn set_mc_var_int(&mut self, value: i32) {
-        let advanced = self.write_var_int(value);
-        self.advance(advanced);
+        self.write_var_int(value);
     }
 
     fn set_mc_var_long(&mut self, value: i64) {
-        let advanced = self.write_var_long(value);
-        self.advance(advanced);
+        self.write_var_long(value);
     }
 
     fn set_mc_block_pos(&mut self, value: BlockPos) {
@@ -498,7 +496,7 @@ pub struct BaseCommandNode {
     pub command: bool,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum ArgumentType {
     Bool,
     Double { min: Option<f64>, max: Option<f64> },
@@ -630,6 +628,7 @@ impl CommandNode {
     }
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct SimpleCookingSerializer {
     pub group: String,
     pub ingredient: Vec<ItemStack>,
@@ -638,6 +637,7 @@ pub struct SimpleCookingSerializer {
     pub cookingTime: i32,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub enum RecipeSerializer {
     CraftingShaped {
         width: i32,
@@ -675,28 +675,33 @@ pub enum RecipeSerializer {
     },
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct EntityMetadataItem {
     pub id: u8,
     pub data: EntityMetadata,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct Recipe {
     pub id: String,
     pub serializer: RecipeSerializer,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct EntityAttributeModifier {
     pub uuid: Uuid,
     pub amount: f64,
     pub operation: EntityAttributeModifierOperation,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct EntityAttribute {
     pub name: String,
     pub base: f64,
     pub modifiers: Vec<EntityAttributeModifier>,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct AdvancementDisplayInfo {
     pub title: ChatComponent,
     pub description: ChatComponent,
@@ -709,6 +714,7 @@ pub struct AdvancementDisplayInfo {
     pub y: f32,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct Advancement {
     pub parentId: Option<ResourceLocation>,
     pub display: Option<AdvancementDisplayInfo>,
@@ -716,29 +722,34 @@ pub struct Advancement {
     pub requirements: Vec<Vec<String>>,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct PlayerProperty {
     pub name: String,
     pub value: String,
     pub signature: Option<String>,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct Suggestion {
     pub text: String,
     pub tooltip: Option<ChatComponent>,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct Suggestions {
     pub start: i32,
     pub end: i32,
     pub suggestions: Vec<Suggestion>,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct BlockPos {
     pub x: i32,
     pub y: i32,
     pub z: i32,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct BlockHitResult {
     pub location: (f32, f32, f32),
     pub direction: Direction,
@@ -746,6 +757,7 @@ pub struct BlockHitResult {
     pub inside: bool,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct ItemStack {
     pub count: i32,
     pub item_id: i32,
@@ -766,11 +778,13 @@ impl ItemStack {
     }
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct ChunkPos {
     pub x: i32,
     pub y: i32,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct MapDecoration {
     pub decoration_type: MapDecorationType,
     pub x: u8,
@@ -779,6 +793,7 @@ pub struct MapDecoration {
     pub component: Option<ChatComponent>,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct MerchantOffer {
     pub base_cost_a: ItemStack,
     pub cost_b: ItemStack,
@@ -792,34 +807,35 @@ pub struct MerchantOffer {
     pub xp: i32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct GameProfile {
     pub uuid: Option<Uuid>,
     pub name: String,
     pub legacy: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct ServerStatus {
     pub description: ChatComponent,
     pub players: ServerStatusPlayers,
     pub version: ServerStatusVersion,
-    pub favicon: String,
+    pub favicon: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct ServerStatusVersion {
     pub name: String,
     pub version: i32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct ServerStatusPlayers {
     pub max: i32,
     pub online: i32,
     pub sample: Option<Vec<GameProfile>>,
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct ChunkBlocksUpdatePacketBlockUpdate {
     pub offset: u16,
     pub block: BlockState,
@@ -834,6 +850,7 @@ pub type Block = i32;
 pub type EntityType = i32;
 pub type Item = i32;
 
+#[derive(PartialEq, Clone, Debug)]
 pub enum ParticleOptions {
     Item(Particle, ItemStack),
     Dust {
@@ -894,6 +911,7 @@ impl ParticleOptions {
     }
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub enum EntityMetadata {
     Byte(i8),
     Int(i32),
@@ -925,7 +943,7 @@ pub enum EntityMetadata {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum Particle {
     Block,
@@ -991,7 +1009,7 @@ pub enum Particle {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum ArgumentStringType {
     SingleWord,
@@ -1001,7 +1019,7 @@ pub enum ArgumentStringType {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum EntityPose {
     Standing,
@@ -1015,7 +1033,7 @@ pub enum EntityPose {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum VillagerType {
     Desert,
@@ -1029,7 +1047,7 @@ pub enum VillagerType {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum VillagerProfession {
     None,
@@ -1051,7 +1069,7 @@ pub enum VillagerProfession {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum EntityAttributeModifierOperation {
     Addition,
@@ -1061,7 +1079,7 @@ pub enum EntityAttributeModifierOperation {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum FrameType {
     Task,
@@ -1071,7 +1089,7 @@ pub enum FrameType {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum DimensionType {
     Overworld,
@@ -1101,7 +1119,7 @@ impl DimensionType {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum MapDecorationType {
     Player,
@@ -1135,7 +1153,7 @@ pub enum MapDecorationType {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum Difficulty {
     Peaceful,
@@ -1146,7 +1164,7 @@ pub enum Difficulty {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum ChatVisibility {
     Full,
@@ -1156,7 +1174,7 @@ pub enum ChatVisibility {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum HumanoidArm {
     Left,
@@ -1165,7 +1183,7 @@ pub enum HumanoidArm {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum ClickType {
     Pickup,
@@ -1179,7 +1197,7 @@ pub enum ClickType {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum InteractionHand {
     MainHand,
@@ -1188,7 +1206,7 @@ pub enum InteractionHand {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum Direction {
     Down,
@@ -1225,7 +1243,7 @@ impl Direction {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum StructureMode {
     Save,
@@ -1236,7 +1254,7 @@ pub enum StructureMode {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum Mirror {
     None,
@@ -1246,7 +1264,7 @@ pub enum Mirror {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum Rotation {
     None,
@@ -1257,7 +1275,7 @@ pub enum Rotation {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum ChatType {
     Chat,
@@ -1267,7 +1285,7 @@ pub enum ChatType {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum SoundSource {
     Master,
@@ -1284,7 +1302,7 @@ pub enum SoundSource {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum GameType {
     Survival,
@@ -1295,7 +1313,7 @@ pub enum GameType {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum EquipmentSlot {
     MainHand,
@@ -1308,7 +1326,7 @@ pub enum EquipmentSlot {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum ChatFormatting {
     Black,
@@ -1337,7 +1355,7 @@ pub enum ChatFormatting {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum ConnectionProtocol {
     Handshake,
@@ -1348,7 +1366,7 @@ pub enum ConnectionProtocol {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum ServerScoreboardMethod {
     Change,
@@ -1357,7 +1375,7 @@ pub enum ServerScoreboardMethod {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum StructureBlockEntityUpdateType {
     UpdateData,
@@ -1368,7 +1386,7 @@ pub enum StructureBlockEntityUpdateType {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum BossBarColor {
     Pink,
@@ -1382,7 +1400,7 @@ pub enum BossBarColor {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum BossBarOverlay {
     Progress,
@@ -1394,7 +1412,7 @@ pub enum BossBarOverlay {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum EntityAnchor {
     Feet,
@@ -1403,7 +1421,7 @@ pub enum EntityAnchor {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum ObjectiveCriteriaRenderType {
     Integer,
@@ -1412,7 +1430,7 @@ pub enum ObjectiveCriteriaRenderType {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum CommandBlockEntityMode {
     Sequence,
@@ -1422,7 +1440,7 @@ pub enum CommandBlockEntityMode {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum ClientCommandPacketAction {
     PerformRespawn,
@@ -1431,7 +1449,7 @@ pub enum ClientCommandPacketAction {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum InteractPacketAction {
     Interact,
@@ -1441,7 +1459,7 @@ pub enum InteractPacketAction {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum PlayerActionPacketAction {
     StartDestroyBlock,
@@ -1455,7 +1473,7 @@ pub enum PlayerActionPacketAction {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum PlayerCommandPacketAction {
     PressShiftKey,
@@ -1471,7 +1489,7 @@ pub enum PlayerCommandPacketAction {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum RecipeBookUpdatePacketPurpose {
     Shown,
@@ -1480,7 +1498,7 @@ pub enum RecipeBookUpdatePacketPurpose {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum ResourcePackPacketAction {
     SuccessfullyLoaded,
@@ -1491,7 +1509,7 @@ pub enum ResourcePackPacketAction {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum SeenAdvancementsPacketAction {
     OpenedTab,
@@ -1500,7 +1518,7 @@ pub enum SeenAdvancementsPacketAction {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum BossEventPacketOperation {
     Add,
@@ -1513,7 +1531,7 @@ pub enum BossEventPacketOperation {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum PlayerCombatPacketEvent {
     EnterCombat,
@@ -1523,7 +1541,7 @@ pub enum PlayerCombatPacketEvent {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum PlayerInfoPacketAction {
     AddPlayer,
@@ -1535,7 +1553,7 @@ pub enum PlayerInfoPacketAction {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum RecipePacketState {
     Init,
@@ -1545,7 +1563,7 @@ pub enum RecipePacketState {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum SetBorderPacketType {
     SetSize,
@@ -1558,7 +1576,7 @@ pub enum SetBorderPacketType {
 }
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum SetTitlesPacketType {
     Title,

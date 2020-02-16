@@ -4,6 +4,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct TagQueryPacket {
     pub transactionId: i32,
     pub tag: Nbt,

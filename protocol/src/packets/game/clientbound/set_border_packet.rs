@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub enum SetBorderPacketData {
     SetSize(f64),
     LerpSize(f64, f64, i64),
@@ -12,6 +13,7 @@ pub enum SetBorderPacketData {
     SetWarningBlocks(i32),
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct SetBorderPacket {
     pub borderType: SetBorderPacketType,
     pub borderData: SetBorderPacketData,

@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct StatusResponsePacket {
     pub status: ServerStatus,
 }
@@ -18,5 +19,34 @@ impl CodablePacket for StatusResponsePacket {
     {
         let status: ServerStatus = serde_json::from_str(&*buf.get_mc_string(32767)?)?;
         return Ok(StatusResponsePacket { status });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(StatusResponsePacket {
+            status: ServerStatus {
+                description: "a testing system".to_string(),
+                players: ServerStatusPlayers {
+                    max: 20,
+                    online: 5,
+                    sample: Some(vec![GameProfile {
+                        uuid: None,
+                        name: "testName".to_string(),
+                        legacy: false,
+                    }]),
+                },
+                version: ServerStatusVersion {
+                    name: "a.b.c".to_string(),
+                    version: 1234,
+                },
+                favicon: None,
+            }
+        })
     }
 }

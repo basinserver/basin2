@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct CustomSoundPacket {
     pub name: ResourceLocation,
     pub source: SoundSource,

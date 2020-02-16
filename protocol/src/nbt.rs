@@ -4,7 +4,7 @@ use bytes::BytesMut;
 use linked_hash_map::LinkedHashMap;
 
 enum_from_primitive! {
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(u8)]
 pub enum NbtType {
     End,
@@ -23,6 +23,7 @@ pub enum NbtType {
 }
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub enum Nbt {
     End,
     Byte(i8),

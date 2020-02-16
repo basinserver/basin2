@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct ClientIntentionPacket {
     pub protocolVersion: i32,
     pub hostName: String,
@@ -32,5 +33,21 @@ impl CodablePacket for ClientIntentionPacket {
             port,
             intention,
         });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(ClientIntentionPacket {
+            protocolVersion: 1234,
+            hostName: "testHost".to_string(),
+            port: 54321,
+            intention: ConnectionProtocol::Game,
+        })
     }
 }

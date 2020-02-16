@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct SetObjectivePacket {
     pub objectiveName: String,
     pub displayName: Option<ChatComponent>,

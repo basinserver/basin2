@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct CustomQueryPacket {
     pub transactionId: i32,
     pub identifier: ResourceLocation,
@@ -31,5 +32,21 @@ impl CodablePacket for CustomQueryPacket {
             identifier,
             data,
         });
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(CustomQueryPacket {
+            transactionId: 10,
+            identifier: "ident".to_string(),
+            data: BytesMut::from(&vec![0x0a as u8, 0x0b as u8][..]),
+        })
     }
 }

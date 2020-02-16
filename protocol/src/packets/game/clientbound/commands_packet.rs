@@ -226,6 +226,7 @@ impl ArgumentType {
     }
 }
 
+#[derive(PartialEq, Clone, Debug)]
 struct TempCommandNode {
     command: bool,
     children: Vec<i32>,

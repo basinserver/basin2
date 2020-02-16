@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct PlayerCommandPacket {
     pub id: i32,
     pub action: PlayerCommandPacketAction,

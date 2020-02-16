@@ -4,6 +4,7 @@ use crate::result::*;
 use bytes::BytesMut;
 use uuid::Uuid;
 
+#[derive(PartialEq, Clone, Debug)]
 pub enum PlayerInfoPacketData {
     AddPlayer(String, Vec<PlayerProperty>, GameType, i32, Option<String>),
     UpdateGameMode(GameType),
@@ -12,6 +13,7 @@ pub enum PlayerInfoPacketData {
     RemovePlayer(),
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct PlayerInfoPacket {
     pub action: PlayerInfoPacketAction,
     pub data: Vec<(Uuid, PlayerInfoPacketData)>,

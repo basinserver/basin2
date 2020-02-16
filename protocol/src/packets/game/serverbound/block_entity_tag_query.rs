@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct BlockEntityTagQuery {
     pub transactionId: i32,
     pub pos: BlockPos,

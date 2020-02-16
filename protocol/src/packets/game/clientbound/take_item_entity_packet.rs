@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct TakeItemEntityPacket {
     pub itemId: i32,
     pub playerId: i32,

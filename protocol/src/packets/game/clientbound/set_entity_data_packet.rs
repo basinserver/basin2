@@ -171,6 +171,7 @@ impl EntityMetadata {
     }
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct SetEntityDataPacket {
     pub id: i32,
     pub metadata: Vec<EntityMetadataItem>,

@@ -4,6 +4,7 @@ use crate::result::*;
 use bytes::BytesMut;
 use uuid::Uuid;
 
+#[derive(PartialEq, Clone, Debug)]
 pub enum BossEventPacketData {
     Add(
         ChatComponent,
@@ -21,6 +22,7 @@ pub enum BossEventPacketData {
     UpdateProperties(bool, bool, bool),
 }
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct BossEventPacket {
     pub id: Uuid,
     pub operation: BossEventPacketOperation,

@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct UpdateAdvancementsPacket {
     pub reset: bool,
     pub added: Vec<(ResourceLocation, Advancement)>,

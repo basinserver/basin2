@@ -4,6 +4,7 @@ use crate::result::*;
 use bytes::BytesMut;
 use uuid::Uuid;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct GameProfilePacket {
     pub gameProfile: GameProfile,
 }
@@ -29,5 +30,22 @@ impl CodablePacket for GameProfilePacket {
             name: buf.get_mc_string(16)?,
         };
         return Ok(GameProfilePacket { gameProfile });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(GameProfilePacket {
+            gameProfile: GameProfile {
+                uuid: Some(Uuid::new_v4()),
+                name: "testUser".to_string(),
+                legacy: false,
+            }
+        })
     }
 }

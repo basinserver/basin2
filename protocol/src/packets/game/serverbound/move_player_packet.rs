@@ -2,8 +2,8 @@ use crate::network::*;
 use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
-use uuid::Uuid;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct MovePlayerPacket {
     pub onGround: bool,
 }

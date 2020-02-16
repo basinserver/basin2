@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct MovePlayerRotPacket {
     pub yRot: f32,
     pub xRot: f32,

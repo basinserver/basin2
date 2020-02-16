@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub enum RecipeBookUpdatePacketData {
     Shown(ResourceLocation),
     Settings(bool, bool, bool, bool, bool, bool, bool, bool),

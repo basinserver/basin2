@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct SetExperiencePacket {
     pub experienceProgress: f32,
     pub totalExperience: i32,

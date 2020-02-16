@@ -4,6 +4,7 @@ use crate::result::*;
 use bytes::BytesMut;
 use log::*;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct InteractPacket {
     pub entityId: i32,
     pub action: InteractPacketAction,

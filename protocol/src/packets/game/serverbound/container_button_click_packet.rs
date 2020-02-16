@@ -3,6 +3,7 @@ use crate::packet::*;
 use crate::result::*;
 use bytes::BytesMut;
 
+#[derive(PartialEq, Clone, Debug)]
 pub struct ContainerButtonClickPacket {
     pub containerId: u8,
     pub buttonId: u8,
