@@ -5,6 +5,7 @@ use bytes::BytesMut;
 use either::Either;
 use linked_hash_map::LinkedHashMap;
 use std::collections::{HashMap, VecDeque};
+use std::fmt;
 use std::sync::Arc;
 use std::sync::RwLock;
 use uuid::Uuid;
@@ -445,6 +446,30 @@ impl CommandNode {
 
 pub struct CommandsPacket {
     pub root: Arc<CommandNode>,
+}
+
+impl PartialEq for CommandsPacket {
+    fn eq(&self, other: &CommandsPacket) -> bool {
+        &*self.root as *const CommandNode == &*other.root as *const CommandNode
+    }
+}
+
+impl Clone for CommandsPacket {
+    fn clone(&self) -> CommandsPacket {
+        CommandsPacket {
+            root: self.root.clone(),
+        }
+    }
+}
+
+impl fmt::Debug for CommandsPacket {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "CommandsPacket {{ {:x?} }}",
+            &*self.root as *const CommandNode
+        )
+    }
 }
 
 impl CodablePacket for CommandsPacket {

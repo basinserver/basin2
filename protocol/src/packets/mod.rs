@@ -10,6 +10,7 @@ pub use status::*;
 use crate::packet::PacketContainer;
 use bytes::BytesMut;
 
+#[derive(Clone, Debug, PartialEq)]
 pub enum Packet {
     PacketGame(PacketGame),
     PacketHandshake(PacketHandshake),

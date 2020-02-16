@@ -4,6 +4,7 @@ use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;
 
+#[derive(Clone, Debug, PartialEq)]
 pub enum PacketHandshakeClientbound {}
 
 impl PacketContainer for PacketHandshakeClientbound {

@@ -11,12 +11,16 @@ use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 use uuid::Uuid;
 
 pub fn get_var_int_len(value: i32) -> usize {
-    for i in 1..10 {
-        if ((value & -1) << (i * 7)) == 0 {
-            return i;
+    let mut value = value as u32;
+    let mut i = 1;
+    while (value & !0b1111111) != 0 {
+        i += 1;
+        value >>= 7;
+        if i > 5 {
+            break;
         }
     }
-    return 10;
+    return i;
 }
 
 pub trait McPacketBuf {

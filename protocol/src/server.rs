@@ -13,7 +13,7 @@ async fn start_server(address: &str) -> Result<(), Box<dyn Error>> {
             match socket_res {
                 Ok(socket) => {
                     println!("Accepted connection from: '{:?}'", socket.peer_addr());
-                    tokio::spawn(Connection::spawn(socket));
+                    tokio::spawn(Connection::spawn(socket, true));
                 }
                 Err(err) => {
                     warn!("Error accepting connection: '{:?}'", err);

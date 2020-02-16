@@ -10,6 +10,7 @@ use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;
 
+#[derive(Clone, Debug, PartialEq)]
 pub enum PacketStatusClientbound {
     StatusResponsePacket(StatusResponsePacket),
     PongResponsePacket(PongResponsePacket),

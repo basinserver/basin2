@@ -192,6 +192,7 @@ use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;
 
+#[derive(Clone, Debug, PartialEq)]
 pub enum PacketGameClientbound {
     AddEntityPacket(AddEntityPacket),
     AddExperienceOrbPacket(AddExperienceOrbPacket),

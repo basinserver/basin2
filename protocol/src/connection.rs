@@ -1,9 +1,10 @@
-use super::packets::Packet;
+use super::packets::*;
 use crate::network::*;
+use crate::packet::PacketContainer;
 use crate::result::*;
 use bytes::buf::Buf;
 use bytes::BytesMut;
-use flate2::{Compress, Compression, Decompress, FlushCompress, FlushDecompress};
+use flate2::{write::DeflateDecoder, write::DeflateEncoder, Compression};
 use futures::future::FutureExt;
 use futures::pin_mut;
 use futures::select;
@@ -11,7 +12,8 @@ use futures::stream::StreamExt;
 use futures_util::sink::SinkExt;
 use futures_util::stream::{SplitSink, SplitStream};
 use log::*;
-use openssl::symm::{Cipher, Crypter};
+use openssl::symm::{Cipher, Crypter, Mode};
+use std::io::Write;
 use std::net::SocketAddr;
 use tokio::net::TcpStream;
 use tokio::sync::mpsc::{channel, Receiver, Sender};
@@ -29,6 +31,68 @@ struct McCodec {
     decrypted: BytesMut,
     threshold: Option<u32>,
     write_cipher: Option<Crypter>,
+    state: ConnectionProtocol,
+    is_server: bool,
+}
+
+impl McCodec {
+    fn finish_decode(&mut self, buf: &mut BytesMut) -> Result<Packet> {
+        let packet_id = buf.get_mc_var_int()?;
+        Ok(match (self.state, self.is_server) {
+            (ConnectionProtocol::Handshake, true) => {
+                Packet::PacketHandshake(PacketHandshake::PacketHandshakeServerbound(
+                    PacketHandshakeServerbound::decode(packet_id, buf)?,
+                ))
+            }
+            (ConnectionProtocol::Handshake, false) => {
+                Packet::PacketHandshake(PacketHandshake::PacketHandshakeClientbound(
+                    PacketHandshakeClientbound::decode(packet_id, buf)?,
+                ))
+            }
+            (ConnectionProtocol::Status, true) => {
+                Packet::PacketStatus(PacketStatus::PacketStatusServerbound(
+                    PacketStatusServerbound::decode(packet_id, buf)?,
+                ))
+            }
+            (ConnectionProtocol::Status, false) => {
+                Packet::PacketStatus(PacketStatus::PacketStatusClientbound(
+                    PacketStatusClientbound::decode(packet_id, buf)?,
+                ))
+            }
+            (ConnectionProtocol::Login, true) => {
+                Packet::PacketLogin(PacketLogin::PacketLoginServerbound(
+                    PacketLoginServerbound::decode(packet_id, buf)?,
+                ))
+            }
+            (ConnectionProtocol::Login, false) => {
+                Packet::PacketLogin(PacketLogin::PacketLoginClientbound(
+                    PacketLoginClientbound::decode(packet_id, buf)?,
+                ))
+            }
+            (ConnectionProtocol::Game, true) => Packet::PacketGame(
+                PacketGame::PacketGameServerbound(PacketGameServerbound::decode(packet_id, buf)?),
+            ),
+            (ConnectionProtocol::Game, false) => Packet::PacketGame(
+                PacketGame::PacketGameClientbound(PacketGameClientbound::decode(packet_id, buf)?),
+            ),
+        })
+    }
+
+    fn init_encryption(&mut self, key: &[u8]) -> Result<()> {
+        self.read_cipher = Some(Crypter::new(
+            Cipher::aes_128_cfb8(),
+            Mode::Decrypt,
+            &key,
+            Some(&key),
+        )?);
+        self.write_cipher = Some(Crypter::new(
+            Cipher::aes_128_cfb8(),
+            Mode::Encrypt,
+            &key,
+            Some(&key),
+        )?);
+        Ok(())
+    }
 }
 
 impl Decoder for &mut McCodec {
@@ -58,7 +122,6 @@ impl Decoder for &mut McCodec {
         let header_split = post_cipher.split_off(header_len);
         let mut header = post_cipher.clone();
         post_cipher.unsplit(header_split);
-
         let packet_length = header.get_mc_var_int();
         if packet_length.is_err() {
             return Ok(None);
@@ -84,17 +147,19 @@ impl Decoder for &mut McCodec {
                 return Err(IoError::from(ErrorKind::InvalidData));
             }
             if decompressed_length > 0 {
-                let mut decompressor = Decompress::new(false);
-                let compressed_packet = packet_data;
-                packet_data = BytesMut::with_capacity(decompressed_length);
-                decompressor.decompress(
-                    &compressed_packet,
-                    &mut packet_data,
-                    FlushDecompress::Finish,
-                )?;
+                let compressed = packet_data;
+                let mut deflater = DeflateDecoder::new(vec![]);
+                deflater.write_all(&compressed[..])?;
+                packet_data = BytesMut::from(&deflater.finish()?[..]);
             }
         }
-        Ok(None) // TODO: remove
+        let packet = self.finish_decode(&mut packet_data);
+        if packet.is_err() {
+            error!("Invalid packet: {:?}", packet.err().unwrap());
+            return Err(IoError::from(ErrorKind::InvalidData));
+        }
+        let packet = packet.unwrap();
+        Ok(Some(packet))
     }
 }
 
@@ -113,15 +178,11 @@ impl Encoder for &mut McCodec {
         match self.threshold {
             Some(threshold) => {
                 let raw_length = get_var_int_len(encoded.len() as i32) + encoded.len();
-                if threshold > 0 && raw_length > threshold as usize + 1 && raw_length <= 2097152 {
-                    let mut compressor = Compress::new(Compression::default(), false);
-                    let mut decompressed = encoded;
-                    let mut compressed = BytesMut::with_capacity(raw_length);
-                    compressor.compress(
-                        &mut decompressed,
-                        &mut compressed,
-                        FlushCompress::Finish,
-                    )?;
+                if raw_length > threshold as usize + 1 && raw_length <= 2097152 {
+                    let decompressed = encoded;
+                    let mut deflater = DeflateEncoder::new(vec![], Compression::default());
+                    deflater.write_all(&decompressed[..])?;
+                    let compressed = BytesMut::from(&deflater.finish()?[..]);
                     encoded = BytesMut::with_capacity(compressed.len() + 10);
                     encoded.set_mc_var_int(
                         (get_var_int_len(decompressed.len() as i32) + compressed.len()) as i32,
@@ -139,15 +200,17 @@ impl Encoder for &mut McCodec {
             None => {
                 let decompressed = encoded;
                 encoded = BytesMut::with_capacity(decompressed.len() + 10);
-                encoded.set_mc_var_int(encoded.len() as i32);
+                encoded.set_mc_var_int(decompressed.len() as i32);
                 encoded.unsplit(decompressed);
             }
         };
         // encrypt
         match &mut self.write_cipher {
             Some(cipher) => {
-                output.reserve(encoded.len() + 10);
-                cipher.update(&encoded, output).unwrap();
+                output.reserve(encoded.len() + 16);
+                let mut indirect_output: Vec<u8> = vec![0; encoded.len() + 16];
+                let outlen = cipher.update(&encoded, &mut indirect_output).unwrap();
+                output.extend_from_slice(&indirect_output[0..outlen]);
             }
             None => {
                 output.unsplit(encoded);
@@ -182,7 +245,7 @@ async fn readForward(
 }
 
 impl Connection {
-    pub async fn spawn(socket: TcpStream) -> Result<()> {
+    pub async fn spawn(socket: TcpStream, is_server: bool) -> Result<()> {
         let address = socket.peer_addr().unwrap();
 
         let (in_outgoing, in_incoming) = channel::<Packet>(256);
@@ -196,6 +259,8 @@ impl Connection {
                 decrypted: BytesMut::new(),
                 threshold: None,
                 write_cipher: None,
+                state: ConnectionProtocol::Handshake,
+                is_server,
             },
         };
         let framed_stream = Framed::new(socket, &mut connection.codec);
@@ -216,5 +281,159 @@ impl Connection {
 impl Drop for Connection {
     fn drop(&mut self) {
         //TODO
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_packet_serialization_plain() -> Result<()> {
+        let mut codec = McCodec {
+            read_cipher: None,
+            decrypted: BytesMut::new(),
+            write_cipher: None,
+            threshold: None,
+            state: ConnectionProtocol::Handshake,
+            is_server: false,
+        };
+        let test_packet = Packet::PacketHandshake(PacketHandshake::PacketHandshakeServerbound(
+            PacketHandshakeServerbound::ClientIntentionPacket(ClientIntentionPacket {
+                protocolVersion: 1234,
+                hostName: "testHost".to_string(),
+                port: 54321,
+                intention: ConnectionProtocol::Login,
+            }),
+        ));
+        let mut output = BytesMut::new();
+        let mut codec_borrow = &mut codec;
+        codec_borrow.encode(test_packet.clone(), &mut output)?;
+        codec_borrow.is_server = true;
+
+        let decoded = codec_borrow.decode(&mut output)?;
+        assert!(decoded.is_some());
+        assert_eq!(decoded.unwrap(), test_packet);
+        Ok(())
+    }
+
+    #[test]
+    fn test_packet_serialization_compressed() -> Result<()> {
+        let mut codec = McCodec {
+            read_cipher: None,
+            decrypted: BytesMut::new(),
+            write_cipher: None,
+            threshold: Some(0),
+            state: ConnectionProtocol::Handshake,
+            is_server: false,
+        };
+        let test_packet = Packet::PacketHandshake(PacketHandshake::PacketHandshakeServerbound(
+            PacketHandshakeServerbound::ClientIntentionPacket(ClientIntentionPacket {
+                protocolVersion: 1234,
+                hostName: "testHost".to_string(),
+                port: 54321,
+                intention: ConnectionProtocol::Login,
+            }),
+        ));
+        let mut output = BytesMut::new();
+        let mut codec_borrow = &mut codec;
+        codec_borrow.encode(test_packet.clone(), &mut output)?;
+        codec_borrow.is_server = true;
+
+        let decoded = codec_borrow.decode(&mut output)?;
+        assert!(decoded.is_some());
+        assert_eq!(decoded.unwrap(), test_packet);
+        Ok(())
+    }
+
+    #[test]
+    fn test_packet_serialization_compressible() -> Result<()> {
+        let mut codec = McCodec {
+            read_cipher: None,
+            decrypted: BytesMut::new(),
+            write_cipher: None,
+            threshold: Some(256),
+            state: ConnectionProtocol::Handshake,
+            is_server: false,
+        };
+        let test_packet = Packet::PacketHandshake(PacketHandshake::PacketHandshakeServerbound(
+            PacketHandshakeServerbound::ClientIntentionPacket(ClientIntentionPacket {
+                protocolVersion: 1234,
+                hostName: "testHost".to_string(),
+                port: 54321,
+                intention: ConnectionProtocol::Login,
+            }),
+        ));
+        let mut output = BytesMut::new();
+        let mut codec_borrow = &mut codec;
+        codec_borrow.encode(test_packet.clone(), &mut output)?;
+        codec_borrow.is_server = true;
+
+        let decoded = codec_borrow.decode(&mut output)?;
+        assert!(decoded.is_some());
+        assert_eq!(decoded.unwrap(), test_packet);
+        Ok(())
+    }
+
+    #[test]
+    fn test_packet_serialization_encrypted() -> Result<()> {
+        let key = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+        let mut codec = McCodec {
+            read_cipher: None,
+            decrypted: BytesMut::new(),
+            write_cipher: None,
+            threshold: None,
+            state: ConnectionProtocol::Handshake,
+            is_server: false,
+        };
+        codec.init_encryption(&key)?;
+        let test_packet = Packet::PacketHandshake(PacketHandshake::PacketHandshakeServerbound(
+            PacketHandshakeServerbound::ClientIntentionPacket(ClientIntentionPacket {
+                protocolVersion: 1234,
+                hostName: "testHost".to_string(),
+                port: 54321,
+                intention: ConnectionProtocol::Login,
+            }),
+        ));
+        let mut output = BytesMut::new();
+        let mut codec_borrow = &mut codec;
+        codec_borrow.encode(test_packet.clone(), &mut output)?;
+        codec_borrow.is_server = true;
+
+        let decoded = codec_borrow.decode(&mut output)?;
+        assert!(decoded.is_some());
+        assert_eq!(decoded.unwrap(), test_packet);
+        Ok(())
+    }
+
+    #[test]
+    fn test_packet_serialization_encrypted_compressed() -> Result<()> {
+        let key = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+        let mut codec = McCodec {
+            read_cipher: None,
+            decrypted: BytesMut::new(),
+            write_cipher: None,
+            threshold: Some(0),
+            state: ConnectionProtocol::Handshake,
+            is_server: false,
+        };
+        codec.init_encryption(&key)?;
+        let test_packet = Packet::PacketHandshake(PacketHandshake::PacketHandshakeServerbound(
+            PacketHandshakeServerbound::ClientIntentionPacket(ClientIntentionPacket {
+                protocolVersion: 1234,
+                hostName: "testHost".to_string(),
+                port: 54321,
+                intention: ConnectionProtocol::Login,
+            }),
+        ));
+        let mut output = BytesMut::new();
+        let mut codec_borrow = &mut codec;
+        codec_borrow.encode(test_packet.clone(), &mut output)?;
+        codec_borrow.is_server = true;
+
+        let decoded = codec_borrow.decode(&mut output)?;
+        assert!(decoded.is_some());
+        assert_eq!(decoded.unwrap(), test_packet);
+        Ok(())
     }
 }
