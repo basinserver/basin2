@@ -68,3 +68,27 @@ impl CodablePacket for AddEntityPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(AddEntityPacket {
+            id : 54321,
+            uuid: Uuid::new_v4(),
+            x: 123.0,
+            y: 64.0,
+            z: -157.0,
+            xa: 10,
+            ya: 20,
+            za: 30,
+            xRot: 20,
+            yRot: 30,
+            entityType: 643,
+            data: 45342634,
+        })
+    }
+}

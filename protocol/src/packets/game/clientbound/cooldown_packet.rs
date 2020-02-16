@@ -24,3 +24,17 @@ impl CodablePacket for CooldownPacket {
         return Ok(CooldownPacket { item, duration });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(CooldownPacket {
+            item: 123,
+            duration: 30,
+        })
+    }
+}

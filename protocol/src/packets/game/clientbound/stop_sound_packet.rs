@@ -16,7 +16,7 @@ impl CodablePacket for StopSoundPacket {
             flags |= 1;
         }
         if self.name.is_some() {
-            flags |= 1;
+            flags |= 2;
         }
         buf.set_mc_u8(flags);
         if self.source.is_some() {
@@ -41,5 +41,19 @@ impl CodablePacket for StopSoundPacket {
             _ => None,
         };
         return Ok(StopSoundPacket { name, source });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(StopSoundPacket {
+            name: Some("sound name".to_string()),
+            source: Some(SoundSource::Weather),
+        })
     }
 }

@@ -31,3 +31,18 @@ impl CodablePacket for ContainerSetDataPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(ContainerSetDataPacket {
+            containerId: 12,
+            id: 4352,
+            value: 7852,
+        })
+    }
+}

@@ -54,3 +54,21 @@ impl CodablePacket for PlayerAbilitiesPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(PlayerAbilitiesPacket {
+            invulnerable: true,
+            isFlying: false,
+            canFly: false,
+            instabuild: false,
+            flyingSpeed: 120.0,
+            walkingSpeed: 12.0,
+        })
+    }
+}

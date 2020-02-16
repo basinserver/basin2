@@ -31,3 +31,18 @@ impl CodablePacket for SetExperiencePacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SetExperiencePacket {
+            experienceProgress: 0.532,
+            totalExperience: 345643,
+            experienceLevel: 19,
+        })
+    }
+}

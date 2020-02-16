@@ -31,3 +31,17 @@ impl CodablePacket for ContainerSetContentPacket {
         return Ok(ContainerSetContentPacket { containerId, items });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(ContainerSetContentPacket {
+            containerId: 12,
+            items: vec![ItemStack::empty(), ItemStack::empty()],
+        })
+    }
+}

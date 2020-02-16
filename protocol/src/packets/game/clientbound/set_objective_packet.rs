@@ -42,3 +42,29 @@ impl CodablePacket for SetObjectivePacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle_lowmethod() -> Result<()> {
+        cycle(SetObjectivePacket {
+            objectiveName: "objective name".to_string(),
+            displayName: Some("display objective".to_string()),
+            renderType: Some(ObjectiveCriteriaRenderType::Hearts),
+            method: 2,
+        })
+    }
+
+    #[test]
+    fn test_cycle_highmethod() -> Result<()> {
+        cycle(SetObjectivePacket {
+            objectiveName: "objective name".to_string(),
+            displayName: None,
+            renderType: None,
+            method: 4,
+        })
+    }
+}

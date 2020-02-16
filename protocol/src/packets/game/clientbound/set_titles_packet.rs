@@ -64,3 +64,31 @@ impl CodablePacket for SetTitlesPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle_title() -> Result<()> {
+        cycle(SetTitlesPacket {
+            titleType: SetTitlesPacketType::Title,
+            text: Some("test title".to_string()),
+            fadeInTime: None,
+            stayTime: None,
+            fadeOutTime: None,
+        })
+    }
+
+    #[test]
+    fn test_cycle_times() -> Result<()> {
+        cycle(SetTitlesPacket {
+            titleType: SetTitlesPacketType::Times,
+            text: None,
+            fadeInTime: Some(30),
+            stayTime: Some(20),
+            fadeOutTime: Some(50),
+        })
+    }
+}

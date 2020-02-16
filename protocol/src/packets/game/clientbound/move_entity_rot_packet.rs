@@ -35,3 +35,19 @@ impl CodablePacket for MoveEntityRotPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(MoveEntityRotPacket {
+            entityId: 234,
+            yRot: 12,
+            xRot: -56,
+            onGround: true,
+        })
+    }
+}

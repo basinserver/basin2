@@ -68,3 +68,27 @@ impl CodablePacket for AddMobPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(AddMobPacket {
+            id : 54321,
+            uuid: Uuid::new_v4(),
+            entityType: 643,
+            x: 123.0,
+            y: 64.0,
+            z: -157.0,
+            xd: 10,
+            yd: 20,
+            zd: 30,
+            xRot: 20,
+            yHeadRot: 50,
+            yRot: 30,
+        })
+    }
+}

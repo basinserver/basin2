@@ -70,3 +70,22 @@ impl CodablePacket for PlayerPositionPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(PlayerPositionPacket {
+            x: -45.0,
+            y: 64.5,
+            z: 265.34,
+            yRot: 120.5,
+            xRot: 19.345,
+            relativeArguments: (false, true, false, true, true),
+            id: 34534,
+        })
+    }
+}

@@ -28,3 +28,16 @@ impl CodablePacket for RemoveEntitiesPacket {
         return Ok(RemoveEntitiesPacket { entityIds });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(RemoveEntitiesPacket {
+            entityIds: vec![345, 3454, 45674674],
+        })
+    }
+}

@@ -40,3 +40,20 @@ impl CodablePacket for AddPaintingPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(AddPaintingPacket {
+            id : 54321,
+            uuid: Uuid::new_v4(),
+            pos: BlockPos { x: 100, y: 20, z: -100 },
+            direction: Direction::South,
+            motive: 7,
+        })
+    }
+}

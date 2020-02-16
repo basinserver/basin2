@@ -61,3 +61,25 @@ impl CodablePacket for LevelParticlesPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(LevelParticlesPacket {
+            x: 54633.234,
+            y: 34.4533,
+            z: -3456.653,
+            xDist: 32.0,
+            yDist: 64.0,
+            zDist: 92.0,
+            maxSpeed: 120.0,
+            count: 1000,
+            overrideLimiter: true,
+            particle: ParticleOptions::Dust { particle: Particle::Dust, r: 120.0, g: 120.0, b: 255.0, scale: 212.0 },
+        })
+    }
+}

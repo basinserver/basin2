@@ -39,3 +39,20 @@ impl CodablePacket for UpdateMobEffectPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(UpdateMobEffectPacket {
+            entityId: 4235356,
+            effectId: 12,
+            effectAmplifier: 2,
+            effectDurationTicks: 245435,
+            flags: 4,
+        })
+    }
+}

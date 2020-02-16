@@ -33,3 +33,16 @@ impl CodablePacket for SelectAdvancementsTabPacket {
         return Ok(SelectAdvancementsTabPacket { tab });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SelectAdvancementsTabPacket {
+            tab: Some("a tab".to_string()),
+        })
+    }
+}

@@ -41,3 +41,20 @@ impl CodablePacket for AwardStatsPacket {
         return Ok(AwardStatsPacket { stats });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(AwardStatsPacket {
+            stats: vec![AwardStatsPacketItem {
+                stat_type: 12,
+                stat: 20,
+                value: 100,
+            }]
+        })
+    }
+}

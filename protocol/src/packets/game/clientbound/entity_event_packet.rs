@@ -24,3 +24,17 @@ impl CodablePacket for EntityEventPacket {
         return Ok(EntityEventPacket { entityId, eventId });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(EntityEventPacket {
+            entityId: 5423432,
+            eventId: 12,
+        })
+    }
+}

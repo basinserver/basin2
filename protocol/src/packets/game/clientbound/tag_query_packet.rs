@@ -25,3 +25,17 @@ impl CodablePacket for TagQueryPacket {
         return Ok(TagQueryPacket { transactionId, tag });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(TagQueryPacket {
+            transactionId: 234456,
+            tag: Nbt::make_singleton_compound("test nbt".to_string(), Nbt::Float(47.0)),
+        })
+    }
+}

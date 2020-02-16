@@ -24,3 +24,17 @@ impl CodablePacket for AnimatePacket {
         return Ok(AnimatePacket { id, action });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(AnimatePacket {
+            id: 345343,
+            action: 23,
+        })
+    }
+}

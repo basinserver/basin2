@@ -31,3 +31,18 @@ impl CodablePacket for SetHealthPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SetHealthPacket {
+            health: 120.0,
+            food: 20,
+            saturation: 19.0,
+        })
+    }
+}

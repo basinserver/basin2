@@ -27,3 +27,17 @@ impl CodablePacket for PlaceGhostRecipePacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(PlaceGhostRecipePacket {
+            containerId: 45,
+            recipe: "some recipe".to_string(),
+        })
+    }
+}

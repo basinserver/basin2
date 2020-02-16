@@ -24,3 +24,17 @@ impl CodablePacket for GameEventPacket {
         return Ok(GameEventPacket { event, param });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(GameEventPacket {
+            event: 12,
+            param: 124563.5,
+        })
+    }
+}

@@ -52,3 +52,20 @@ impl CodablePacket for PlayerLookAtPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(PlayerLookAtPacket {
+            x: -45.0,
+            y: 64.5,
+            z: 265.34,
+            fromAnchor: EntityAnchor::Feet,
+            atEntity: Some((23434, EntityAnchor::Eyes)),
+        })
+    }
+}

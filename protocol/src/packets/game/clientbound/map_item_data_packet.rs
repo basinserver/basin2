@@ -76,7 +76,7 @@ impl CodablePacket for MapItemDataPacket {
                 buf.get_mc_u8()?,
                 buf.get_mc_u8()?,
                 buf.get_mc_u8()?,
-                buf.to_vec(),
+                buf.get_mc_byte_array_bounded(2048)?,
             ),
             _ => (0, 0, 0, vec![]),
         };
@@ -92,5 +92,33 @@ impl CodablePacket for MapItemDataPacket {
             height,
             mapColors,
         });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(MapItemDataPacket {
+            mapId: 234,
+            scale: 8,
+            trackingPosition: true,
+            locked: false,
+            decorations: vec![MapDecoration {
+                decoration_type: MapDecorationType::BannerMagenta,
+                x: 23,
+                y: 19,
+                rot: 1,
+                component: Some("test".to_string()),
+            }],
+            startX: 12,
+            startY: 25,
+            width: 90,
+            height: 90,
+            mapColors: vec![12, 96],
+        })
     }
 }

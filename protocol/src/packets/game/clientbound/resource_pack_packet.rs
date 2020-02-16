@@ -24,3 +24,17 @@ impl CodablePacket for ResourcePackPacket {
         return Ok(ResourcePackPacket { url, hash });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(ResourcePackPacket {
+            url: "some url".to_string(),
+            hash: "456464gbfsdgh56".to_string(),
+        })
+    }
+}

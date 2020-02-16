@@ -65,3 +65,23 @@ impl CodablePacket for LightUpdatePacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(LightUpdatePacket {
+            x: 12,
+            z: 432,
+            skyYMask: 1,
+            blockYMask: 2,
+            emptyBlockYMask: 4,
+            emptySkyYMask: 8,
+            skyUpdates: vec![vec![12].repeat(2048)],
+            blockUpdates: vec![vec![34].repeat(2048)],
+        })
+    }
+}

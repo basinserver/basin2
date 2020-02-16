@@ -59,3 +59,28 @@ impl CodablePacket for UpdateAttributesPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+    use uuid::Uuid;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(UpdateAttributesPacket {
+            entityId: 4235356,
+            attributes: vec![
+                EntityAttribute {
+                    name: "attribute_name".to_string(),
+                    base: 120.0,
+                    modifiers: vec![EntityAttributeModifier {
+                        uuid: Uuid::new_v4(),
+                        amount: 140.0,
+                        operation: EntityAttributeModifierOperation::Addition,
+                    }]
+                }
+            ],
+        })
+    }
+}

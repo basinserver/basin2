@@ -47,3 +47,22 @@ impl CodablePacket for TeleportEntityPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(TeleportEntityPacket {
+            id: 4567,
+            x: 194.345,
+            y: 67.435,
+            z: -234.34,
+            yRot: 120,
+            xRot: 12,
+            onGround: true,
+        })
+    }
+}

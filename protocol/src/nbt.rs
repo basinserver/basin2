@@ -46,6 +46,13 @@ pub enum Nbt {
 }
 
 impl Nbt {
+
+    pub fn make_singleton_compound(key: String, value: Nbt) -> Nbt {
+        let mut children = LinkedHashMap::new();
+        children.insert(key, value);
+        Nbt::Compound { children }
+    }
+
     pub fn nbt_type(&self) -> NbtType {
         use Nbt::*;
         match self {
@@ -66,13 +73,7 @@ impl Nbt {
     }
 
     pub fn parse(buf: &mut BytesMut) -> Result<Nbt> {
-        let (name, nbt) = Nbt::parse_item(buf)?;
-        if name.is_none() {
-            return invalidData();
-        }
-        let mut children = LinkedHashMap::new();
-        children.insert(name.unwrap().to_string(), nbt);
-        Ok(Nbt::Compound { children })
+        return Nbt::parse_list(buf, NbtType::Compound);
     }
 
     fn parse_item(buf: &mut BytesMut) -> Result<(Option<String>, Nbt)> {
@@ -123,7 +124,7 @@ impl Nbt {
                 let count = buf.get_mc_i32()? as usize;
                 let mut children: Vec<Nbt> = vec![];
                 for _ in 0..count {
-                    let item = Nbt::parse_list(buf, nbt_type)?;
+                    let item = Nbt::parse_list(buf, item_type)?;
                     match item {
                         Nbt::End => break, // should never happen
                         _ => (),

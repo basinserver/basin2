@@ -163,3 +163,61 @@ impl CodablePacket for PlayerInfoPacket {
         return Ok(PlayerInfoPacket { action, data });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle_add() -> Result<()> {
+        cycle(PlayerInfoPacket {
+            action: PlayerInfoPacketAction::AddPlayer,
+            data: vec![(Uuid::new_v4(), PlayerInfoPacketData::AddPlayer(
+                "testUser".to_string(),
+                vec![],
+                GameType::Survival,
+                123,
+                Some("magicName".to_string()),
+            ))],
+        })
+    }
+
+    #[test]
+    fn test_cycle_update_gamemode() -> Result<()> {
+        cycle(PlayerInfoPacket {
+            action: PlayerInfoPacketAction::UpdateGameMode,
+            data: vec![(Uuid::new_v4(), PlayerInfoPacketData::UpdateGameMode(
+                GameType::Survival,
+            ))],
+        })
+    }
+
+    #[test]
+    fn test_cycle_update_latency() -> Result<()> {
+        cycle(PlayerInfoPacket {
+            action: PlayerInfoPacketAction::UpdateLatency,
+            data: vec![(Uuid::new_v4(), PlayerInfoPacketData::UpdateLatency(
+                5464,
+            ))],
+        })
+    }
+
+    #[test]
+    fn test_cycle_update_display_name() -> Result<()> {
+        cycle(PlayerInfoPacket {
+            action: PlayerInfoPacketAction::UpdateDisplayName,
+            data: vec![(Uuid::new_v4(), PlayerInfoPacketData::UpdateDisplayName(
+                None,
+            ))],
+        })
+    }
+
+    #[test]
+    fn test_cycle_remove() -> Result<()> {
+        cycle(PlayerInfoPacket {
+            action: PlayerInfoPacketAction::RemovePlayer,
+            data: vec![(Uuid::new_v4(), PlayerInfoPacketData::RemovePlayer())],
+        })
+    }
+}

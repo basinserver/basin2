@@ -31,3 +31,18 @@ impl CodablePacket for TakeItemEntityPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(TakeItemEntityPacket {
+            itemId: 234456,
+            playerId: 5673,
+            amount: 12,
+        })
+    }
+}

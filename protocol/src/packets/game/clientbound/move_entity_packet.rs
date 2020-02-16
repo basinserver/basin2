@@ -21,3 +21,16 @@ impl CodablePacket for MoveEntityPacket {
         return Ok(MoveEntityPacket { entityId });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(MoveEntityPacket {
+            entityId: 234,
+        })
+    }
+}

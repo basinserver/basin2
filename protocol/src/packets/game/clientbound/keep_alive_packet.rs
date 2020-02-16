@@ -21,3 +21,16 @@ impl CodablePacket for KeepAlivePacket {
         return Ok(KeepAlivePacket { id });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(KeepAlivePacket {
+            id: 5675437,
+        })
+    }
+}

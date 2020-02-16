@@ -39,3 +39,20 @@ impl CodablePacket for MoveVehiclePacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(MoveVehiclePacket {
+            x: 345.564,
+            y: 64.43,
+            z: -4353.4345,
+            yRot: 192.0,
+            xRot: -12.0,
+        })
+    }
+}

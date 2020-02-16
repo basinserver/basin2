@@ -211,3 +211,42 @@ impl CodablePacket for UpdateRecipesPacket {
         return Ok(UpdateRecipesPacket { recipes });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(UpdateRecipesPacket {
+            recipes: vec![
+                ("shaped recipe".to_string(), RecipeSerializer::CraftingShaped {
+                    width: 2,
+                    height: 2,
+                    group: "group".to_string(),
+                    recipeItems: vec![vec![ItemStack::empty()], vec![ItemStack::empty()], vec![ItemStack::empty()], vec![ItemStack::empty()]],
+                    result: ItemStack::empty(),
+                }),
+                ("shapeless recipe".to_string(), RecipeSerializer::CraftingShapeless {
+                    group: "group".to_string(),
+                    ingredients: vec![vec![ItemStack::empty()], vec![ItemStack::empty()], vec![ItemStack::empty()], vec![ItemStack::empty()]],
+                    result: ItemStack::empty(),
+                }),
+                ("simple recipe".to_string(), RecipeSerializer::CraftingSpecialArmordye),
+                ("smelting recipe".to_string(), RecipeSerializer::Smelting(SimpleCookingSerializer {
+                    group: "group".to_string(),
+                    ingredient: vec![ItemStack::empty(), ItemStack::empty()],
+                    result: ItemStack::empty(),
+                    experience: 120.0,
+                    cookingTime: 300,
+                })),
+                ("stonecutting recipe".to_string(), RecipeSerializer::Stonecutting {
+                    group: "group".to_string(),
+                    ingredient: vec![ItemStack::empty(), ItemStack::empty()],
+                    result: ItemStack::empty(),
+                }),
+            ]
+        })
+    }
+}

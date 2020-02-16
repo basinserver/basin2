@@ -21,3 +21,16 @@ impl CodablePacket for OpenSignEditorPacket {
         return Ok(OpenSignEditorPacket { pos });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(OpenSignEditorPacket {
+            pos: BlockPos { x: 34, y: 12, z: -56343 },
+        })
+    }
+}

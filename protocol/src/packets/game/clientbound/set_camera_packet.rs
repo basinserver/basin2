@@ -21,3 +21,16 @@ impl CodablePacket for SetCameraPacket {
         return Ok(SetCameraPacket { cameraId });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SetCameraPacket {
+            cameraId: 35667,
+        })
+    }
+}

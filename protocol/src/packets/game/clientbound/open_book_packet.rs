@@ -21,3 +21,16 @@ impl CodablePacket for OpenBookPacket {
         return Ok(OpenBookPacket { hand });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(OpenBookPacket {
+            hand: InteractionHand::OffHand,
+        })
+    }
+}

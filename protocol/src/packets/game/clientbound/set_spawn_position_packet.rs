@@ -21,3 +21,16 @@ impl CodablePacket for SetSpawnPositionPacket {
         return Ok(SetSpawnPositionPacket { pos });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SetSpawnPositionPacket {
+            pos: BlockPos { x: 120, y: 64, z: -125 },
+        })
+    }
+}

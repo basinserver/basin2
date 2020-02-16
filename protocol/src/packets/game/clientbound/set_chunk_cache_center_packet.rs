@@ -24,3 +24,17 @@ impl CodablePacket for SetChunkCacheCenterPacket {
         return Ok(SetChunkCacheCenterPacket { x, z });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SetChunkCacheCenterPacket {
+            x: 45367,
+            z: -34,
+        })
+    }
+}

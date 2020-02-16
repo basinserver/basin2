@@ -15,6 +15,8 @@ pub trait McNetwork {
     fn write_var_int(&mut self, value: i32) -> usize;
     fn read_var_long(&self) -> Option<(i64, usize)>;
     fn write_var_long(&mut self, value: i64) -> usize;
+
+    fn display(&self) -> String;
 }
 
 impl McNetwork for BytesMut {
@@ -38,10 +40,11 @@ impl McNetwork for BytesMut {
         Some((output, i))
     }
 
-    fn write_var_int(&mut self, mut value: i32) -> usize {
+    fn write_var_int(&mut self, value: i32) -> usize {
+        let mut value = value as u32;
         self.reserve(6);
         let mut i = 0;
-        while (value & -128) != 0 {
+        while (value & !0b1111111) != 0 {
             self.put_u8((value as u8 & 127) | 128);
             value >>= 7;
             i += 1;
@@ -68,16 +71,21 @@ impl McNetwork for BytesMut {
         Some((output, i))
     }
 
-    fn write_var_long(&mut self, mut value: i64) -> usize {
+    fn write_var_long(&mut self, value: i64) -> usize {
+        let mut value = value as u64;
         self.reserve(12);
         let mut i = 0;
-        while (value & -128) != 0 {
+        while (value & !0b1111111) != 0 {
             self.put_u8((value as u8 & 127) | 128);
             value >>= 7;
             i += 1;
         }
         self.put_u8(value as u8);
         i + 1
+    }
+
+    fn display(&self) -> String {
+        return format!("{:x?}", &self.to_vec()[..]);
     }
 }
 
@@ -108,7 +116,6 @@ pub trait McPacketBuf {
     fn get_mc_i32(&mut self) -> Result<i32>;
     fn get_mc_nbt(&mut self) -> Result<Nbt>;
     fn get_mc_chat_component(&mut self) -> Result<ChatComponent>;
-    fn get_mc_var_int_array(&mut self) -> Result<Vec<i32>>;
     fn get_mc_u16(&mut self) -> Result<u16>;
     fn get_mc_byte_array(&mut self) -> Result<Vec<u8>>;
     fn get_mc_byte_array_bounded(&mut self, bound: i32) -> Result<Vec<u8>>;
@@ -132,7 +139,6 @@ pub trait McPacketBuf {
     fn set_mc_i32(&mut self, value: i32);
     fn set_mc_nbt(&mut self, value: Nbt);
     fn set_mc_chat_component(&mut self, value: ChatComponent);
-    fn set_mc_var_int_array(&mut self, value: Vec<i32>);
     fn set_mc_u16(&mut self, value: u16);
     fn set_mc_byte_array(&mut self, value: Vec<u8>);
 
@@ -302,14 +308,6 @@ impl McPacketBuf for BytesMut {
         self.get_mc_string(262144)
     }
 
-    fn get_mc_var_int_array(&mut self) -> Result<Vec<i32>> {
-        let mut out: Vec<i32> = vec![];
-        while let Ok(i) = self.get_mc_var_int() {
-            out.push(i);
-        }
-        Ok(out)
-    }
-
     fn get_mc_u16(&mut self) -> Result<u16> {
         if self.len() < 2 {
             invalidData()
@@ -457,13 +455,6 @@ impl McPacketBuf for BytesMut {
 
     fn set_mc_chat_component(&mut self, value: ChatComponent) {
         self.set_mc_string(value);
-    }
-
-    fn set_mc_var_int_array(&mut self, value: Vec<i32>) {
-        self.set_mc_var_int(value.len() as i32);
-        for i in value {
-            self.set_mc_var_int(i);
-        }
     }
 
     fn set_mc_u16(&mut self, value: u16) {
@@ -781,7 +772,7 @@ impl ItemStack {
 #[derive(PartialEq, Clone, Debug)]
 pub struct ChunkPos {
     pub x: i32,
-    pub y: i32,
+    pub z: i32,
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -1233,8 +1224,8 @@ impl Direction {
 
     pub fn from_2d_direction(value: u8) -> Option<Direction> {
         match value {
-            2 => Some(Direction::Down),
-            0 => Some(Direction::Up),
+            2 => Some(Direction::North),
+            0 => Some(Direction::South),
             1 => Some(Direction::West),
             3 => Some(Direction::East),
             _ => None,

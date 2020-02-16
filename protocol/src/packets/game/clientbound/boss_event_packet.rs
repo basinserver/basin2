@@ -144,3 +144,71 @@ impl CodablePacket for BossEventPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle_add() -> Result<()> {
+        cycle(BossEventPacket {
+            id: Uuid::new_v4(),
+            operation: BossEventPacketOperation::Add,
+            data: BossEventPacketData::Add(
+                "test".to_string(),
+                123.0,
+                BossBarColor::Green,
+                BossBarOverlay::Progress,
+                true,
+                false,
+                true,
+            ),
+        })
+    }
+
+    #[test]
+    fn test_cycle_remove() -> Result<()> {
+        cycle(BossEventPacket {
+            id: Uuid::new_v4(),
+            operation: BossEventPacketOperation::Remove,
+            data: BossEventPacketData::Remove(),
+        })
+    }
+
+    #[test]
+    fn test_cycle_update_pct() -> Result<()> {
+        cycle(BossEventPacket {
+            id: Uuid::new_v4(),
+            operation: BossEventPacketOperation::UpdatePct,
+            data: BossEventPacketData::UpdatePct(150.0),
+        })
+    }
+
+    #[test]
+    fn test_cycle_name() -> Result<()> {
+        cycle(BossEventPacket {
+            id: Uuid::new_v4(),
+            operation: BossEventPacketOperation::UpdateName,
+            data: BossEventPacketData::UpdateName("new name".to_string()),
+        })
+    }
+
+    #[test]
+    fn test_cycle_style() -> Result<()> {
+        cycle(BossEventPacket {
+            id: Uuid::new_v4(),
+            operation: BossEventPacketOperation::UpdateStyle,
+            data: BossEventPacketData::UpdateStyle(BossBarColor::Red, BossBarOverlay::Notched6),
+        })
+    }
+
+    #[test]
+    fn test_cycle_properties() -> Result<()> {
+        cycle(BossEventPacket {
+            id: Uuid::new_v4(),
+            operation: BossEventPacketOperation::UpdateProperties,
+            data: BossEventPacketData::UpdateProperties(true, false, true),
+        })
+    }
+}

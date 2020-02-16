@@ -35,3 +35,19 @@ impl CodablePacket for LevelEventPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(LevelEventPacket {
+            eventType: 12,
+            pos: BlockPos { x: 123, y: 20, z: -100000 },
+            data: 4535345,
+            globalEvent: true,
+        })
+    }
+}

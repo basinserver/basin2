@@ -24,3 +24,17 @@ impl CodablePacket for SetTimePacket {
         return Ok(SetTimePacket { gameTime, dayTime });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SetTimePacket {
+            gameTime: 24353453,
+            dayTime: 1500,
+        })
+    }
+}

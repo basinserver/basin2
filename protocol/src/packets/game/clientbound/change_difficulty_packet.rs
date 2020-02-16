@@ -24,3 +24,17 @@ impl CodablePacket for ChangeDifficultyPacket {
         return Ok(ChangeDifficultyPacket { difficulty, locked });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(ChangeDifficultyPacket {
+            difficulty: Difficulty::Easy,
+            locked: true,
+        })
+    }
+}

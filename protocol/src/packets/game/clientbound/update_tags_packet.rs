@@ -61,3 +61,31 @@ impl CodablePacket for UpdateTagsPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(UpdateTagsPacket {
+            blocks: vec![
+                ("block1".to_string(), vec![1, 2, 3, 4]),
+                ("block2".to_string(), vec![9, 8, 7, 6]),
+            ],
+            items: vec![
+                ("item1".to_string(), vec![1, 2, 3, 4]),
+                ("item2".to_string(), vec![9, 8, 7, 6]),
+            ],
+            fluids: vec![
+                ("fluid1".to_string(), vec![1, 2, 3, 4]),
+                ("fluid2".to_string(), vec![9, 8, 7, 6]),
+            ],
+            entityTypes: vec![
+                ("entityType1".to_string(), vec![1, 2, 3, 4]),
+                ("entityType2".to_string(), vec![9, 8, 7, 6]),
+            ],
+        })
+    }
+}

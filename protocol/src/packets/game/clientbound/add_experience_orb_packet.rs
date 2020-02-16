@@ -33,3 +33,20 @@ impl CodablePacket for AddExperienceOrbPacket {
         return Ok(AddExperienceOrbPacket { id, x, y, z, value });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(AddExperienceOrbPacket {
+            id : 54321,
+            x: 123.0,
+            y: 64.0,
+            z: -157.0,
+            value: 4353,
+        })
+    }
+}

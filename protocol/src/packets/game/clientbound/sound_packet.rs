@@ -47,3 +47,22 @@ impl CodablePacket for SoundPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SoundPacket {
+            sound: 345,
+            source: SoundSource::Weather,
+            x: 35634,
+            y: 64,
+            z: -43,
+            volume: 1.5,
+            pitch: 1.0,
+        })
+    }
+}

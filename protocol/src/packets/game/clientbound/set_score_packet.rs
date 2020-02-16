@@ -45,3 +45,29 @@ impl CodablePacket for SetScorePacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle_change() -> Result<()> {
+        cycle(SetScorePacket {
+            owner: "owner".to_string(),
+            objectiveName: "objective name".to_string(),
+            score: 125,
+            method: ServerScoreboardMethod::Change,
+        })
+    }
+
+    #[test]
+    fn test_cycle_remove() -> Result<()> {
+        cycle(SetScorePacket {
+            owner: "owner".to_string(),
+            objectiveName: "objective name".to_string(),
+            score: 0,
+            method: ServerScoreboardMethod::Remove,
+        })
+    }
+}

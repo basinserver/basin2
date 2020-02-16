@@ -24,3 +24,17 @@ impl CodablePacket for RemoveMobEffectPacket {
         return Ok(RemoveMobEffectPacket { entityId, effect });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(RemoveMobEffectPacket {
+            entityId: 56435,
+            effect: 56,
+        })
+    }
+}

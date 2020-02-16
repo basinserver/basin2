@@ -113,3 +113,57 @@ impl CodablePacket for SetBorderPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle_init() -> Result<()> {
+        cycle(SetBorderPacket {
+            borderType: SetBorderPacketType::Initialize,
+            borderData: SetBorderPacketData::Initialize(1.0, 2.0, 3.0, 4.0, 5, 6, 7, 8),
+        })
+    }
+
+    #[test]
+    fn test_cycle_set_size() -> Result<()> {
+        cycle(SetBorderPacket {
+            borderType: SetBorderPacketType::SetSize,
+            borderData: SetBorderPacketData::SetSize(1.0),
+        })
+    }
+
+    #[test]
+    fn test_cycle_lerp_size() -> Result<()> {
+        cycle(SetBorderPacket {
+            borderType: SetBorderPacketType::LerpSize,
+            borderData: SetBorderPacketData::LerpSize(1.0, 2.0, 3),
+        })
+    }
+
+    #[test]
+    fn test_cycle_set_center() -> Result<()> {
+        cycle(SetBorderPacket {
+            borderType: SetBorderPacketType::SetCenter,
+            borderData: SetBorderPacketData::SetCenter(1.0, 2.0),
+        })
+    }
+
+    #[test]
+    fn test_cycle_warning_time() -> Result<()> {
+        cycle(SetBorderPacket {
+            borderType: SetBorderPacketType::SetWarningTime,
+            borderData: SetBorderPacketData::SetWarningTime(345),
+        })
+    }
+
+    #[test]
+    fn test_cycle_warning_block() -> Result<()> {
+        cycle(SetBorderPacket {
+            borderType: SetBorderPacketType::SetWarningBlocks,
+            borderData: SetBorderPacketData::SetWarningBlocks(675),
+        })
+    }
+}

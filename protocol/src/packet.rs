@@ -1,5 +1,6 @@
 use crate::result::*;
 use bytes::BytesMut;
+use super::network::McNetwork;
 
 pub trait CodablePacket {
     fn encode(self, buf: &mut BytesMut);
@@ -23,7 +24,11 @@ pub mod test {
     pub fn cycle<T: CodablePacket + Clone + Debug + PartialEq>(initial: T) -> Result<()> {
         let mut buf = BytesMut::new();
         initial.clone().encode(&mut buf);
+        let encoded = buf.clone();
         let decoded = T::decode(&mut buf)?;
+        if initial != decoded {
+            println!("encoded data: {}", encoded.display());
+        }
         assert_eq!(initial, decoded);
         Ok(())
     }

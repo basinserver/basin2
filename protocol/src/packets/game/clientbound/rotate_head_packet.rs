@@ -24,3 +24,17 @@ impl CodablePacket for RotateHeadPacket {
         return Ok(RotateHeadPacket { entityId, yHeadRot });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(RotateHeadPacket {
+            entityId: 45369,
+            yHeadRot: 23,
+        })
+    }
+}

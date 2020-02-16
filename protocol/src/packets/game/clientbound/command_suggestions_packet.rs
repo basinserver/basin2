@@ -57,3 +57,24 @@ impl CodablePacket for CommandSuggestionsPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(CommandSuggestionsPacket {
+            id: 4321,
+            suggestions: Suggestions {
+                start: 30,
+                end: 40,
+                suggestions: vec![Suggestion {
+                    text: "try something else".to_string(),
+                    tooltip: Some("tooltip".to_string()),
+                }]
+            },
+        })
+    }
+}

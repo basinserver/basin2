@@ -24,3 +24,17 @@ impl CodablePacket for SetEntityLinkPacket {
         return Ok(SetEntityLinkPacket { sourceId, destId });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SetEntityLinkPacket {
+            sourceId: 3456,
+            destId: 7890,
+        })
+    }
+}

@@ -36,3 +36,19 @@ impl CodablePacket for RespawnPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(RespawnPacket {
+            dimension: DimensionType::Overworld,
+            seed: 564645642,
+            playerGameType: GameType::Survival,
+            levelType: "default".to_string(),
+        })
+    }
+}

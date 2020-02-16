@@ -93,3 +93,32 @@ impl CodablePacket for MerchantOffersPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(MerchantOffersPacket {
+            containerId: 234,
+            offers: vec![MerchantOffer {
+                base_cost_a: ItemStack::empty(),
+                result: ItemStack::empty(),
+                cost_b: ItemStack::empty(),
+                uses: 128,
+                maxUses: 192,
+                rewardExp: true,
+                xp: 345345,
+                specialPriceDiff: 1,
+                priceMultiplier: 2.0,
+                demand: 145353,
+            }],
+            villagerLevel: 45353,
+            villagerXp: 233,
+            showProgress: true,
+            canRestock: false,
+        })
+    }
+}

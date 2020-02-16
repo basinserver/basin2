@@ -76,3 +76,22 @@ impl CodablePacket for RecipePacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(RecipePacket {
+            state: RecipePacketState::Init,
+            recipes: vec!["test_1".to_string(), "test_2".to_string()],
+            toHighlight: Some(vec!["test_2".to_string()]),
+            guiOpen: true,
+            filteringCraftable: false,
+            furnaceGuiOpen: true,
+            furnaceFilteringCraftable: false,
+        })
+    }
+}

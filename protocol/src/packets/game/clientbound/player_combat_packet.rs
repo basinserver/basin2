@@ -39,7 +39,11 @@ impl CodablePacket for PlayerCombatPacket {
 
         let event: PlayerCombatPacketEvent = buf.get_mc_enum()?;
         let (playerId, killerId, duration, message) = match event {
-            EndCombat => (0, buf.get_mc_i32()?, buf.get_mc_var_int()?, None),
+            EndCombat => {
+                let duration = buf.get_mc_var_int()?;
+                let killerId = buf.get_mc_i32()?;
+                (0, killerId, duration, None)
+            },
             EntityDied => (
                 buf.get_mc_var_int()?,
                 buf.get_mc_i32()?,
@@ -55,5 +59,44 @@ impl CodablePacket for PlayerCombatPacket {
             duration,
             message,
         });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle_end() -> Result<()> {
+        cycle(PlayerCombatPacket {
+            event: PlayerCombatPacketEvent::EndCombat,
+            playerId: 0,
+            killerId: 3453,
+            duration: 65435,
+            message: None,
+        })
+    }
+
+    #[test]
+    fn test_cycle_died() -> Result<()> {
+        cycle(PlayerCombatPacket {
+            event: PlayerCombatPacketEvent::EntityDied,
+            playerId: 3453,
+            killerId: 65435,
+            duration: 0,
+            message: Some("test".to_string()),
+        })
+    }
+
+    #[test]
+    fn test_cycle_enter() -> Result<()> {
+        cycle(PlayerCombatPacket {
+            event: PlayerCombatPacketEvent::EnterCombat,
+            playerId: 0,
+            killerId: 0,
+            duration: 0,
+            message: None,
+        })
     }
 }

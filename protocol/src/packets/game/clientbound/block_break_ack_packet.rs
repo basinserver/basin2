@@ -35,3 +35,19 @@ impl CodablePacket for BlockBreakAckPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(BlockBreakAckPacket {
+            pos: BlockPos { x: -100, y: 12, z: 1024 },
+            state: 6432,
+            action: PlayerActionPacketAction::StartDestroyBlock,
+            allGood: true,
+        })
+    }
+}

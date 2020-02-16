@@ -39,3 +39,20 @@ impl CodablePacket for SoundEntityPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(SoundEntityPacket {
+            sound: 345,
+            source: SoundSource::Weather,
+            id: 546334,
+            volume: 1.5,
+            pitch: 1.0,
+        })
+    }
+}

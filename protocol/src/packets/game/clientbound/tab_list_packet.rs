@@ -24,3 +24,17 @@ impl CodablePacket for TabListPacket {
         return Ok(TabListPacket { header, footer });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(TabListPacket {
+            header: "header".to_string(),
+            footer: "footer".to_string(),
+        })
+    }
+}

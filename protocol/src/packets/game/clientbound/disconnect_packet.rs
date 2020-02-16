@@ -21,3 +21,16 @@ impl CodablePacket for DisconnectPacket {
         return Ok(DisconnectPacket { reason });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(DisconnectPacket {
+            reason: "disconnect".to_string(),
+        })
+    }
+}

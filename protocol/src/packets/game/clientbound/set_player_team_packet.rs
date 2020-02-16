@@ -91,3 +91,57 @@ impl CodablePacket for SetPlayerTeamPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle_method0() -> Result<()> {
+        cycle(SetPlayerTeamPacket {
+            name: "team name".to_string(),
+            displayName: Some("display".to_string()),
+            playerPrefix: Some("prefix".to_string()),
+            playerSuffix: Some("suffix".to_string()),
+            nametagVisibility: Some("nametag".to_string()),
+            collisionRule: Some("collision".to_string()),
+            color: Some(ChatFormatting::Green),
+            players: Some(vec!["player1".to_string(), "player2".to_string()]),
+            method: 0,
+            options: Some(12),
+        })
+    }
+
+    #[test]
+    fn test_cycle_method2() -> Result<()> {
+        cycle(SetPlayerTeamPacket {
+            name: "team name".to_string(),
+            displayName: Some("display".to_string()),
+            playerPrefix: Some("prefix".to_string()),
+            playerSuffix: Some("suffix".to_string()),
+            nametagVisibility: Some("nametag".to_string()),
+            collisionRule: Some("collision".to_string()),
+            color: Some(ChatFormatting::Green),
+            players: None,
+            method: 2,
+            options: Some(12),
+        })
+    }
+
+    #[test]
+    fn test_cycle_method3() -> Result<()> {
+        cycle(SetPlayerTeamPacket {
+            name: "team name".to_string(),
+            displayName: None,
+            playerPrefix: None,
+            playerSuffix: None,
+            nametagVisibility: None,
+            collisionRule: None,
+            color: None,
+            players: Some(vec!["player1".to_string(), "player2".to_string()]),
+            method: 3,
+            options: None,
+        })
+    }
+}

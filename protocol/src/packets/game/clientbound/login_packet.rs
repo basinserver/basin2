@@ -65,3 +65,25 @@ impl CodablePacket for LoginPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(LoginPacket {
+            playerId: 453343,
+            seed: 5634563643454,
+            hardcore: true,
+            gameType: GameType::Survival,
+            dimension: DimensionType::Overworld,
+            maxPlayers: 128,
+            levelType: "default".to_string(),
+            chunkRadius: 12,
+            reducedDebugInfo: false,
+            showDeathScreen: true,
+        })
+    }
+}

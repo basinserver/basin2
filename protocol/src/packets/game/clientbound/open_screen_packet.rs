@@ -31,3 +31,18 @@ impl CodablePacket for OpenScreenPacket {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::packet::test::*;
+
+    #[test]
+    fn test_cycle() -> Result<()> {
+        cycle(OpenScreenPacket {
+            containerId: 56433,
+            screenType: 345,
+            title: "test title".to_string(),
+        })
+    }
+}
