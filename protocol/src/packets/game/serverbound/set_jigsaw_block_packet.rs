@@ -44,7 +44,11 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(SetJigsawBlockPacket {
-            pos: BlockPos { x: -10, y: -20, z: -30 },
+            pos: BlockPos {
+                x: -10,
+                y: -20,
+                z: -30,
+            },
             attachmentType: "unknown".to_string(),
             targetPool: "unknown_pool".to_string(),
             finalState: "final state".to_string(),

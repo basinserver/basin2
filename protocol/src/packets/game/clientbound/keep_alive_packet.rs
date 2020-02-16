@@ -29,8 +29,6 @@ mod tests {
 
     #[test]
     fn test_cycle() -> Result<()> {
-        cycle(KeepAlivePacket {
-            id: 5675437,
-        })
+        cycle(KeepAlivePacket { id: 5675437 })
     }
 }

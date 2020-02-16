@@ -173,13 +173,16 @@ mod tests {
     fn test_cycle_add() -> Result<()> {
         cycle(PlayerInfoPacket {
             action: PlayerInfoPacketAction::AddPlayer,
-            data: vec![(Uuid::new_v4(), PlayerInfoPacketData::AddPlayer(
-                "testUser".to_string(),
-                vec![],
-                GameType::Survival,
-                123,
-                Some("magicName".to_string()),
-            ))],
+            data: vec![(
+                Uuid::new_v4(),
+                PlayerInfoPacketData::AddPlayer(
+                    "testUser".to_string(),
+                    vec![],
+                    GameType::Survival,
+                    123,
+                    Some("magicName".to_string()),
+                ),
+            )],
         })
     }
 
@@ -187,9 +190,10 @@ mod tests {
     fn test_cycle_update_gamemode() -> Result<()> {
         cycle(PlayerInfoPacket {
             action: PlayerInfoPacketAction::UpdateGameMode,
-            data: vec![(Uuid::new_v4(), PlayerInfoPacketData::UpdateGameMode(
-                GameType::Survival,
-            ))],
+            data: vec![(
+                Uuid::new_v4(),
+                PlayerInfoPacketData::UpdateGameMode(GameType::Survival),
+            )],
         })
     }
 
@@ -197,9 +201,7 @@ mod tests {
     fn test_cycle_update_latency() -> Result<()> {
         cycle(PlayerInfoPacket {
             action: PlayerInfoPacketAction::UpdateLatency,
-            data: vec![(Uuid::new_v4(), PlayerInfoPacketData::UpdateLatency(
-                5464,
-            ))],
+            data: vec![(Uuid::new_v4(), PlayerInfoPacketData::UpdateLatency(5464))],
         })
     }
 
@@ -207,9 +209,10 @@ mod tests {
     fn test_cycle_update_display_name() -> Result<()> {
         cycle(PlayerInfoPacket {
             action: PlayerInfoPacketAction::UpdateDisplayName,
-            data: vec![(Uuid::new_v4(), PlayerInfoPacketData::UpdateDisplayName(
-                None,
-            ))],
+            data: vec![(
+                Uuid::new_v4(),
+                PlayerInfoPacketData::UpdateDisplayName(None),
+            )],
         })
     }
 

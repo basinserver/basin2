@@ -29,8 +29,6 @@ mod tests {
 
     #[test]
     fn test_cycle() -> Result<()> {
-        cycle(SetCameraPacket {
-            cameraId: 35667,
-        })
+        cycle(SetCameraPacket { cameraId: 35667 })
     }
 }

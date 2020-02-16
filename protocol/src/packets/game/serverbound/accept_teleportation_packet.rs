@@ -29,8 +29,6 @@ mod tests {
 
     #[test]
     fn test_cycle() -> Result<()> {
-        cycle(AcceptTeleportationPacket {
-            id: 1234,
-        })
+        cycle(AcceptTeleportationPacket { id: 1234 })
     }
 }

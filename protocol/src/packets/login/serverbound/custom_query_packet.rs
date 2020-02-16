@@ -49,13 +49,13 @@ mod tests {
     fn test_cycle() -> Result<()> {
         cycle(CustomQueryPacket {
             transactionId: 128,
-            data: Some(BytesMut::from(&vec![0x0a, 0x0b][..]))
-        }).
-        and_then(|()|
+            data: Some(BytesMut::from(&vec![0x0a, 0x0b][..])),
+        })
+        .and_then(|()| {
             cycle(CustomQueryPacket {
                 transactionId: 128,
-                data: None
+                data: None,
             })
-        )
+        })
     }
 }

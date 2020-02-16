@@ -77,7 +77,7 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(AddMobPacket {
-            id : 54321,
+            id: 54321,
             uuid: Uuid::new_v4(),
             entityType: 643,
             x: 123.0,

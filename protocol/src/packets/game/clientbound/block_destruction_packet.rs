@@ -37,7 +37,11 @@ mod tests {
     fn test_cycle() -> Result<()> {
         cycle(BlockDestructionPacket {
             id: 354343,
-            pos: BlockPos { x: -100, y: 12, z: 1024 },
+            pos: BlockPos {
+                x: -100,
+                y: 12,
+                z: 1024,
+            },
             progress: 12,
         })
     }

@@ -89,7 +89,7 @@ mod tests {
         cycle(RecipeBookUpdatePacket {
             purpose: RecipeBookUpdatePacketPurpose::Settings,
             data: RecipeBookUpdatePacketData::Settings(
-                true, false, true, false, false, true, false, true
+                true, false, true, false, false, true, false, true,
             ),
         })
     }

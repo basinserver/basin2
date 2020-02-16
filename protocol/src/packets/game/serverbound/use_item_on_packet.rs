@@ -36,7 +36,11 @@ mod tests {
             blockHit: BlockHitResult {
                 location: (30.0, 40.0, 50.0),
                 direction: Direction::West,
-                block_pos: BlockPos { x: 30, y: 40, z: 50 },
+                block_pos: BlockPos {
+                    x: 30,
+                    y: 40,
+                    z: 50,
+                },
                 inside: false,
             },
             hand: InteractionHand::MainHand,

@@ -29,8 +29,6 @@ mod tests {
 
     #[test]
     fn test_cycle() -> Result<()> {
-        cycle(PingRequestPacket {
-            time: 1234567,
-        })
+        cycle(PingRequestPacket { time: 1234567 })
     }
 }

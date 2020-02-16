@@ -27,7 +27,7 @@ impl PacketContainer for PacketStatusClientbound {
                 deref_packet.encode(buf);
             }
         }
-        }
+    }
 
     fn decode(id: i32, buf: &mut BytesMut) -> Result<PacketStatusClientbound> {
         match id {
@@ -39,6 +39,5 @@ impl PacketContainer for PacketStatusClientbound {
             )),
             _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),
         }
-        }
-
+    }
 }

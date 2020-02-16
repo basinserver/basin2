@@ -34,7 +34,11 @@ mod tests {
     fn test_cycle() -> Result<()> {
         cycle(BlockEntityTagQuery {
             transactionId: 1234,
-            pos: BlockPos { x: 10, y: 20, z: 30 },
+            pos: BlockPos {
+                x: 10,
+                y: 20,
+                z: 30,
+            },
         })
     }
 }

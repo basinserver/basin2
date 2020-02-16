@@ -89,10 +89,19 @@ mod tests {
             x: 12,
             z: -12,
             availableSections: 1,
-            heightmaps: Nbt::make_singleton_compound("test".to_string(), Nbt::List { item_type: NbtType::Int, children: vec![Nbt::Int(65)] }),
-            biomes: Some(Box::new(vec![23].repeat(1<<10))),
+            heightmaps: Nbt::make_singleton_compound(
+                "test".to_string(),
+                Nbt::List {
+                    item_type: NbtType::Int,
+                    children: vec![Nbt::Int(65)],
+                },
+            ),
+            biomes: Some(Box::new(vec![23].repeat(1 << 10))),
             buffer: BytesMut::from(&vec![0x1a, 0x2b, 0x3c][..]),
-            blockEntitiesTags: vec![Nbt::make_singleton_compound("test entity".to_string(), Nbt::Int(7))],
+            blockEntitiesTags: vec![Nbt::make_singleton_compound(
+                "test entity".to_string(),
+                Nbt::Int(7),
+            )],
         })
     }
 }

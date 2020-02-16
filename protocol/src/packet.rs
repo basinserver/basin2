@@ -1,6 +1,6 @@
+use super::network::McNetwork;
 use crate::result::*;
 use bytes::BytesMut;
-use super::network::McNetwork;
 
 pub trait CodablePacket {
     fn encode(self, buf: &mut BytesMut);

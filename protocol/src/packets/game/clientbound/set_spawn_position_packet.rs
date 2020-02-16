@@ -30,7 +30,11 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(SetSpawnPositionPacket {
-            pos: BlockPos { x: 120, y: 64, z: -125 },
+            pos: BlockPos {
+                x: 120,
+                y: 64,
+                z: -125,
+            },
         })
     }
 }

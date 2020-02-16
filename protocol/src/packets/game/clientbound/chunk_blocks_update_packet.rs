@@ -52,7 +52,7 @@ mod tests {
             updates: vec![ChunkBlocksUpdatePacketBlockUpdate {
                 offset: 12,
                 block: 92,
-            }]
+            }],
         })
     }
 }

@@ -49,9 +49,13 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(AddPaintingPacket {
-            id : 54321,
+            id: 54321,
             uuid: Uuid::new_v4(),
-            pos: BlockPos { x: 100, y: 20, z: -100 },
+            pos: BlockPos {
+                x: 100,
+                y: 20,
+                z: -100,
+            },
             direction: Direction::South,
             motive: 7,
         })

@@ -43,7 +43,7 @@ impl CodablePacket for PlayerCombatPacket {
                 let duration = buf.get_mc_var_int()?;
                 let killerId = buf.get_mc_i32()?;
                 (0, killerId, duration, None)
-            },
+            }
             EntityDied => (
                 buf.get_mc_var_int()?,
                 buf.get_mc_i32()?,

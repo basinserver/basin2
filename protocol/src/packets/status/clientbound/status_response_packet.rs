@@ -46,7 +46,7 @@ mod tests {
                     version: 1234,
                 },
                 favicon: None,
-            }
+            },
         })
     }
 }

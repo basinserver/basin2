@@ -83,7 +83,11 @@ mod tests {
             y: 64.0,
             z: 12.0,
             power: 4.0,
-            toBlow: vec![BlockPos { x: 130, y: 70, z: 15 }],
+            toBlow: vec![BlockPos {
+                x: 130,
+                y: 70,
+                z: 15,
+            }],
             knockbackX: 1.0,
             knockbackY: -3.0,
             knockbackZ: 7.0,

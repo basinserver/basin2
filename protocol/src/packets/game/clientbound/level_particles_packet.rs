@@ -79,7 +79,13 @@ mod tests {
             maxSpeed: 120.0,
             count: 1000,
             overrideLimiter: true,
-            particle: ParticleOptions::Dust { particle: Particle::Dust, r: 120.0, g: 120.0, b: 255.0, scale: 212.0 },
+            particle: ParticleOptions::Dust {
+                particle: Particle::Dust,
+                r: 120.0,
+                g: 120.0,
+                b: 255.0,
+                scale: 212.0,
+            },
         })
     }
 }

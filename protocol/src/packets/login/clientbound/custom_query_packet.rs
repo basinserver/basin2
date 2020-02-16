@@ -35,7 +35,6 @@ impl CodablePacket for CustomQueryPacket {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;

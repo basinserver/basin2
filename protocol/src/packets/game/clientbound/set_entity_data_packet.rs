@@ -211,35 +211,116 @@ impl CodablePacket for SetEntityDataPacket {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::nbt::Nbt;
     use crate::packet::test::*;
     use uuid::Uuid;
-    use crate::nbt::Nbt;
 
     #[test]
     fn test_cycle_data() -> Result<()> {
         cycle(SetEntityDataPacket {
             id: 34566,
             metadata: vec![
-                EntityMetadataItem { id: 0, data: EntityMetadata::Byte(34) },
-                EntityMetadataItem { id: 1, data: EntityMetadata::Int(56456) },
-                EntityMetadataItem { id: 2, data: EntityMetadata::Float(34.0) },
-                EntityMetadataItem { id: 3, data: EntityMetadata::Str("test string".to_string()) },
-                EntityMetadataItem { id: 4, data: EntityMetadata::Component("test component".to_string()) },
-                EntityMetadataItem { id: 5, data: EntityMetadata::OptionalComponent(Some("test optional component".to_string())) },
-                EntityMetadataItem { id: 6, data: EntityMetadata::ItemStack(ItemStack::empty()) },
-                EntityMetadataItem { id: 7, data: EntityMetadata::Boolean(false) },
-                EntityMetadataItem { id: 8, data: EntityMetadata::Rotations { x: 12.0, y: 19.0, z: -45.4 } },
-                EntityMetadataItem { id: 9, data: EntityMetadata::BlockPos(BlockPos { x: 120, y: 64, z: -122 }) },
-                EntityMetadataItem { id: 10, data: EntityMetadata::OptionalBlockPos(Some(BlockPos { x: -120, y: 36, z: 122 })) },
-                EntityMetadataItem { id: 11, data: EntityMetadata::Direction(Direction::Up) },
-                EntityMetadataItem { id: 12, data: EntityMetadata::OptionalUuid(Some(Uuid::new_v4())) },
-                EntityMetadataItem { id: 13, data: EntityMetadata::BlockState(4765345) },
-                EntityMetadataItem { id: 14, data: EntityMetadata::CompoundTag(Nbt::make_singleton_compound("test compound".to_string(), Nbt::Int(12))) },
-                EntityMetadataItem { id: 15, data: EntityMetadata::Particle(ParticleOptions::Block(Particle::Block, 12)) },
-                EntityMetadataItem { id: 16, data: EntityMetadata::VillagerData { villager_type: VillagerType::Jungle, villager_profession: VillagerProfession::Cleric, level: 19 } },
-                EntityMetadataItem { id: 17, data: EntityMetadata::OptionalUnsignedInt(Some(19)) },
-                EntityMetadataItem { id: 18, data: EntityMetadata::OptionalUnsignedInt(None) },
-                EntityMetadataItem { id: 19, data: EntityMetadata::Pose(EntityPose::SpinAttack) },
+                EntityMetadataItem {
+                    id: 0,
+                    data: EntityMetadata::Byte(34),
+                },
+                EntityMetadataItem {
+                    id: 1,
+                    data: EntityMetadata::Int(56456),
+                },
+                EntityMetadataItem {
+                    id: 2,
+                    data: EntityMetadata::Float(34.0),
+                },
+                EntityMetadataItem {
+                    id: 3,
+                    data: EntityMetadata::Str("test string".to_string()),
+                },
+                EntityMetadataItem {
+                    id: 4,
+                    data: EntityMetadata::Component("test component".to_string()),
+                },
+                EntityMetadataItem {
+                    id: 5,
+                    data: EntityMetadata::OptionalComponent(Some(
+                        "test optional component".to_string(),
+                    )),
+                },
+                EntityMetadataItem {
+                    id: 6,
+                    data: EntityMetadata::ItemStack(ItemStack::empty()),
+                },
+                EntityMetadataItem {
+                    id: 7,
+                    data: EntityMetadata::Boolean(false),
+                },
+                EntityMetadataItem {
+                    id: 8,
+                    data: EntityMetadata::Rotations {
+                        x: 12.0,
+                        y: 19.0,
+                        z: -45.4,
+                    },
+                },
+                EntityMetadataItem {
+                    id: 9,
+                    data: EntityMetadata::BlockPos(BlockPos {
+                        x: 120,
+                        y: 64,
+                        z: -122,
+                    }),
+                },
+                EntityMetadataItem {
+                    id: 10,
+                    data: EntityMetadata::OptionalBlockPos(Some(BlockPos {
+                        x: -120,
+                        y: 36,
+                        z: 122,
+                    })),
+                },
+                EntityMetadataItem {
+                    id: 11,
+                    data: EntityMetadata::Direction(Direction::Up),
+                },
+                EntityMetadataItem {
+                    id: 12,
+                    data: EntityMetadata::OptionalUuid(Some(Uuid::new_v4())),
+                },
+                EntityMetadataItem {
+                    id: 13,
+                    data: EntityMetadata::BlockState(4765345),
+                },
+                EntityMetadataItem {
+                    id: 14,
+                    data: EntityMetadata::CompoundTag(Nbt::make_singleton_compound(
+                        "test compound".to_string(),
+                        Nbt::Int(12),
+                    )),
+                },
+                EntityMetadataItem {
+                    id: 15,
+                    data: EntityMetadata::Particle(ParticleOptions::Block(Particle::Block, 12)),
+                },
+                EntityMetadataItem {
+                    id: 16,
+                    data: EntityMetadata::VillagerData {
+                        villager_type: VillagerType::Jungle,
+                        villager_profession: VillagerProfession::Cleric,
+                        level: 19,
+                    },
+                },
+                EntityMetadataItem {
+                    id: 17,
+                    data: EntityMetadata::OptionalUnsignedInt(Some(19)),
+                },
+                EntityMetadataItem {
+                    id: 18,
+                    data: EntityMetadata::OptionalUnsignedInt(None),
+                },
+                EntityMetadataItem {
+                    id: 19,
+                    data: EntityMetadata::Pose(EntityPose::SpinAttack),
+                },
             ],
         })
     }

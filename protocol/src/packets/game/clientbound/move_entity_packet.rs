@@ -29,8 +29,6 @@ mod tests {
 
     #[test]
     fn test_cycle() -> Result<()> {
-        cycle(MoveEntityPacket {
-            entityId: 234,
-        })
+        cycle(MoveEntityPacket { entityId: 234 })
     }
 }

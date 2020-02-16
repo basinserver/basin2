@@ -123,7 +123,11 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(SetStructureBlockPacket {
-            pos: BlockPos { x: -10, y: -20, z: -30 },
+            pos: BlockPos {
+                x: -10,
+                y: -20,
+                z: -30,
+            },
             updateType: StructureBlockEntityUpdateType::UpdateData,
             mode: StructureMode::Save,
             name: "structure name".to_string(),

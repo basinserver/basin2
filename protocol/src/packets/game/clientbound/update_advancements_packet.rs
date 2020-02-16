@@ -185,8 +185,9 @@ mod tests {
     fn test_cycle() -> Result<()> {
         cycle(UpdateAdvancementsPacket {
             reset: false,
-            added: vec![
-                ("a name".to_string(), Advancement {
+            added: vec![(
+                "a name".to_string(),
+                Advancement {
                     parentId: Some("another advancement".to_string()),
                     display: Some(AdvancementDisplayInfo {
                         title: "display title".to_string(),
@@ -200,9 +201,12 @@ mod tests {
                         y: 19.0,
                     }),
                     criterion: vec!["criterion1".to_string(), "criterion2".to_string()],
-                    requirements: vec![vec!["req11".to_string(), "req12".to_string()], vec!["req21".to_string(), "req22".to_string()]],
-                })
-            ],
+                    requirements: vec![
+                        vec!["req11".to_string(), "req12".to_string()],
+                        vec!["req21".to_string(), "req22".to_string()],
+                    ],
+                },
+            )],
             removed: vec!["removed_advancement1".to_string()],
             progress: vec![("progress_advancement1".to_string(), Some(12))],
         })

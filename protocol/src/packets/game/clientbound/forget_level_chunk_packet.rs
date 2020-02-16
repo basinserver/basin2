@@ -32,9 +32,6 @@ mod tests {
 
     #[test]
     fn test_cycle() -> Result<()> {
-        cycle(ForgetLevelChunkPacket {
-            x: 128,
-            z: 12,
-        })
+        cycle(ForgetLevelChunkPacket { x: 128, z: 12 })
     }
 }

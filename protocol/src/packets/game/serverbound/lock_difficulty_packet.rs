@@ -29,8 +29,6 @@ mod tests {
 
     #[test]
     fn test_cycle() -> Result<()> {
-        cycle(LockDifficultyPacket {
-            locked: false,
-        })
+        cycle(LockDifficultyPacket { locked: false })
     }
 }

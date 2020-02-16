@@ -54,7 +54,7 @@ mod tests {
                 stat_type: 12,
                 stat: 20,
                 value: 100,
-            }]
+            }],
         })
     }
 }

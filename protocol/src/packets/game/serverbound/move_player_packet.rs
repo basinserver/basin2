@@ -29,8 +29,6 @@ mod tests {
 
     #[test]
     fn test_cycle() -> Result<()> {
-        cycle(MovePlayerPacket {
-            onGround: false,
-        })
+        cycle(MovePlayerPacket { onGround: false })
     }
 }

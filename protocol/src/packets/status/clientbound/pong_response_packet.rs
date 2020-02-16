@@ -29,8 +29,6 @@ mod tests {
 
     #[test]
     fn test_cycle() -> Result<()> {
-        cycle(PongResponsePacket {
-            time: 1234567,
-        })
+        cycle(PongResponsePacket { time: 1234567 })
     }
 }

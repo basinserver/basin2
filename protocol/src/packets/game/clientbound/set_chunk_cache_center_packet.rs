@@ -32,9 +32,6 @@ mod tests {
 
     #[test]
     fn test_cycle() -> Result<()> {
-        cycle(SetChunkCacheCenterPacket {
-            x: 45367,
-            z: -34,
-        })
+        cycle(SetChunkCacheCenterPacket { x: 45367, z: -34 })
     }
 }

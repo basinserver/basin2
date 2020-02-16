@@ -73,7 +73,7 @@ mod tests {
                 suggestions: vec![Suggestion {
                     text: "try something else".to_string(),
                     tooltip: Some("tooltip".to_string()),
-                }]
+                }],
             },
         })
     }

@@ -29,8 +29,6 @@ mod tests {
 
     #[test]
     fn test_cycle() -> Result<()> {
-        cycle(SetChunkCacheRadiusPacket {
-            radius: 12,
-        })
+        cycle(SetChunkCacheRadiusPacket { radius: 12 })
     }
 }

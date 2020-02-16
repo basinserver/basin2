@@ -40,5 +40,4 @@ impl PacketContainer for PacketStatusServerbound {
             _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),
         }
     }
-
 }

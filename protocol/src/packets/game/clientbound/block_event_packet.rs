@@ -39,7 +39,11 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(BlockEventPacket {
-            pos: BlockPos { x: -100, y: 12, z: 1024 },
+            pos: BlockPos {
+                x: -100,
+                y: 12,
+                z: 1024,
+            },
             b0: 12,
             b1: 24,
             block: 453242,

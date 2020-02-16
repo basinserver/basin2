@@ -29,8 +29,6 @@ mod tests {
 
     #[test]
     fn test_cycle() -> Result<()> {
-        cycle(ContainerClosePacket {
-            containerId: 12,
-        })
+        cycle(ContainerClosePacket { containerId: 12 })
     }
 }

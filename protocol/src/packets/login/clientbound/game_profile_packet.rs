@@ -45,7 +45,7 @@ mod tests {
                 uuid: Some(Uuid::new_v4()),
                 name: "testUser".to_string(),
                 legacy: false,
-            }
+            },
         })
     }
 }

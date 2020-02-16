@@ -30,7 +30,11 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(OpenSignEditorPacket {
-            pos: BlockPos { x: 34, y: 12, z: -56343 },
+            pos: BlockPos {
+                x: 34,
+                y: 12,
+                z: -56343,
+            },
         })
     }
 }

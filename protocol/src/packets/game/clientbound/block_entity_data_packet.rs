@@ -41,9 +41,13 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(BlockEntityDataPacket {
-            pos: BlockPos { x: -100, y: 12, z: 1024 },
+            pos: BlockPos {
+                x: -100,
+                y: 12,
+                z: 1024,
+            },
             entityType: 12,
-            tag: Nbt::make_singleton_compound("test".to_string(), Nbt::Double(12534.0))
+            tag: Nbt::make_singleton_compound("test".to_string(), Nbt::Double(12534.0)),
         })
     }
 }

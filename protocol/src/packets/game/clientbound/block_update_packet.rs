@@ -33,7 +33,11 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(BlockUpdatePacket {
-            pos: BlockPos { x: -100, y: 12, z: 1024 },
+            pos: BlockPos {
+                x: -100,
+                y: 12,
+                z: 1024,
+            },
             blockState: 453242,
         })
     }

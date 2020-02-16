@@ -48,7 +48,7 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(AddGlobalEntityPacket {
-            id : 54321,
+            id: 54321,
             x: 123.0,
             y: 64.0,
             z: -157.0,

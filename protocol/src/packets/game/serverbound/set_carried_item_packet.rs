@@ -29,8 +29,6 @@ mod tests {
 
     #[test]
     fn test_cycle() -> Result<()> {
-        cycle(SetCarriedItemPacket {
-            slot: 7,
-        })
+        cycle(SetCarriedItemPacket { slot: 7 })
     }
 }

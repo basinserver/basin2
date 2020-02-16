@@ -46,7 +46,6 @@ pub enum Nbt {
 }
 
 impl Nbt {
-
     pub fn make_singleton_compound(key: String, value: Nbt) -> Nbt {
         let mut children = LinkedHashMap::new();
         children.insert(key, value);
