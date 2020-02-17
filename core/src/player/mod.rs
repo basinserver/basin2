@@ -4,12 +4,38 @@ use basin2_protocol::network::*;
 use basin2_protocol::packets::*;
 use basin2_protocol::WrappedConnection;
 use log::*;
-use crate::util::{ MC_VERSION, CONFIG };
+use crate::util::{ MC_VERSION, CONFIG, PUBLIC_KEY };
+use tokio::sync::Mutex;
+use rand::prelude::*;
+use crate::util::{ AtomicSet, Whitelist };
+use openssl::rsa::Padding;
+use bytes::BytesMut;
+use bytes::buf::Buf;
+use openssl::sha::sha1;
+use serde::Deserialize;
+use uuid::Uuid;
+use linked_hash_map::LinkedHashMap;
 
+#[derive(Clone)]
+struct LoginState {
+    started: bool,
+    awaiting_response: bool,
+    nonce: u32,
+}
+
+pub struct PlayerProperty {
+    pub value: String,
+    pub signature: Option<String>,
+}
 
 pub struct Player {
-    connection: WrappedConnection,
+    pub connection: WrappedConnection,
+    pub username: AtomicSet<String>,
+    pub uuid: AtomicSet<Uuid>,
+    pub properties: AtomicSet<LinkedHashMap<String, PlayerProperty>>,
+    login_state: Mutex<Option<LoginState>>,
 }
+
 
 impl Player {
     pub async fn send_packet(&self, packet: Packet) -> Result<()> {
@@ -47,6 +73,84 @@ pub trait ProtocolHandler {
     async fn handle_game(&self, packet: &GameServerbound) -> Result<()>;
 }
 
+#[derive(Deserialize)]
+struct SessionResponseProperty {
+    name: String,
+    value: String,
+    signature: String,
+}
+
+#[derive(Deserialize)]
+struct SessionResponse {
+    id: Uuid,
+    name: String,
+    properties: Vec<SessionResponseProperty>,
+}
+
+lazy_static! {
+    pub static ref VALID_USERNAME: Vec<char> = { "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890_".chars().collect() };
+}
+
+impl Player {
+
+    async fn finish_login(&self) -> Result<()> {
+        match CONFIG.compression_threshold {
+            Some(threshold) => {
+                self.send_packet(Packet::from(Login::from(LoginCompressionPacket { compressionThreshold: threshold as i32 })))
+                .await?;
+                self.connection.set_compression(threshold);
+            }
+            _ => ()
+        }
+        info!("Player {} has joined!", *self.username);
+        self.disconnect(ChatComponent::from("test successful".to_string())).await?;
+        Ok(())
+    }
+
+    async fn authenticate_mojang(&self, shared_secret: &[u8]) -> Result<bool> {
+        let mut buf = BytesMut::new();
+        buf.extend_from_slice(shared_secret);
+        buf.extend_from_slice(&PUBLIC_KEY.1[..]);
+        let mut raw_hash = sha1(&buf[..]);
+        let signed = (raw_hash[0] & 0x80) != 0;
+        if signed {
+            for i in 0..20 {
+                raw_hash[i] = !raw_hash[i];
+            }
+            raw_hash[19] += 1;
+        }
+        let raw_hash = raw_hash.to_vec().iter().map(|b| format!("{:02x}", b)).collect::<Vec<String>>().join("");
+        let mut leading_zero_count = 0;
+        for c in raw_hash.chars() {
+            if c == '0' {
+                leading_zero_count += 1;
+            } else {
+                break;
+            }
+        }
+        let hash = format!("{}{}", if signed { "-" } else { "" }, &raw_hash[leading_zero_count..]);
+        let client = reqwest::Client::new();
+        let mut response = client
+            .get(&*format!("https://sessionserver.mojang.com/session/minecraft/hasJoined?username={}&serverId={}", *self.username, hash))
+            .send()?;
+        if response.status().as_u16() != 200 {
+            return Ok(false);
+        }
+        let body: SessionResponse = response.json()?;
+        if body.name != *self.username {
+            return Ok(false);
+        }
+        self.uuid.set(body.id);
+        let mut properties: LinkedHashMap<String, PlayerProperty> = LinkedHashMap::new();
+        for property in body.properties {
+            properties.insert(property.name, PlayerProperty { value: property.value, signature: Some(property.signature) });
+        }
+        self.properties.set(properties);
+        Ok(true)
+    }
+
+}
+
 #[async_trait]
 impl ProtocolHandler for Player {
     async fn handle_handshake(&self, packet: &HandshakeServerbound) -> Result<()> {
@@ -65,19 +169,90 @@ impl ProtocolHandler for Player {
                     return Err(basin_err!("invalid target: {:?}", packet.intention));
                 }
                 Ok(())
-            }
+            },
             _ => Err(basin_err!("invalid packet: {:?}", packet)),
         }
     }
 
     async fn handle_login(&self, packet: &LoginServerbound) -> Result<()> {
-        Ok(())
+        use LoginServerbound::*;
+
+        let mut login_state = self.login_state.lock().await;
+        if login_state.is_none() {
+            login_state.replace(LoginState {
+                started: false,
+                awaiting_response: false,
+                nonce: rand::thread_rng().gen::<u32>(),
+            });
+        }
+        match packet {
+            HelloPacket(packet) => {
+                if login_state.as_ref().unwrap().started {
+                    return Err(basin_err!("client sent hello packet twice"));
+                }
+                if !packet.username.chars().into_iter().whitelist(&*VALID_USERNAME) {
+                    return Err(basin_err!("invalid usernme"));
+                }
+                self.username.set(packet.username.clone());
+                let login_state = login_state.as_mut().unwrap();
+                login_state.started = true;
+                if CONFIG.online_mode {
+                    login_state.awaiting_response = true;
+                    self.send_packet(Packet::from(LoginClientbound::from(basin2_protocol::packets::login::clientbound::HelloPacket {
+                        serverId: "".to_string(),
+                        publicKey: PUBLIC_KEY.1.to_vec(),
+                        nonce: login_state.nonce.to_be_bytes().to_vec(),
+                    })))
+                    .await?;
+                } else {
+                    login_state.awaiting_response = false;
+                    self.finish_login().await?;
+                }
+                Ok(())
+            },
+            KeyPacket(packet) => {
+                let login_state = login_state.as_mut().unwrap();
+                if !login_state.awaiting_response {
+                    return Err(basin_err!("responded to non-request of encryption"));
+                }
+                if packet.keybytes.len() > 256 || packet.nonce.len() > 256 {
+                    return Err(basin_err!("keys too long got: {}/{}, expecting: <=256/<=256", packet.keybytes.len(), packet.nonce.len()));
+                }
+                let mut shared_secret = vec![0; 256];
+                let total_decrypted = PUBLIC_KEY.0.private_decrypt(&packet.keybytes, &mut shared_secret, Padding::PKCS1)?;
+                if total_decrypted != 16 {
+                    return Err(basin_err!("shared secret not 16 bytes: {}", total_decrypted));
+                }
+                let shared_secret = &shared_secret[0..16];
+                let mut nonce = vec![0; 256];
+                let total_decrypted = PUBLIC_KEY.0.private_decrypt(&packet.nonce, &mut nonce, Padding::PKCS1)?;
+                if total_decrypted != 4 {
+                    return Err(basin_err!("nonce not 4 bytes: {}", total_decrypted));
+                }
+                let nonce = &nonce[0..4];
+                let nonce = BytesMut::from(&nonce[..]).get_u32();
+                if nonce != login_state.nonce {
+                    return Err(basin_err!("nonce did not match", ));
+                }
+                self.connection.init_encryption(&shared_secret[..])?;
+
+                if !self.authenticate_mojang(&shared_secret[..]).await? {
+                    return Err(basin_err!("bad login"));
+                }
+                self.finish_login().await?;
+                Ok(())
+            },
+            CustomQueryPacket(_packet) => {
+                Err(basin_err!("unexpected query response in login"))
+            },
+            _ => Err(basin_err!("invalid packet: {:?}", packet)),
+        }
     }
 
     async fn handle_status(&self, packet: &StatusServerbound) -> Result<()> {
         use StatusServerbound::*;
         match packet {
-            StatusRequestPacket(packet) => {
+            StatusRequestPacket(_packet) => {
                 self.send_packet(Packet::from(Status::from(StatusResponsePacket {
                     status: ServerStatus {
                         description: ChatComponent::from(&*CONFIG.server_description).serialize(),
@@ -102,7 +277,7 @@ impl ProtocolHandler for Player {
                 })))
                 .await?;
                 Ok(())
-            }
+            },
             _ => Err(basin_err!("invalid packet: {:?}", packet)),
         }
     }
@@ -115,7 +290,13 @@ impl ProtocolHandler for Player {
 pub async fn handle_connection(connection: WrappedConnection) {
     // lock the mutex then claim the receiver for ourselves
     let mut incoming = connection.incoming.lock().unwrap().take().unwrap();
-    let player = Player { connection };
+    let player = Player {
+        connection,
+        login_state: Mutex::new(None),
+        username: AtomicSet::new(),
+        uuid: AtomicSet::new(),
+        properties: AtomicSet::new(),
+    };
     while let Some((finish, packet)) = incoming.recv().await {
         let result = match packet {
             Packet::Handshake(Handshake::HandshakeServerbound(packet)) => {

@@ -23,3 +23,7 @@ either = "1.5.3"
 basin2-protocol = { path = "../protocol/" }
 async-trait = "0.1.24"
 pkg-version = "1.0.0"
+openssl = { version = "0.10", features = ["vendored"] }
+rand = "0.7"
+bytes = "0.5"
+reqwest = "0.9.20"

@@ -5,6 +5,9 @@ use std::env;
 use std::fs;
 use std::io::{Read, Write};
 use pkg_version::*;
+use super::encrypt;
+use openssl::rsa::Rsa;
+use openssl::pkey::Private;
 
 fn default_env(name: &str, default: &str) -> String {
     env::var(name).unwrap_or(default.to_string())
@@ -16,6 +19,8 @@ pub struct Config {
     pub bind_port: u16,
     pub server_description: String,
     pub max_players: u32,
+    pub online_mode: bool,
+    pub compression_threshold: Option<u32>,
 }
 
 impl Default for Config {
@@ -25,6 +30,8 @@ impl Default for Config {
             bind_port: 25565,
             server_description: "A Basin Server".to_string(),
             max_players: 100,
+            online_mode: true,
+            compression_threshold: Some(256),
         }
     }
 }
@@ -63,6 +70,6 @@ fn init() -> Config {
 
 lazy_static! {
     pub static ref CONFIG: Config = { init() };
+    pub static ref PUBLIC_KEY: (Rsa<Private>, Vec<u8>) = { encrypt::init_encryption() };
     pub static ref MC_VERSION: String = { format!("1.{}.{}", pkg_version_major!(), pkg_version_minor!()) };
-
 }

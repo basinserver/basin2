@@ -254,6 +254,8 @@ async fn readForward(
     while let Some(Ok(request)) = from.next().await {
         let should_block = match &request { // packets that directly affect encoding/decoding need to be processed before we continue
             Packet::Handshake(Handshake::HandshakeServerbound(HandshakeServerbound::ClientIntentionPacket(_))) => true,
+            Packet::Login(Login::LoginServerbound(LoginServerbound::KeyPacket(_))) => true,
+            Packet::Login(Login::LoginServerbound(LoginServerbound::HelloPacket(_))) => true,
             _ => false,
         };
         let (sender, receiver) = if should_block {
@@ -313,6 +315,14 @@ impl Connection {
 
     pub fn set_state(&self, state: ConnectionProtocol) {
         self.codec.0.write().unwrap().state = state;
+    }
+
+    pub fn init_encryption(&self, key: &[u8]) -> Result<()> {
+        self.codec.0.write().unwrap().init_encryption(key)
+    }
+
+    pub fn set_compression(&self, threshold: u32) {
+        self.codec.0.write().unwrap().threshold = Some(threshold);
     }
 }
 
