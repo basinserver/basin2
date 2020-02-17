@@ -39,6 +39,16 @@ impl<T: Send + Sync + Sized> AtomicSet<T> {
         }
     }
 
+    pub fn try_set(&self, item: T) {
+        let _ = self.mutex.lock().unwrap();
+        unsafe {
+            if self.item.get().as_ref().unwrap().is_some() {
+                return;
+            }
+            self.item.get().as_mut().unwrap().replace(item);
+        }
+    }
+
     pub fn set(&self, item: T) {
         let _ = self.mutex.lock().unwrap();
         unsafe {

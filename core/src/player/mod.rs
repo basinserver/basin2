@@ -15,6 +15,9 @@ use openssl::sha::sha1;
 use serde::Deserialize;
 use uuid::Uuid;
 use linked_hash_map::LinkedHashMap;
+use std::sync::Arc;
+use crate::server::ServerT;
+use futures::executor::block_on;
 
 #[derive(Clone)]
 struct LoginState {
@@ -29,13 +32,22 @@ pub struct PlayerProperty {
 }
 
 pub struct Player {
+    pub server: ServerT,
     pub connection: WrappedConnection,
+    pub disconnected: AtomicSet<bool>,
     pub username: AtomicSet<String>,
     pub uuid: AtomicSet<Uuid>,
     pub properties: AtomicSet<LinkedHashMap<String, PlayerProperty>>,
     login_state: Mutex<Option<LoginState>>,
 }
 
+impl Drop for Player {
+    fn drop(&mut self) {
+        block_on(self.disconnect(ChatComponent::from("Disconnected"))).unwrap_or(());
+    }
+}
+
+pub type PlayerT = Arc<Player>;
 
 impl Player {
     pub async fn send_packet(&self, packet: Packet) -> Result<()> {
@@ -47,6 +59,7 @@ impl Player {
     }
 
     pub async fn disconnect(&self, reason: ChatComponent) -> Result<()> {
+        self.disconnected.try_set(true);
         {
             let codec_state = self.connection.codec.0.read().unwrap().state;
             if codec_state == ConnectionProtocol::Login {
@@ -159,6 +172,10 @@ impl Player {
 
 }
 
+lazy_static! {
+    pub static ref USER_NAMESPACE: Uuid = { Uuid::parse_str("033e0831-0690-4731-bfe5-9eacd9c54ade").unwrap() };
+}
+
 #[async_trait]
 impl ProtocolHandler for Player {
     async fn handle_handshake(&self, packet: &HandshakeServerbound) -> Result<()> {
@@ -214,6 +231,8 @@ impl ProtocolHandler for Player {
                     .await?;
                 } else {
                     login_state.awaiting_response = false;
+                    self.uuid.set(Uuid::new_v5(&*USER_NAMESPACE, &**self.username));
+                    self.properties.set(LinkedHashMap::new());
                     self.finish_login().await?;
                 }
                 Ok(())
@@ -295,16 +314,18 @@ impl ProtocolHandler for Player {
     }
 }
 
-pub async fn handle_connection(connection: WrappedConnection) {
+pub async fn handle_connection(connection: WrappedConnection, server: ServerT) {
     // lock the mutex then claim the receiver for ourselves
     let mut incoming = connection.incoming.lock().unwrap().take().unwrap();
-    let player = Player {
+    let player = Arc::new(Player {
+        server,
         connection,
         login_state: Mutex::new(None),
         username: AtomicSet::new(),
         uuid: AtomicSet::new(),
         properties: AtomicSet::new(),
-    };
+        disconnected: AtomicSet::new(),
+    });
     while let Some((finish, packet)) = incoming.recv().await {
         let result = match packet {
             Packet::Handshake(Handshake::HandshakeServerbound(packet)) => {
@@ -331,5 +352,5 @@ pub async fn handle_connection(connection: WrappedConnection) {
             _ => (),
         }
     }
-    //TODO: close connection
+    player.disconnect(ChatComponent::from("Disconnect")).await.unwrap_or(());
 }

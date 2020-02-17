@@ -14,6 +14,7 @@ use tokio::runtime;
 use log::LevelFilter;
 use log::*;
 use env_logger::Builder;
+use std::sync::Arc;
 
 fn start_tokio() -> Result<runtime::Runtime> {
     Ok(runtime::Builder::new()
@@ -26,6 +27,6 @@ fn main() {
     Builder::from_default_env()
         .filter_level(LevelFilter::Info)
         .init();
-
-    start_tokio().unwrap().block_on(server::start())
+    let server = Arc::new(server::Server::new());
+    start_tokio().unwrap().block_on(server::start(server))
 }
