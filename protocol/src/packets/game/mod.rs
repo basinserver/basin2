@@ -1,10 +1,12 @@
 pub mod serverbound;
 pub use serverbound::*;
 pub mod clientbound;
+use super::Packet;
 pub use clientbound::*;
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum PacketGame {
-    PacketGameServerbound(PacketGameServerbound),
-    PacketGameClientbound(PacketGameClientbound),
+hierarchy! {
+    child<Packet> enum Game {
+        GameServerbound,
+        GameClientbound,
+    }
 }

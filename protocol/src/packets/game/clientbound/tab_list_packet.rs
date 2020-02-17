@@ -33,8 +33,8 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(TabListPacket {
-            header: "header".to_string(),
-            footer: "footer".to_string(),
+            header: ChatComponent::from("header".to_string()),
+            footer: ChatComponent::from("footer".to_string()),
         })
     }
 }

@@ -25,7 +25,9 @@ impl CodablePacket for PlayerCombatPacket {
             EntityDied => {
                 buf.set_mc_var_int(self.playerId);
                 buf.set_mc_i32(self.killerId);
-                buf.set_mc_chat_component(self.message.unwrap_or("".to_string()));
+                buf.set_mc_chat_component(
+                    self.message.unwrap_or(ChatComponent::from("".to_string())),
+                );
             }
             _ => (),
         }
@@ -85,7 +87,7 @@ mod tests {
             playerId: 3453,
             killerId: 65435,
             duration: 0,
-            message: Some("test".to_string()),
+            message: Some(ChatComponent::from("test".to_string())),
         })
     }
 

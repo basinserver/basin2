@@ -1,3 +1,4 @@
+pub use crate::chat::ChatComponent;
 use crate::nbt::Nbt;
 use crate::result::*;
 use bytes::buf::Buf;
@@ -244,7 +245,9 @@ impl McPacketBuf for BytesMut {
     }
 
     fn get_mc_chat_component(&mut self) -> Result<ChatComponent> {
-        self.get_mc_string(262144)
+        ChatComponent::parse(serde_json::from_str(&*self.get_mc_string(262144)?)?)
+            .map(|value| Ok(value))
+            .unwrap_or(invalidData())
     }
 
     fn get_mc_u16(&mut self) -> Result<u16> {
@@ -405,7 +408,7 @@ impl McPacketBuf for BytesMut {
     }
 
     fn set_mc_chat_component(&mut self, value: ChatComponent) {
-        self.set_mc_string(value);
+        self.set_mc_string(serde_json::to_string(&value.serialize()).unwrap());
     }
 
     fn set_mc_u16(&mut self, value: u16) {
@@ -781,7 +784,7 @@ pub struct GameProfile {
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct ServerStatus {
-    pub description: ChatComponent,
+    pub description: serde_json::Value, // ChatComponent
     pub players: ServerStatusPlayers,
     pub version: ServerStatusVersion,
     pub favicon: Option<String>,
@@ -807,7 +810,6 @@ pub struct ChunkBlocksUpdatePacketBlockUpdate {
 }
 
 pub type ResourceLocation = String;
-pub type ChatComponent = String; // TODO this should be a struct
 pub type MobEffect = u8;
 pub type SoundEvent = i32;
 pub type BlockState = i32;

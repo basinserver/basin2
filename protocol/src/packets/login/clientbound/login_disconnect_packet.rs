@@ -17,7 +17,7 @@ impl CodablePacket for LoginDisconnectPacket {
     where
         Self: Sized,
     {
-        let reason = buf.get_mc_string(262144)?;
+        let reason = buf.get_mc_chat_component()?;
         return Ok(LoginDisconnectPacket { reason });
     }
 }
@@ -30,7 +30,7 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(LoginDisconnectPacket {
-            reason: "test".to_string(),
+            reason: ChatComponent::from("test".to_string()),
         })
     }
 }

@@ -101,9 +101,9 @@ mod tests {
     fn test_cycle_method0() -> Result<()> {
         cycle(SetPlayerTeamPacket {
             name: "team name".to_string(),
-            displayName: Some("display".to_string()),
-            playerPrefix: Some("prefix".to_string()),
-            playerSuffix: Some("suffix".to_string()),
+            displayName: Some(ChatComponent::from("display".to_string())),
+            playerPrefix: Some(ChatComponent::from("prefix".to_string())),
+            playerSuffix: Some(ChatComponent::from("suffix".to_string())),
             nametagVisibility: Some("nametag".to_string()),
             collisionRule: Some("collision".to_string()),
             color: Some(ChatFormatting::Green),
@@ -117,9 +117,9 @@ mod tests {
     fn test_cycle_method2() -> Result<()> {
         cycle(SetPlayerTeamPacket {
             name: "team name".to_string(),
-            displayName: Some("display".to_string()),
-            playerPrefix: Some("prefix".to_string()),
-            playerSuffix: Some("suffix".to_string()),
+            displayName: Some(ChatComponent::from("display".to_string())),
+            playerPrefix: Some(ChatComponent::from("prefix".to_string())),
+            playerSuffix: Some(ChatComponent::from("suffix".to_string())),
             nametagVisibility: Some("nametag".to_string()),
             collisionRule: Some("collision".to_string()),
             color: Some(ChatFormatting::Green),

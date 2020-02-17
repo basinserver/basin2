@@ -74,7 +74,7 @@ mod tests {
     fn test_cycle_title() -> Result<()> {
         cycle(SetTitlesPacket {
             titleType: SetTitlesPacketType::Title,
-            text: Some("test title".to_string()),
+            text: Some(ChatComponent::from("test title".to_string())),
             fadeInTime: None,
             stayTime: None,
             fadeOutTime: None,

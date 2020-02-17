@@ -238,13 +238,15 @@ mod tests {
                 },
                 EntityMetadataItem {
                     id: 4,
-                    data: EntityMetadata::Component("test component".to_string()),
+                    data: EntityMetadata::Component(ChatComponent::from(
+                        "test component".to_string(),
+                    )),
                 },
                 EntityMetadataItem {
                     id: 5,
-                    data: EntityMetadata::OptionalComponent(Some(
+                    data: EntityMetadata::OptionalComponent(Some(ChatComponent::from(
                         "test optional component".to_string(),
-                    )),
+                    ))),
                 },
                 EntityMetadataItem {
                     id: 6,

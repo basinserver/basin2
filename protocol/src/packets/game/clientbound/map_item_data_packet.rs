@@ -112,7 +112,7 @@ mod tests {
                 x: 23,
                 y: 19,
                 rot: 1,
-                component: Some("test".to_string()),
+                component: Some(ChatComponent::from("test".to_string())),
             }],
             startX: 12,
             startY: 25,

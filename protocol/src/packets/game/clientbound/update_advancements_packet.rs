@@ -95,7 +95,7 @@ impl CodablePacket for UpdateAdvancementsPacket {
         for _ in 0..added_count {
             let key = buf.get_mc_string(32767)?;
             let parentId = if buf.get_mc_bool()? {
-                Some(buf.get_mc_chat_component()?)
+                Some(buf.get_mc_string(32767)?)
             } else {
                 None
             };
@@ -190,8 +190,8 @@ mod tests {
                 Advancement {
                     parentId: Some("another advancement".to_string()),
                     display: Some(AdvancementDisplayInfo {
-                        title: "display title".to_string(),
-                        description: "description".to_string(),
+                        title: ChatComponent::from("display".to_string()),
+                        description: ChatComponent::from("description".to_string()),
                         icon: ItemStack::empty(),
                         frame: FrameType::Task,
                         background: Some("background".to_string()),

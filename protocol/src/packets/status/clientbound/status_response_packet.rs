@@ -31,7 +31,7 @@ mod tests {
     fn test_cycle() -> Result<()> {
         cycle(StatusResponsePacket {
             status: ServerStatus {
-                description: "a testing system".to_string(),
+                description: ChatComponent::from("a testing system".to_string()).serialize(),
                 players: ServerStatusPlayers {
                     max: 20,
                     online: 5,

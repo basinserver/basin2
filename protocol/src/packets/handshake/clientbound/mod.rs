@@ -4,15 +4,17 @@ use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum PacketHandshakeClientbound {}
+hierarchy! {
+    child<Handshake> enum HandshakeClientbound {
+    }
+}
 
-impl PacketContainer for PacketHandshakeClientbound {
+impl PacketContainer for HandshakeClientbound {
     fn encode(self, _buf: &mut BytesMut) {
         match self {}
     }
 
-    fn decode(id: i32, _buf: &mut BytesMut) -> Result<PacketHandshakeClientbound> {
+    fn decode(id: i32, _buf: &mut BytesMut) -> Result<HandshakeClientbound> {
         match id {
             _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),
         }

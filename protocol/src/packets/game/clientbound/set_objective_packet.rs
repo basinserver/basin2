@@ -52,7 +52,7 @@ mod tests {
     fn test_cycle_lowmethod() -> Result<()> {
         cycle(SetObjectivePacket {
             objectiveName: "objective name".to_string(),
-            displayName: Some("display objective".to_string()),
+            displayName: Some(ChatComponent::from("display objective".to_string())),
             renderType: Some(ObjectiveCriteriaRenderType::Hearts),
             method: 2,
         })

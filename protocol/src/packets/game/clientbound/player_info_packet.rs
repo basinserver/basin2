@@ -6,10 +6,16 @@ use uuid::Uuid;
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum PlayerInfoPacketData {
-    AddPlayer(String, Vec<PlayerProperty>, GameType, i32, Option<String>),
+    AddPlayer(
+        String,
+        Vec<PlayerProperty>,
+        GameType,
+        i32,
+        Option<ChatComponent>,
+    ),
     UpdateGameMode(GameType),
     UpdateLatency(i32),
-    UpdateDisplayName(Option<String>),
+    UpdateDisplayName(Option<ChatComponent>),
     RemovePlayer(),
 }
 
@@ -56,7 +62,7 @@ impl CodablePacket for PlayerInfoPacket {
                     match display_name {
                         Some(display_name) => {
                             buf.set_mc_bool(true);
-                            buf.set_mc_string(display_name);
+                            buf.set_mc_chat_component(display_name);
                         }
                         None => {
                             buf.set_mc_bool(false);
@@ -80,7 +86,7 @@ impl CodablePacket for PlayerInfoPacket {
                     PlayerInfoPacketData::UpdateDisplayName(Some(display_name)),
                 ) => {
                     buf.set_mc_bool(true);
-                    buf.set_mc_string(display_name);
+                    buf.set_mc_chat_component(display_name);
                 }
                 (
                     PlayerInfoPacketAction::UpdateDisplayName,
@@ -180,7 +186,7 @@ mod tests {
                     vec![],
                     GameType::Survival,
                     123,
-                    Some("magicName".to_string()),
+                    Some(ChatComponent::from("magicName".to_string())),
                 ),
             )],
         })

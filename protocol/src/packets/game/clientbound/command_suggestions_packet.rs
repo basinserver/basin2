@@ -72,7 +72,7 @@ mod tests {
                 end: 40,
                 suggestions: vec![Suggestion {
                     text: "try something else".to_string(),
-                    tooltip: Some("tooltip".to_string()),
+                    tooltip: Some(ChatComponent::from("tooltip".to_string())),
                 }],
             },
         })

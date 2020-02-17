@@ -22,6 +22,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d7b8a9123b8027467bce0099fe556c628a53c8d83df0507084c31e9ba2e39aff"
 
 [[package]]
+name = "async-trait"
+version = "0.1.24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "750b1c38a1dfadd108da0f01c08f4cdc7ff1bb39b325f9c82cc972361780a6e1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -37,6 +48,28 @@ name = "autocfg"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8aac770f1885fd7e387acedd76065302551364496e46b3dd00860b2f8359b9d"
+
+[[package]]
+name = "basin2"
+version = "15.2.1"
+dependencies = [
+ "async-trait",
+ "basin2-protocol",
+ "either",
+ "enum_primitive",
+ "env_logger",
+ "futures",
+ "futures-util",
+ "lazy_static",
+ "linked-hash-map",
+ "log",
+ "serde",
+ "serde_json",
+ "time",
+ "tokio",
+ "tokio-util",
+ "uuid",
+]
 
 [[package]]
 name = "basin2-protocol"
@@ -341,9 +374,9 @@ dependencies = [
 
 [[package]]
 name = "memchr"
-version = "2.3.0"
+version = "2.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3197e20c7edb283f87c071ddfc7a2cca8f8e0b888c242959846a6fce03c72223"
+checksum = "53445de381a1f436797497c61d851644d0e8e88e6140f22872ad33a704933978"
 
 [[package]]
 name = "miniz_oxide"
@@ -682,9 +715,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.47"
+version = "1.0.48"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "15913895b61e0be854afd32fd4163fcd2a3df34142cf2cb961b310ce694cbf90"
+checksum = "9371ade75d4c2d6cb154141b9752cf3781ec9c05e0e5cf35060e1e70ee7b9c25"
 dependencies = [
  "itoa",
  "ryu",

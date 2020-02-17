@@ -91,6 +91,7 @@ pub use use_item_on_packet::*;
 pub mod use_item_packet;
 pub use use_item_packet::*;
 
+use super::Game;
 use crate::network::*;
 use crate::packet::*;
 use crate::Result;
@@ -98,59 +99,60 @@ use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum PacketGameServerbound {
-    AcceptTeleportationPacket(AcceptTeleportationPacket),
-    BlockEntityTagQuery(BlockEntityTagQuery),
-    ChangeDifficultyPacket(ChangeDifficultyPacket),
-    ChatPacket(ChatPacket),
-    ClientCommandPacket(ClientCommandPacket),
-    ClientInformationPacket(ClientInformationPacket),
-    CommandSuggestionPacket(CommandSuggestionPacket),
-    ContainerAckPacket(ContainerAckPacket),
-    ContainerButtonClickPacket(ContainerButtonClickPacket),
-    ContainerClickPacket(ContainerClickPacket),
-    ContainerClosePacket(ContainerClosePacket),
-    CustomPayloadPacket(CustomPayloadPacket),
-    EditBookPacket(EditBookPacket),
-    EntityTagQuery(EntityTagQuery),
-    InteractPacket(InteractPacket),
-    KeepAlivePacket(KeepAlivePacket),
-    LockDifficultyPacket(LockDifficultyPacket),
-    MovePlayerPosPacket(MovePlayerPosPacket),
-    MovePlayerPosRotPacket(MovePlayerPosRotPacket),
-    MovePlayerRotPacket(MovePlayerRotPacket),
-    MovePlayerPacket(MovePlayerPacket),
-    MoveVehiclePacket(MoveVehiclePacket),
-    PaddleBoatPacket(PaddleBoatPacket),
-    PickItemPacket(PickItemPacket),
-    PlaceRecipePacket(PlaceRecipePacket),
-    PlayerAbilitiesPacket(PlayerAbilitiesPacket),
-    PlayerActionPacket(PlayerActionPacket),
-    PlayerCommandPacket(PlayerCommandPacket),
-    PlayerInputPacket(PlayerInputPacket),
-    RecipeBookUpdatePacket(RecipeBookUpdatePacket),
-    RenameItemPacket(RenameItemPacket),
-    ResourcePackPacket(ResourcePackPacket),
-    SeenAdvancementsPacket(SeenAdvancementsPacket),
-    SelectTradePacket(SelectTradePacket),
-    SetBeaconPacket(SetBeaconPacket),
-    SetCarriedItemPacket(SetCarriedItemPacket),
-    SetCommandBlockPacket(SetCommandBlockPacket),
-    SetCommandMinecartPacket(SetCommandMinecartPacket),
-    SetCreativeModeSlotPacket(SetCreativeModeSlotPacket),
-    SetJigsawBlockPacket(SetJigsawBlockPacket),
-    SetStructureBlockPacket(SetStructureBlockPacket),
-    SignUpdatePacket(SignUpdatePacket),
-    SwingPacket(SwingPacket),
-    TeleportToEntityPacket(TeleportToEntityPacket),
-    UseItemOnPacket(UseItemOnPacket),
-    UseItemPacket(UseItemPacket),
+hierarchy! {
+    child<Game> enum GameServerbound {
+        AcceptTeleportationPacket,
+        BlockEntityTagQuery,
+        ChangeDifficultyPacket,
+        ChatPacket,
+        ClientCommandPacket,
+        ClientInformationPacket,
+        CommandSuggestionPacket,
+        ContainerAckPacket,
+        ContainerButtonClickPacket,
+        ContainerClickPacket,
+        ContainerClosePacket,
+        CustomPayloadPacket,
+        EditBookPacket,
+        EntityTagQuery,
+        InteractPacket,
+        KeepAlivePacket,
+        LockDifficultyPacket,
+        MovePlayerPosPacket,
+        MovePlayerPosRotPacket,
+        MovePlayerRotPacket,
+        MovePlayerPacket,
+        MoveVehiclePacket,
+        PaddleBoatPacket,
+        PickItemPacket,
+        PlaceRecipePacket,
+        PlayerAbilitiesPacket,
+        PlayerActionPacket,
+        PlayerCommandPacket,
+        PlayerInputPacket,
+        RecipeBookUpdatePacket,
+        RenameItemPacket,
+        ResourcePackPacket,
+        SeenAdvancementsPacket,
+        SelectTradePacket,
+        SetBeaconPacket,
+        SetCarriedItemPacket,
+        SetCommandBlockPacket,
+        SetCommandMinecartPacket,
+        SetCreativeModeSlotPacket,
+        SetJigsawBlockPacket,
+        SetStructureBlockPacket,
+        SignUpdatePacket,
+        SwingPacket,
+        TeleportToEntityPacket,
+        UseItemOnPacket,
+        UseItemPacket,
+    }
 }
 
-impl PacketContainer for PacketGameServerbound {
+impl PacketContainer for GameServerbound {
     fn encode(self, buf: &mut BytesMut) {
-        use PacketGameServerbound::*;
+        use GameServerbound::*;
         match self {
             AcceptTeleportationPacket(deref_packet) => {
                 buf.set_mc_var_int(0);
@@ -339,144 +341,140 @@ impl PacketContainer for PacketGameServerbound {
         }
     }
 
-    fn decode(id: i32, buf: &mut BytesMut) -> Result<PacketGameServerbound> {
+    fn decode(id: i32, buf: &mut BytesMut) -> Result<GameServerbound> {
         match id {
-            0 => Ok(PacketGameServerbound::AcceptTeleportationPacket(
+            0 => Ok(GameServerbound::AcceptTeleportationPacket(
                 AcceptTeleportationPacket::decode(buf)?,
             )),
-            1 => Ok(PacketGameServerbound::BlockEntityTagQuery(
+            1 => Ok(GameServerbound::BlockEntityTagQuery(
                 BlockEntityTagQuery::decode(buf)?,
             )),
-            2 => Ok(PacketGameServerbound::ChangeDifficultyPacket(
+            2 => Ok(GameServerbound::ChangeDifficultyPacket(
                 ChangeDifficultyPacket::decode(buf)?,
             )),
-            3 => Ok(PacketGameServerbound::ChatPacket(ChatPacket::decode(buf)?)),
-            4 => Ok(PacketGameServerbound::ClientCommandPacket(
+            3 => Ok(GameServerbound::ChatPacket(ChatPacket::decode(buf)?)),
+            4 => Ok(GameServerbound::ClientCommandPacket(
                 ClientCommandPacket::decode(buf)?,
             )),
-            5 => Ok(PacketGameServerbound::ClientInformationPacket(
+            5 => Ok(GameServerbound::ClientInformationPacket(
                 ClientInformationPacket::decode(buf)?,
             )),
-            6 => Ok(PacketGameServerbound::CommandSuggestionPacket(
+            6 => Ok(GameServerbound::CommandSuggestionPacket(
                 CommandSuggestionPacket::decode(buf)?,
             )),
-            7 => Ok(PacketGameServerbound::ContainerAckPacket(
+            7 => Ok(GameServerbound::ContainerAckPacket(
                 ContainerAckPacket::decode(buf)?,
             )),
-            8 => Ok(PacketGameServerbound::ContainerButtonClickPacket(
+            8 => Ok(GameServerbound::ContainerButtonClickPacket(
                 ContainerButtonClickPacket::decode(buf)?,
             )),
-            9 => Ok(PacketGameServerbound::ContainerClickPacket(
+            9 => Ok(GameServerbound::ContainerClickPacket(
                 ContainerClickPacket::decode(buf)?,
             )),
-            10 => Ok(PacketGameServerbound::ContainerClosePacket(
+            10 => Ok(GameServerbound::ContainerClosePacket(
                 ContainerClosePacket::decode(buf)?,
             )),
-            11 => Ok(PacketGameServerbound::CustomPayloadPacket(
+            11 => Ok(GameServerbound::CustomPayloadPacket(
                 CustomPayloadPacket::decode(buf)?,
             )),
-            12 => Ok(PacketGameServerbound::EditBookPacket(
-                EditBookPacket::decode(buf)?,
-            )),
-            13 => Ok(PacketGameServerbound::EntityTagQuery(
-                EntityTagQuery::decode(buf)?,
-            )),
-            14 => Ok(PacketGameServerbound::InteractPacket(
-                InteractPacket::decode(buf)?,
-            )),
-            15 => Ok(PacketGameServerbound::KeepAlivePacket(
-                KeepAlivePacket::decode(buf)?,
-            )),
-            16 => Ok(PacketGameServerbound::LockDifficultyPacket(
+            12 => Ok(GameServerbound::EditBookPacket(EditBookPacket::decode(
+                buf,
+            )?)),
+            13 => Ok(GameServerbound::EntityTagQuery(EntityTagQuery::decode(
+                buf,
+            )?)),
+            14 => Ok(GameServerbound::InteractPacket(InteractPacket::decode(
+                buf,
+            )?)),
+            15 => Ok(GameServerbound::KeepAlivePacket(KeepAlivePacket::decode(
+                buf,
+            )?)),
+            16 => Ok(GameServerbound::LockDifficultyPacket(
                 LockDifficultyPacket::decode(buf)?,
             )),
-            17 => Ok(PacketGameServerbound::MovePlayerPosPacket(
+            17 => Ok(GameServerbound::MovePlayerPosPacket(
                 MovePlayerPosPacket::decode(buf)?,
             )),
-            18 => Ok(PacketGameServerbound::MovePlayerPosRotPacket(
+            18 => Ok(GameServerbound::MovePlayerPosRotPacket(
                 MovePlayerPosRotPacket::decode(buf)?,
             )),
-            19 => Ok(PacketGameServerbound::MovePlayerRotPacket(
+            19 => Ok(GameServerbound::MovePlayerRotPacket(
                 MovePlayerRotPacket::decode(buf)?,
             )),
-            20 => Ok(PacketGameServerbound::MovePlayerPacket(
-                MovePlayerPacket::decode(buf)?,
-            )),
-            21 => Ok(PacketGameServerbound::MoveVehiclePacket(
+            20 => Ok(GameServerbound::MovePlayerPacket(MovePlayerPacket::decode(
+                buf,
+            )?)),
+            21 => Ok(GameServerbound::MoveVehiclePacket(
                 MoveVehiclePacket::decode(buf)?,
             )),
-            22 => Ok(PacketGameServerbound::PaddleBoatPacket(
-                PaddleBoatPacket::decode(buf)?,
-            )),
-            23 => Ok(PacketGameServerbound::PickItemPacket(
-                PickItemPacket::decode(buf)?,
-            )),
-            24 => Ok(PacketGameServerbound::PlaceRecipePacket(
+            22 => Ok(GameServerbound::PaddleBoatPacket(PaddleBoatPacket::decode(
+                buf,
+            )?)),
+            23 => Ok(GameServerbound::PickItemPacket(PickItemPacket::decode(
+                buf,
+            )?)),
+            24 => Ok(GameServerbound::PlaceRecipePacket(
                 PlaceRecipePacket::decode(buf)?,
             )),
-            25 => Ok(PacketGameServerbound::PlayerAbilitiesPacket(
+            25 => Ok(GameServerbound::PlayerAbilitiesPacket(
                 PlayerAbilitiesPacket::decode(buf)?,
             )),
-            26 => Ok(PacketGameServerbound::PlayerActionPacket(
+            26 => Ok(GameServerbound::PlayerActionPacket(
                 PlayerActionPacket::decode(buf)?,
             )),
-            27 => Ok(PacketGameServerbound::PlayerCommandPacket(
+            27 => Ok(GameServerbound::PlayerCommandPacket(
                 PlayerCommandPacket::decode(buf)?,
             )),
-            28 => Ok(PacketGameServerbound::PlayerInputPacket(
+            28 => Ok(GameServerbound::PlayerInputPacket(
                 PlayerInputPacket::decode(buf)?,
             )),
-            29 => Ok(PacketGameServerbound::RecipeBookUpdatePacket(
+            29 => Ok(GameServerbound::RecipeBookUpdatePacket(
                 RecipeBookUpdatePacket::decode(buf)?,
             )),
-            30 => Ok(PacketGameServerbound::RenameItemPacket(
-                RenameItemPacket::decode(buf)?,
-            )),
-            31 => Ok(PacketGameServerbound::ResourcePackPacket(
+            30 => Ok(GameServerbound::RenameItemPacket(RenameItemPacket::decode(
+                buf,
+            )?)),
+            31 => Ok(GameServerbound::ResourcePackPacket(
                 ResourcePackPacket::decode(buf)?,
             )),
-            32 => Ok(PacketGameServerbound::SeenAdvancementsPacket(
+            32 => Ok(GameServerbound::SeenAdvancementsPacket(
                 SeenAdvancementsPacket::decode(buf)?,
             )),
-            33 => Ok(PacketGameServerbound::SelectTradePacket(
+            33 => Ok(GameServerbound::SelectTradePacket(
                 SelectTradePacket::decode(buf)?,
             )),
-            34 => Ok(PacketGameServerbound::SetBeaconPacket(
-                SetBeaconPacket::decode(buf)?,
-            )),
-            35 => Ok(PacketGameServerbound::SetCarriedItemPacket(
+            34 => Ok(GameServerbound::SetBeaconPacket(SetBeaconPacket::decode(
+                buf,
+            )?)),
+            35 => Ok(GameServerbound::SetCarriedItemPacket(
                 SetCarriedItemPacket::decode(buf)?,
             )),
-            36 => Ok(PacketGameServerbound::SetCommandBlockPacket(
+            36 => Ok(GameServerbound::SetCommandBlockPacket(
                 SetCommandBlockPacket::decode(buf)?,
             )),
-            37 => Ok(PacketGameServerbound::SetCommandMinecartPacket(
+            37 => Ok(GameServerbound::SetCommandMinecartPacket(
                 SetCommandMinecartPacket::decode(buf)?,
             )),
-            38 => Ok(PacketGameServerbound::SetCreativeModeSlotPacket(
+            38 => Ok(GameServerbound::SetCreativeModeSlotPacket(
                 SetCreativeModeSlotPacket::decode(buf)?,
             )),
-            39 => Ok(PacketGameServerbound::SetJigsawBlockPacket(
+            39 => Ok(GameServerbound::SetJigsawBlockPacket(
                 SetJigsawBlockPacket::decode(buf)?,
             )),
-            40 => Ok(PacketGameServerbound::SetStructureBlockPacket(
+            40 => Ok(GameServerbound::SetStructureBlockPacket(
                 SetStructureBlockPacket::decode(buf)?,
             )),
-            41 => Ok(PacketGameServerbound::SignUpdatePacket(
-                SignUpdatePacket::decode(buf)?,
-            )),
-            42 => Ok(PacketGameServerbound::SwingPacket(SwingPacket::decode(
+            41 => Ok(GameServerbound::SignUpdatePacket(SignUpdatePacket::decode(
                 buf,
             )?)),
-            43 => Ok(PacketGameServerbound::TeleportToEntityPacket(
+            42 => Ok(GameServerbound::SwingPacket(SwingPacket::decode(buf)?)),
+            43 => Ok(GameServerbound::TeleportToEntityPacket(
                 TeleportToEntityPacket::decode(buf)?,
             )),
-            44 => Ok(PacketGameServerbound::UseItemOnPacket(
-                UseItemOnPacket::decode(buf)?,
-            )),
-            45 => Ok(PacketGameServerbound::UseItemPacket(UseItemPacket::decode(
+            44 => Ok(GameServerbound::UseItemOnPacket(UseItemOnPacket::decode(
                 buf,
             )?)),
+            45 => Ok(GameServerbound::UseItemPacket(UseItemPacket::decode(buf)?)),
             _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),
         }
     }

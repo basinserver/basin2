@@ -30,7 +30,7 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(DisconnectPacket {
-            reason: "disconnect".to_string(),
+            reason: ChatComponent::from("disconnect".to_string()),
         })
     }
 }

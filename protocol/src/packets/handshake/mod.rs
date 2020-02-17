@@ -1,10 +1,12 @@
 pub mod serverbound;
 pub use serverbound::*;
 pub mod clientbound;
+use super::Packet;
 pub use clientbound::*;
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum PacketHandshake {
-    PacketHandshakeServerbound(PacketHandshakeServerbound),
-    PacketHandshakeClientbound(PacketHandshakeClientbound),
+hierarchy! {
+    child<Packet> enum Handshake {
+        HandshakeServerbound,
+        HandshakeClientbound,
+    }
 }

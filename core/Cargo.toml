@@ -1,6 +1,6 @@
 [package]
-name = "basin2-protocol"
-version = "578.1.0"
+name = "basin2"
+version = "15.2.1"
 authors = ["Protryon <max.bruce12@gmail.com>"]
 edition = "2018"
 publish = false
@@ -17,10 +17,8 @@ tokio = { version = "0.2", features = ["full"] }
 tokio-util = { version = "0.2", features = ["full"] }
 futures = "0.3"
 futures-util = "0.3"
-bytes = "0.5"
-openssl = { version = "0.10", features = ["vendored"] }
-flate2 = "1.0"
 enum_primitive = "0.1.1"
 linked-hash-map = "0.5.2"
 either = "1.5.3"
-pkg-version = "1.0.0"
+basin2-protocol = { path = "../protocol/" }
+async-trait = "0.1.24"

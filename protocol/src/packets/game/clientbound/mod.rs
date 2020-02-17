@@ -185,6 +185,7 @@ pub use update_recipes_packet::*;
 pub mod update_tags_packet;
 pub use update_tags_packet::*;
 
+use super::Game;
 use crate::network::*;
 use crate::packet::*;
 use crate::Result;
@@ -192,106 +193,107 @@ use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum PacketGameClientbound {
-    AddEntityPacket(AddEntityPacket),
-    AddExperienceOrbPacket(AddExperienceOrbPacket),
-    AddGlobalEntityPacket(AddGlobalEntityPacket),
-    AddMobPacket(AddMobPacket),
-    AddPaintingPacket(AddPaintingPacket),
-    AddPlayerPacket(AddPlayerPacket),
-    AnimatePacket(AnimatePacket),
-    AwardStatsPacket(AwardStatsPacket),
-    BlockBreakAckPacket(BlockBreakAckPacket),
-    BlockDestructionPacket(BlockDestructionPacket),
-    BlockEntityDataPacket(BlockEntityDataPacket),
-    BlockEventPacket(BlockEventPacket),
-    BlockUpdatePacket(BlockUpdatePacket),
-    BossEventPacket(BossEventPacket),
-    ChangeDifficultyPacket(ChangeDifficultyPacket),
-    ChatPacket(ChatPacket),
-    ChunkBlocksUpdatePacket(ChunkBlocksUpdatePacket),
-    CommandSuggestionsPacket(CommandSuggestionsPacket),
-    CommandsPacket(CommandsPacket),
-    ContainerAckPacket(ContainerAckPacket),
-    ContainerClosePacket(ContainerClosePacket),
-    ContainerSetContentPacket(ContainerSetContentPacket),
-    ContainerSetDataPacket(ContainerSetDataPacket),
-    ContainerSetSlotPacket(ContainerSetSlotPacket),
-    CooldownPacket(CooldownPacket),
-    CustomPayloadPacket(CustomPayloadPacket),
-    CustomSoundPacket(CustomSoundPacket),
-    DisconnectPacket(DisconnectPacket),
-    EntityEventPacket(EntityEventPacket),
-    ExplodePacket(ExplodePacket),
-    ForgetLevelChunkPacket(ForgetLevelChunkPacket),
-    GameEventPacket(GameEventPacket),
-    HorseScreenOpenPacket(HorseScreenOpenPacket),
-    KeepAlivePacket(KeepAlivePacket),
-    LevelChunkPacket(LevelChunkPacket),
-    LevelEventPacket(LevelEventPacket),
-    LevelParticlesPacket(LevelParticlesPacket),
-    LightUpdatePacket(LightUpdatePacket),
-    LoginPacket(LoginPacket),
-    MapItemDataPacket(MapItemDataPacket),
-    MerchantOffersPacket(MerchantOffersPacket),
-    MoveEntityPosPacket(MoveEntityPosPacket),
-    MoveEntityPosRotPacket(MoveEntityPosRotPacket),
-    MoveEntityRotPacket(MoveEntityRotPacket),
-    MoveEntityPacket(MoveEntityPacket),
-    MoveVehiclePacket(MoveVehiclePacket),
-    OpenBookPacket(OpenBookPacket),
-    OpenScreenPacket(OpenScreenPacket),
-    OpenSignEditorPacket(OpenSignEditorPacket),
-    PlaceGhostRecipePacket(PlaceGhostRecipePacket),
-    PlayerAbilitiesPacket(PlayerAbilitiesPacket),
-    PlayerCombatPacket(PlayerCombatPacket),
-    PlayerInfoPacket(PlayerInfoPacket),
-    PlayerLookAtPacket(PlayerLookAtPacket),
-    PlayerPositionPacket(PlayerPositionPacket),
-    RecipePacket(RecipePacket),
-    RemoveEntitiesPacket(RemoveEntitiesPacket),
-    RemoveMobEffectPacket(RemoveMobEffectPacket),
-    ResourcePackPacket(ResourcePackPacket),
-    RespawnPacket(RespawnPacket),
-    RotateHeadPacket(RotateHeadPacket),
-    SelectAdvancementsTabPacket(SelectAdvancementsTabPacket),
-    SetBorderPacket(SetBorderPacket),
-    SetCameraPacket(SetCameraPacket),
-    SetCarriedItemPacket(SetCarriedItemPacket),
-    SetChunkCacheCenterPacket(SetChunkCacheCenterPacket),
-    SetChunkCacheRadiusPacket(SetChunkCacheRadiusPacket),
-    SetDisplayObjectivePacket(SetDisplayObjectivePacket),
-    SetEntityDataPacket(SetEntityDataPacket),
-    SetEntityLinkPacket(SetEntityLinkPacket),
-    SetEntityMotionPacket(SetEntityMotionPacket),
-    SetEquippedItemPacket(SetEquippedItemPacket),
-    SetExperiencePacket(SetExperiencePacket),
-    SetHealthPacket(SetHealthPacket),
-    SetObjectivePacket(SetObjectivePacket),
-    SetPassengersPacket(SetPassengersPacket),
-    SetPlayerTeamPacket(SetPlayerTeamPacket),
-    SetScorePacket(SetScorePacket),
-    SetSpawnPositionPacket(SetSpawnPositionPacket),
-    SetTimePacket(SetTimePacket),
-    SetTitlesPacket(SetTitlesPacket),
-    SoundEntityPacket(SoundEntityPacket),
-    SoundPacket(SoundPacket),
-    StopSoundPacket(StopSoundPacket),
-    TabListPacket(TabListPacket),
-    TagQueryPacket(TagQueryPacket),
-    TakeItemEntityPacket(TakeItemEntityPacket),
-    TeleportEntityPacket(TeleportEntityPacket),
-    UpdateAdvancementsPacket(UpdateAdvancementsPacket),
-    UpdateAttributesPacket(UpdateAttributesPacket),
-    UpdateMobEffectPacket(UpdateMobEffectPacket),
-    UpdateRecipesPacket(UpdateRecipesPacket),
-    UpdateTagsPacket(UpdateTagsPacket),
+hierarchy! {
+    child<Game> enum GameClientbound {
+        AddEntityPacket,
+        AddExperienceOrbPacket,
+        AddGlobalEntityPacket,
+        AddMobPacket,
+        AddPaintingPacket,
+        AddPlayerPacket,
+        AnimatePacket,
+        AwardStatsPacket,
+        BlockBreakAckPacket,
+        BlockDestructionPacket,
+        BlockEntityDataPacket,
+        BlockEventPacket,
+        BlockUpdatePacket,
+        BossEventPacket,
+        ChangeDifficultyPacket,
+        ChatPacket,
+        ChunkBlocksUpdatePacket,
+        CommandSuggestionsPacket,
+        CommandsPacket,
+        ContainerAckPacket,
+        ContainerClosePacket,
+        ContainerSetContentPacket,
+        ContainerSetDataPacket,
+        ContainerSetSlotPacket,
+        CooldownPacket,
+        CustomPayloadPacket,
+        CustomSoundPacket,
+        DisconnectPacket,
+        EntityEventPacket,
+        ExplodePacket,
+        ForgetLevelChunkPacket,
+        GameEventPacket,
+        HorseScreenOpenPacket,
+        KeepAlivePacket,
+        LevelChunkPacket,
+        LevelEventPacket,
+        LevelParticlesPacket,
+        LightUpdatePacket,
+        LoginPacket,
+        MapItemDataPacket,
+        MerchantOffersPacket,
+        MoveEntityPosPacket,
+        MoveEntityPosRotPacket,
+        MoveEntityRotPacket,
+        MoveEntityPacket,
+        MoveVehiclePacket,
+        OpenBookPacket,
+        OpenScreenPacket,
+        OpenSignEditorPacket,
+        PlaceGhostRecipePacket,
+        PlayerAbilitiesPacket,
+        PlayerCombatPacket,
+        PlayerInfoPacket,
+        PlayerLookAtPacket,
+        PlayerPositionPacket,
+        RecipePacket,
+        RemoveEntitiesPacket,
+        RemoveMobEffectPacket,
+        ResourcePackPacket,
+        RespawnPacket,
+        RotateHeadPacket,
+        SelectAdvancementsTabPacket,
+        SetBorderPacket,
+        SetCameraPacket,
+        SetCarriedItemPacket,
+        SetChunkCacheCenterPacket,
+        SetChunkCacheRadiusPacket,
+        SetDisplayObjectivePacket,
+        SetEntityDataPacket,
+        SetEntityLinkPacket,
+        SetEntityMotionPacket,
+        SetEquippedItemPacket,
+        SetExperiencePacket,
+        SetHealthPacket,
+        SetObjectivePacket,
+        SetPassengersPacket,
+        SetPlayerTeamPacket,
+        SetScorePacket,
+        SetSpawnPositionPacket,
+        SetTimePacket,
+        SetTitlesPacket,
+        SoundEntityPacket,
+        SoundPacket,
+        StopSoundPacket,
+        TabListPacket,
+        TagQueryPacket,
+        TakeItemEntityPacket,
+        TeleportEntityPacket,
+        UpdateAdvancementsPacket,
+        UpdateAttributesPacket,
+        UpdateMobEffectPacket,
+        UpdateRecipesPacket,
+        UpdateTagsPacket,
+    }
 }
 
-impl PacketContainer for PacketGameClientbound {
+impl PacketContainer for GameClientbound {
     fn encode(self, buf: &mut BytesMut) {
-        use PacketGameClientbound::*;
+        use GameClientbound::*;
         match self {
             AddEntityPacket(deref_packet) => {
                 buf.set_mc_var_int(0);
@@ -668,285 +670,267 @@ impl PacketContainer for PacketGameClientbound {
         }
     }
 
-    fn decode(id: i32, buf: &mut BytesMut) -> Result<PacketGameClientbound> {
+    fn decode(id: i32, buf: &mut BytesMut) -> Result<GameClientbound> {
         match id {
-            0 => Ok(PacketGameClientbound::AddEntityPacket(
-                AddEntityPacket::decode(buf)?,
-            )),
-            1 => Ok(PacketGameClientbound::AddExperienceOrbPacket(
+            0 => Ok(GameClientbound::AddEntityPacket(AddEntityPacket::decode(
+                buf,
+            )?)),
+            1 => Ok(GameClientbound::AddExperienceOrbPacket(
                 AddExperienceOrbPacket::decode(buf)?,
             )),
-            2 => Ok(PacketGameClientbound::AddGlobalEntityPacket(
+            2 => Ok(GameClientbound::AddGlobalEntityPacket(
                 AddGlobalEntityPacket::decode(buf)?,
             )),
-            3 => Ok(PacketGameClientbound::AddMobPacket(AddMobPacket::decode(
-                buf,
-            )?)),
-            4 => Ok(PacketGameClientbound::AddPaintingPacket(
+            3 => Ok(GameClientbound::AddMobPacket(AddMobPacket::decode(buf)?)),
+            4 => Ok(GameClientbound::AddPaintingPacket(
                 AddPaintingPacket::decode(buf)?,
             )),
-            5 => Ok(PacketGameClientbound::AddPlayerPacket(
-                AddPlayerPacket::decode(buf)?,
-            )),
-            6 => Ok(PacketGameClientbound::AnimatePacket(AnimatePacket::decode(
+            5 => Ok(GameClientbound::AddPlayerPacket(AddPlayerPacket::decode(
                 buf,
             )?)),
-            7 => Ok(PacketGameClientbound::AwardStatsPacket(
-                AwardStatsPacket::decode(buf)?,
-            )),
-            8 => Ok(PacketGameClientbound::BlockBreakAckPacket(
+            6 => Ok(GameClientbound::AnimatePacket(AnimatePacket::decode(buf)?)),
+            7 => Ok(GameClientbound::AwardStatsPacket(AwardStatsPacket::decode(
+                buf,
+            )?)),
+            8 => Ok(GameClientbound::BlockBreakAckPacket(
                 BlockBreakAckPacket::decode(buf)?,
             )),
-            9 => Ok(PacketGameClientbound::BlockDestructionPacket(
+            9 => Ok(GameClientbound::BlockDestructionPacket(
                 BlockDestructionPacket::decode(buf)?,
             )),
-            10 => Ok(PacketGameClientbound::BlockEntityDataPacket(
+            10 => Ok(GameClientbound::BlockEntityDataPacket(
                 BlockEntityDataPacket::decode(buf)?,
             )),
-            11 => Ok(PacketGameClientbound::BlockEventPacket(
-                BlockEventPacket::decode(buf)?,
-            )),
-            12 => Ok(PacketGameClientbound::BlockUpdatePacket(
+            11 => Ok(GameClientbound::BlockEventPacket(BlockEventPacket::decode(
+                buf,
+            )?)),
+            12 => Ok(GameClientbound::BlockUpdatePacket(
                 BlockUpdatePacket::decode(buf)?,
             )),
-            13 => Ok(PacketGameClientbound::BossEventPacket(
-                BossEventPacket::decode(buf)?,
-            )),
-            14 => Ok(PacketGameClientbound::ChangeDifficultyPacket(
+            13 => Ok(GameClientbound::BossEventPacket(BossEventPacket::decode(
+                buf,
+            )?)),
+            14 => Ok(GameClientbound::ChangeDifficultyPacket(
                 ChangeDifficultyPacket::decode(buf)?,
             )),
-            15 => Ok(PacketGameClientbound::ChatPacket(ChatPacket::decode(buf)?)),
-            16 => Ok(PacketGameClientbound::ChunkBlocksUpdatePacket(
+            15 => Ok(GameClientbound::ChatPacket(ChatPacket::decode(buf)?)),
+            16 => Ok(GameClientbound::ChunkBlocksUpdatePacket(
                 ChunkBlocksUpdatePacket::decode(buf)?,
             )),
-            17 => Ok(PacketGameClientbound::CommandSuggestionsPacket(
+            17 => Ok(GameClientbound::CommandSuggestionsPacket(
                 CommandSuggestionsPacket::decode(buf)?,
             )),
-            18 => Ok(PacketGameClientbound::CommandsPacket(
-                CommandsPacket::decode(buf)?,
-            )),
-            19 => Ok(PacketGameClientbound::ContainerAckPacket(
+            18 => Ok(GameClientbound::CommandsPacket(CommandsPacket::decode(
+                buf,
+            )?)),
+            19 => Ok(GameClientbound::ContainerAckPacket(
                 ContainerAckPacket::decode(buf)?,
             )),
-            20 => Ok(PacketGameClientbound::ContainerClosePacket(
+            20 => Ok(GameClientbound::ContainerClosePacket(
                 ContainerClosePacket::decode(buf)?,
             )),
-            21 => Ok(PacketGameClientbound::ContainerSetContentPacket(
+            21 => Ok(GameClientbound::ContainerSetContentPacket(
                 ContainerSetContentPacket::decode(buf)?,
             )),
-            22 => Ok(PacketGameClientbound::ContainerSetDataPacket(
+            22 => Ok(GameClientbound::ContainerSetDataPacket(
                 ContainerSetDataPacket::decode(buf)?,
             )),
-            23 => Ok(PacketGameClientbound::ContainerSetSlotPacket(
+            23 => Ok(GameClientbound::ContainerSetSlotPacket(
                 ContainerSetSlotPacket::decode(buf)?,
             )),
-            24 => Ok(PacketGameClientbound::CooldownPacket(
-                CooldownPacket::decode(buf)?,
-            )),
-            25 => Ok(PacketGameClientbound::CustomPayloadPacket(
+            24 => Ok(GameClientbound::CooldownPacket(CooldownPacket::decode(
+                buf,
+            )?)),
+            25 => Ok(GameClientbound::CustomPayloadPacket(
                 CustomPayloadPacket::decode(buf)?,
             )),
-            26 => Ok(PacketGameClientbound::CustomSoundPacket(
+            26 => Ok(GameClientbound::CustomSoundPacket(
                 CustomSoundPacket::decode(buf)?,
             )),
-            27 => Ok(PacketGameClientbound::DisconnectPacket(
-                DisconnectPacket::decode(buf)?,
-            )),
-            28 => Ok(PacketGameClientbound::EntityEventPacket(
+            27 => Ok(GameClientbound::DisconnectPacket(DisconnectPacket::decode(
+                buf,
+            )?)),
+            28 => Ok(GameClientbound::EntityEventPacket(
                 EntityEventPacket::decode(buf)?,
             )),
-            29 => Ok(PacketGameClientbound::ExplodePacket(ExplodePacket::decode(
-                buf,
-            )?)),
-            30 => Ok(PacketGameClientbound::ForgetLevelChunkPacket(
+            29 => Ok(GameClientbound::ExplodePacket(ExplodePacket::decode(buf)?)),
+            30 => Ok(GameClientbound::ForgetLevelChunkPacket(
                 ForgetLevelChunkPacket::decode(buf)?,
             )),
-            31 => Ok(PacketGameClientbound::GameEventPacket(
-                GameEventPacket::decode(buf)?,
-            )),
-            32 => Ok(PacketGameClientbound::HorseScreenOpenPacket(
+            31 => Ok(GameClientbound::GameEventPacket(GameEventPacket::decode(
+                buf,
+            )?)),
+            32 => Ok(GameClientbound::HorseScreenOpenPacket(
                 HorseScreenOpenPacket::decode(buf)?,
             )),
-            33 => Ok(PacketGameClientbound::KeepAlivePacket(
-                KeepAlivePacket::decode(buf)?,
-            )),
-            34 => Ok(PacketGameClientbound::LevelChunkPacket(
-                LevelChunkPacket::decode(buf)?,
-            )),
-            35 => Ok(PacketGameClientbound::LevelEventPacket(
-                LevelEventPacket::decode(buf)?,
-            )),
-            36 => Ok(PacketGameClientbound::LevelParticlesPacket(
+            33 => Ok(GameClientbound::KeepAlivePacket(KeepAlivePacket::decode(
+                buf,
+            )?)),
+            34 => Ok(GameClientbound::LevelChunkPacket(LevelChunkPacket::decode(
+                buf,
+            )?)),
+            35 => Ok(GameClientbound::LevelEventPacket(LevelEventPacket::decode(
+                buf,
+            )?)),
+            36 => Ok(GameClientbound::LevelParticlesPacket(
                 LevelParticlesPacket::decode(buf)?,
             )),
-            37 => Ok(PacketGameClientbound::LightUpdatePacket(
+            37 => Ok(GameClientbound::LightUpdatePacket(
                 LightUpdatePacket::decode(buf)?,
             )),
-            38 => Ok(PacketGameClientbound::LoginPacket(LoginPacket::decode(
-                buf,
-            )?)),
-            39 => Ok(PacketGameClientbound::MapItemDataPacket(
+            38 => Ok(GameClientbound::LoginPacket(LoginPacket::decode(buf)?)),
+            39 => Ok(GameClientbound::MapItemDataPacket(
                 MapItemDataPacket::decode(buf)?,
             )),
-            40 => Ok(PacketGameClientbound::MerchantOffersPacket(
+            40 => Ok(GameClientbound::MerchantOffersPacket(
                 MerchantOffersPacket::decode(buf)?,
             )),
-            41 => Ok(PacketGameClientbound::MoveEntityPosPacket(
+            41 => Ok(GameClientbound::MoveEntityPosPacket(
                 MoveEntityPosPacket::decode(buf)?,
             )),
-            42 => Ok(PacketGameClientbound::MoveEntityPosRotPacket(
+            42 => Ok(GameClientbound::MoveEntityPosRotPacket(
                 MoveEntityPosRotPacket::decode(buf)?,
             )),
-            43 => Ok(PacketGameClientbound::MoveEntityRotPacket(
+            43 => Ok(GameClientbound::MoveEntityRotPacket(
                 MoveEntityRotPacket::decode(buf)?,
             )),
-            44 => Ok(PacketGameClientbound::MoveEntityPacket(
-                MoveEntityPacket::decode(buf)?,
-            )),
-            45 => Ok(PacketGameClientbound::MoveVehiclePacket(
+            44 => Ok(GameClientbound::MoveEntityPacket(MoveEntityPacket::decode(
+                buf,
+            )?)),
+            45 => Ok(GameClientbound::MoveVehiclePacket(
                 MoveVehiclePacket::decode(buf)?,
             )),
-            46 => Ok(PacketGameClientbound::OpenBookPacket(
-                OpenBookPacket::decode(buf)?,
-            )),
-            47 => Ok(PacketGameClientbound::OpenScreenPacket(
-                OpenScreenPacket::decode(buf)?,
-            )),
-            48 => Ok(PacketGameClientbound::OpenSignEditorPacket(
+            46 => Ok(GameClientbound::OpenBookPacket(OpenBookPacket::decode(
+                buf,
+            )?)),
+            47 => Ok(GameClientbound::OpenScreenPacket(OpenScreenPacket::decode(
+                buf,
+            )?)),
+            48 => Ok(GameClientbound::OpenSignEditorPacket(
                 OpenSignEditorPacket::decode(buf)?,
             )),
-            49 => Ok(PacketGameClientbound::PlaceGhostRecipePacket(
+            49 => Ok(GameClientbound::PlaceGhostRecipePacket(
                 PlaceGhostRecipePacket::decode(buf)?,
             )),
-            50 => Ok(PacketGameClientbound::PlayerAbilitiesPacket(
+            50 => Ok(GameClientbound::PlayerAbilitiesPacket(
                 PlayerAbilitiesPacket::decode(buf)?,
             )),
-            51 => Ok(PacketGameClientbound::PlayerCombatPacket(
+            51 => Ok(GameClientbound::PlayerCombatPacket(
                 PlayerCombatPacket::decode(buf)?,
             )),
-            52 => Ok(PacketGameClientbound::PlayerInfoPacket(
-                PlayerInfoPacket::decode(buf)?,
-            )),
-            53 => Ok(PacketGameClientbound::PlayerLookAtPacket(
+            52 => Ok(GameClientbound::PlayerInfoPacket(PlayerInfoPacket::decode(
+                buf,
+            )?)),
+            53 => Ok(GameClientbound::PlayerLookAtPacket(
                 PlayerLookAtPacket::decode(buf)?,
             )),
-            54 => Ok(PacketGameClientbound::PlayerPositionPacket(
+            54 => Ok(GameClientbound::PlayerPositionPacket(
                 PlayerPositionPacket::decode(buf)?,
             )),
-            55 => Ok(PacketGameClientbound::RecipePacket(RecipePacket::decode(
-                buf,
-            )?)),
-            56 => Ok(PacketGameClientbound::RemoveEntitiesPacket(
+            55 => Ok(GameClientbound::RecipePacket(RecipePacket::decode(buf)?)),
+            56 => Ok(GameClientbound::RemoveEntitiesPacket(
                 RemoveEntitiesPacket::decode(buf)?,
             )),
-            57 => Ok(PacketGameClientbound::RemoveMobEffectPacket(
+            57 => Ok(GameClientbound::RemoveMobEffectPacket(
                 RemoveMobEffectPacket::decode(buf)?,
             )),
-            58 => Ok(PacketGameClientbound::ResourcePackPacket(
+            58 => Ok(GameClientbound::ResourcePackPacket(
                 ResourcePackPacket::decode(buf)?,
             )),
-            59 => Ok(PacketGameClientbound::RespawnPacket(RespawnPacket::decode(
+            59 => Ok(GameClientbound::RespawnPacket(RespawnPacket::decode(buf)?)),
+            60 => Ok(GameClientbound::RotateHeadPacket(RotateHeadPacket::decode(
                 buf,
             )?)),
-            60 => Ok(PacketGameClientbound::RotateHeadPacket(
-                RotateHeadPacket::decode(buf)?,
-            )),
-            61 => Ok(PacketGameClientbound::SelectAdvancementsTabPacket(
+            61 => Ok(GameClientbound::SelectAdvancementsTabPacket(
                 SelectAdvancementsTabPacket::decode(buf)?,
             )),
-            62 => Ok(PacketGameClientbound::SetBorderPacket(
-                SetBorderPacket::decode(buf)?,
-            )),
-            63 => Ok(PacketGameClientbound::SetCameraPacket(
-                SetCameraPacket::decode(buf)?,
-            )),
-            64 => Ok(PacketGameClientbound::SetCarriedItemPacket(
+            62 => Ok(GameClientbound::SetBorderPacket(SetBorderPacket::decode(
+                buf,
+            )?)),
+            63 => Ok(GameClientbound::SetCameraPacket(SetCameraPacket::decode(
+                buf,
+            )?)),
+            64 => Ok(GameClientbound::SetCarriedItemPacket(
                 SetCarriedItemPacket::decode(buf)?,
             )),
-            65 => Ok(PacketGameClientbound::SetChunkCacheCenterPacket(
+            65 => Ok(GameClientbound::SetChunkCacheCenterPacket(
                 SetChunkCacheCenterPacket::decode(buf)?,
             )),
-            66 => Ok(PacketGameClientbound::SetChunkCacheRadiusPacket(
+            66 => Ok(GameClientbound::SetChunkCacheRadiusPacket(
                 SetChunkCacheRadiusPacket::decode(buf)?,
             )),
-            67 => Ok(PacketGameClientbound::SetDisplayObjectivePacket(
+            67 => Ok(GameClientbound::SetDisplayObjectivePacket(
                 SetDisplayObjectivePacket::decode(buf)?,
             )),
-            68 => Ok(PacketGameClientbound::SetEntityDataPacket(
+            68 => Ok(GameClientbound::SetEntityDataPacket(
                 SetEntityDataPacket::decode(buf)?,
             )),
-            69 => Ok(PacketGameClientbound::SetEntityLinkPacket(
+            69 => Ok(GameClientbound::SetEntityLinkPacket(
                 SetEntityLinkPacket::decode(buf)?,
             )),
-            70 => Ok(PacketGameClientbound::SetEntityMotionPacket(
+            70 => Ok(GameClientbound::SetEntityMotionPacket(
                 SetEntityMotionPacket::decode(buf)?,
             )),
-            71 => Ok(PacketGameClientbound::SetEquippedItemPacket(
+            71 => Ok(GameClientbound::SetEquippedItemPacket(
                 SetEquippedItemPacket::decode(buf)?,
             )),
-            72 => Ok(PacketGameClientbound::SetExperiencePacket(
+            72 => Ok(GameClientbound::SetExperiencePacket(
                 SetExperiencePacket::decode(buf)?,
             )),
-            73 => Ok(PacketGameClientbound::SetHealthPacket(
-                SetHealthPacket::decode(buf)?,
-            )),
-            74 => Ok(PacketGameClientbound::SetObjectivePacket(
+            73 => Ok(GameClientbound::SetHealthPacket(SetHealthPacket::decode(
+                buf,
+            )?)),
+            74 => Ok(GameClientbound::SetObjectivePacket(
                 SetObjectivePacket::decode(buf)?,
             )),
-            75 => Ok(PacketGameClientbound::SetPassengersPacket(
+            75 => Ok(GameClientbound::SetPassengersPacket(
                 SetPassengersPacket::decode(buf)?,
             )),
-            76 => Ok(PacketGameClientbound::SetPlayerTeamPacket(
+            76 => Ok(GameClientbound::SetPlayerTeamPacket(
                 SetPlayerTeamPacket::decode(buf)?,
             )),
-            77 => Ok(PacketGameClientbound::SetScorePacket(
-                SetScorePacket::decode(buf)?,
-            )),
-            78 => Ok(PacketGameClientbound::SetSpawnPositionPacket(
+            77 => Ok(GameClientbound::SetScorePacket(SetScorePacket::decode(
+                buf,
+            )?)),
+            78 => Ok(GameClientbound::SetSpawnPositionPacket(
                 SetSpawnPositionPacket::decode(buf)?,
             )),
-            79 => Ok(PacketGameClientbound::SetTimePacket(SetTimePacket::decode(
+            79 => Ok(GameClientbound::SetTimePacket(SetTimePacket::decode(buf)?)),
+            80 => Ok(GameClientbound::SetTitlesPacket(SetTitlesPacket::decode(
                 buf,
             )?)),
-            80 => Ok(PacketGameClientbound::SetTitlesPacket(
-                SetTitlesPacket::decode(buf)?,
-            )),
-            81 => Ok(PacketGameClientbound::SoundEntityPacket(
+            81 => Ok(GameClientbound::SoundEntityPacket(
                 SoundEntityPacket::decode(buf)?,
             )),
-            82 => Ok(PacketGameClientbound::SoundPacket(SoundPacket::decode(
+            82 => Ok(GameClientbound::SoundPacket(SoundPacket::decode(buf)?)),
+            83 => Ok(GameClientbound::StopSoundPacket(StopSoundPacket::decode(
                 buf,
             )?)),
-            83 => Ok(PacketGameClientbound::StopSoundPacket(
-                StopSoundPacket::decode(buf)?,
-            )),
-            84 => Ok(PacketGameClientbound::TabListPacket(TabListPacket::decode(
+            84 => Ok(GameClientbound::TabListPacket(TabListPacket::decode(buf)?)),
+            85 => Ok(GameClientbound::TagQueryPacket(TagQueryPacket::decode(
                 buf,
             )?)),
-            85 => Ok(PacketGameClientbound::TagQueryPacket(
-                TagQueryPacket::decode(buf)?,
-            )),
-            86 => Ok(PacketGameClientbound::TakeItemEntityPacket(
+            86 => Ok(GameClientbound::TakeItemEntityPacket(
                 TakeItemEntityPacket::decode(buf)?,
             )),
-            87 => Ok(PacketGameClientbound::TeleportEntityPacket(
+            87 => Ok(GameClientbound::TeleportEntityPacket(
                 TeleportEntityPacket::decode(buf)?,
             )),
-            88 => Ok(PacketGameClientbound::UpdateAdvancementsPacket(
+            88 => Ok(GameClientbound::UpdateAdvancementsPacket(
                 UpdateAdvancementsPacket::decode(buf)?,
             )),
-            89 => Ok(PacketGameClientbound::UpdateAttributesPacket(
+            89 => Ok(GameClientbound::UpdateAttributesPacket(
                 UpdateAttributesPacket::decode(buf)?,
             )),
-            90 => Ok(PacketGameClientbound::UpdateMobEffectPacket(
+            90 => Ok(GameClientbound::UpdateMobEffectPacket(
                 UpdateMobEffectPacket::decode(buf)?,
             )),
-            91 => Ok(PacketGameClientbound::UpdateRecipesPacket(
+            91 => Ok(GameClientbound::UpdateRecipesPacket(
                 UpdateRecipesPacket::decode(buf)?,
             )),
-            92 => Ok(PacketGameClientbound::UpdateTagsPacket(
-                UpdateTagsPacket::decode(buf)?,
-            )),
+            92 => Ok(GameClientbound::UpdateTagsPacket(UpdateTagsPacket::decode(
+                buf,
+            )?)),
             _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),
         }
     }

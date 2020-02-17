@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn test_cycle() -> Result<()> {
         cycle(ChatPacket {
-            message: "chat component".to_string(),
+            message: ChatComponent::from("chat component".to_string()),
             chat_type: ChatType::Chat,
         })
     }

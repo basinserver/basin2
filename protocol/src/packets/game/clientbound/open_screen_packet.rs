@@ -42,7 +42,7 @@ mod tests {
         cycle(OpenScreenPacket {
             containerId: 56433,
             screenType: 345,
-            title: "test title".to_string(),
+            title: ChatComponent::from("test title".to_string()),
         })
     }
 }

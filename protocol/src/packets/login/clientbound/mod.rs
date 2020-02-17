@@ -9,6 +9,7 @@ pub use login_compression_packet::*;
 pub mod custom_query_packet;
 pub use custom_query_packet::*;
 
+use super::Login;
 use crate::network::*;
 use crate::packet::*;
 use crate::Result;
@@ -16,56 +17,55 @@ use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum PacketLoginClientbound {
-    LoginDisconnectPacket(LoginDisconnectPacket),
-    HelloPacket(HelloPacket),
-    GameProfilePacket(GameProfilePacket),
-    LoginCompressionPacket(LoginCompressionPacket),
-    CustomQueryPacket(CustomQueryPacket),
+hierarchy! {
+    child<Login> enum LoginClientbound {
+        LoginDisconnectPacket,
+        HelloPacket,
+        GameProfilePacket,
+        LoginCompressionPacket,
+        CustomQueryPacket,
+    }
 }
 
-impl PacketContainer for PacketLoginClientbound {
+impl PacketContainer for LoginClientbound {
     fn encode(self, buf: &mut BytesMut) {
         match self {
-            PacketLoginClientbound::LoginDisconnectPacket(deref_packet) => {
+            LoginClientbound::LoginDisconnectPacket(deref_packet) => {
                 buf.set_mc_var_int(0);
                 deref_packet.encode(buf);
             }
-            PacketLoginClientbound::HelloPacket(deref_packet) => {
+            LoginClientbound::HelloPacket(deref_packet) => {
                 buf.set_mc_var_int(1);
                 deref_packet.encode(buf);
             }
-            PacketLoginClientbound::GameProfilePacket(deref_packet) => {
+            LoginClientbound::GameProfilePacket(deref_packet) => {
                 buf.set_mc_var_int(2);
                 deref_packet.encode(buf);
             }
-            PacketLoginClientbound::LoginCompressionPacket(deref_packet) => {
+            LoginClientbound::LoginCompressionPacket(deref_packet) => {
                 buf.set_mc_var_int(3);
                 deref_packet.encode(buf);
             }
-            PacketLoginClientbound::CustomQueryPacket(deref_packet) => {
+            LoginClientbound::CustomQueryPacket(deref_packet) => {
                 buf.set_mc_var_int(4);
                 deref_packet.encode(buf);
             }
         }
     }
 
-    fn decode(id: i32, buf: &mut BytesMut) -> Result<PacketLoginClientbound> {
+    fn decode(id: i32, buf: &mut BytesMut) -> Result<LoginClientbound> {
         match id {
-            0 => Ok(PacketLoginClientbound::LoginDisconnectPacket(
+            0 => Ok(LoginClientbound::LoginDisconnectPacket(
                 LoginDisconnectPacket::decode(buf)?,
             )),
-            1 => Ok(PacketLoginClientbound::HelloPacket(HelloPacket::decode(
-                buf,
-            )?)),
-            2 => Ok(PacketLoginClientbound::GameProfilePacket(
+            1 => Ok(LoginClientbound::HelloPacket(HelloPacket::decode(buf)?)),
+            2 => Ok(LoginClientbound::GameProfilePacket(
                 GameProfilePacket::decode(buf)?,
             )),
-            3 => Ok(PacketLoginClientbound::LoginCompressionPacket(
+            3 => Ok(LoginClientbound::LoginCompressionPacket(
                 LoginCompressionPacket::decode(buf)?,
             )),
-            4 => Ok(PacketLoginClientbound::CustomQueryPacket(
+            4 => Ok(LoginClientbound::CustomQueryPacket(
                 CustomQueryPacket::decode(buf)?,
             )),
             _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),

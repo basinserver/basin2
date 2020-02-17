@@ -156,7 +156,7 @@ mod tests {
             id: Uuid::new_v4(),
             operation: BossEventPacketOperation::Add,
             data: BossEventPacketData::Add(
-                "test".to_string(),
+                ChatComponent::from("test".to_string()),
                 123.0,
                 BossBarColor::Green,
                 BossBarOverlay::Progress,
@@ -190,7 +190,7 @@ mod tests {
         cycle(BossEventPacket {
             id: Uuid::new_v4(),
             operation: BossEventPacketOperation::UpdateName,
-            data: BossEventPacketData::UpdateName("new name".to_string()),
+            data: BossEventPacketData::UpdateName(ChatComponent::from("new_name".to_string())),
         })
     }
 

@@ -1,10 +1,12 @@
 pub mod serverbound;
 pub use serverbound::*;
 pub mod clientbound;
+use super::Packet;
 pub use clientbound::*;
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum PacketLogin {
-    PacketLoginServerbound(PacketLoginServerbound),
-    PacketLoginClientbound(PacketLoginClientbound),
+hierarchy! {
+    child<Packet> enum Login {
+        LoginServerbound,
+        LoginClientbound,
+    }
 }

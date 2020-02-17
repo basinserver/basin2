@@ -5,6 +5,7 @@ pub use key_packet::*;
 pub mod custom_query_packet;
 pub use custom_query_packet::*;
 
+use super::Login;
 use crate::network::*;
 use crate::packet::*;
 use crate::Result;
@@ -12,38 +13,37 @@ use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum PacketLoginServerbound {
-    HelloPacket(HelloPacket),
-    KeyPacket(KeyPacket),
-    CustomQueryPacket(CustomQueryPacket),
+hierarchy! {
+    child<Login> enum LoginServerbound {
+        HelloPacket,
+        KeyPacket,
+        CustomQueryPacket,
+    }
 }
 
-impl PacketContainer for PacketLoginServerbound {
+impl PacketContainer for LoginServerbound {
     fn encode(self, buf: &mut BytesMut) {
         match self {
-            PacketLoginServerbound::HelloPacket(deref_packet) => {
+            LoginServerbound::HelloPacket(deref_packet) => {
                 buf.set_mc_var_int(0);
                 deref_packet.encode(buf);
             }
-            PacketLoginServerbound::KeyPacket(deref_packet) => {
+            LoginServerbound::KeyPacket(deref_packet) => {
                 buf.set_mc_var_int(1);
                 deref_packet.encode(buf);
             }
-            PacketLoginServerbound::CustomQueryPacket(deref_packet) => {
+            LoginServerbound::CustomQueryPacket(deref_packet) => {
                 buf.set_mc_var_int(2);
                 deref_packet.encode(buf);
             }
         }
     }
 
-    fn decode(id: i32, buf: &mut BytesMut) -> Result<PacketLoginServerbound> {
+    fn decode(id: i32, buf: &mut BytesMut) -> Result<LoginServerbound> {
         match id {
-            0 => Ok(PacketLoginServerbound::HelloPacket(HelloPacket::decode(
-                buf,
-            )?)),
-            1 => Ok(PacketLoginServerbound::KeyPacket(KeyPacket::decode(buf)?)),
-            2 => Ok(PacketLoginServerbound::CustomQueryPacket(
+            0 => Ok(LoginServerbound::HelloPacket(HelloPacket::decode(buf)?)),
+            1 => Ok(LoginServerbound::KeyPacket(KeyPacket::decode(buf)?)),
+            2 => Ok(LoginServerbound::CustomQueryPacket(
                 CustomQueryPacket::decode(buf)?,
             )),
             _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),

@@ -3,6 +3,7 @@ pub use status_request_packet::*;
 pub mod ping_request_packet;
 pub use ping_request_packet::*;
 
+use super::Status;
 use crate::network::*;
 use crate::packet::*;
 use crate::Result;
@@ -10,32 +11,33 @@ use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum PacketStatusServerbound {
-    StatusRequestPacket(StatusRequestPacket),
-    PingRequestPacket(PingRequestPacket),
+hierarchy! {
+    child<Status> enum StatusServerbound {
+        StatusRequestPacket,
+        PingRequestPacket,
+    }
 }
 
-impl PacketContainer for PacketStatusServerbound {
+impl PacketContainer for StatusServerbound {
     fn encode(self, buf: &mut BytesMut) {
         match self {
-            PacketStatusServerbound::StatusRequestPacket(deref_packet) => {
+            StatusServerbound::StatusRequestPacket(deref_packet) => {
                 buf.set_mc_var_int(0);
                 deref_packet.encode(buf);
             }
-            PacketStatusServerbound::PingRequestPacket(deref_packet) => {
+            StatusServerbound::PingRequestPacket(deref_packet) => {
                 buf.set_mc_var_int(1);
                 deref_packet.encode(buf);
             }
         }
     }
 
-    fn decode(id: i32, buf: &mut BytesMut) -> Result<PacketStatusServerbound> {
+    fn decode(id: i32, buf: &mut BytesMut) -> Result<StatusServerbound> {
         match id {
-            0 => Ok(PacketStatusServerbound::StatusRequestPacket(
+            0 => Ok(StatusServerbound::StatusRequestPacket(
                 StatusRequestPacket::decode(buf)?,
             )),
-            1 => Ok(PacketStatusServerbound::PingRequestPacket(
+            1 => Ok(StatusServerbound::PingRequestPacket(
                 PingRequestPacket::decode(buf)?,
             )),
             _ => Err(Box::new(IoError::from(ErrorKind::InvalidData))),
