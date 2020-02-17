@@ -102,6 +102,14 @@ impl Player {
             }
             _ => ()
         }
+        self.send_packet(Packet::from(Login::from(GameProfilePacket { gameProfile: GameProfile {
+            uuid: Some(*self.uuid),
+            name: self.username.clone(),
+            legacy: false,
+        } })))
+        .await?;
+        self.connection.set_state(ConnectionProtocol::Game);
+
         info!("Player {} has joined!", *self.username);
         self.disconnect(ChatComponent::from("test successful".to_string())).await?;
         Ok(())
