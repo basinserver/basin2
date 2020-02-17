@@ -20,6 +20,7 @@ use std::sync::Arc;
 use std::sync::{Mutex, RwLock};
 use tokio::net::TcpStream;
 use tokio::sync::mpsc::{channel, Receiver, Sender};
+use tokio::sync::oneshot;
 use tokio_util::codec::{Decoder, Encoder, Framed};
 
 pub struct McCodec {
@@ -34,8 +35,8 @@ pub struct McCodec {
 pub struct WrappedMcCodec(pub Arc<RwLock<McCodec>>);
 
 pub struct Connection {
-    pub incoming: Mutex<Option<Receiver<Packet>>>,
-    pub outgoing: Mutex<Option<Sender<Packet>>>, // drop to close connection
+    pub incoming: Mutex<Option<Receiver<(Option<oneshot::Sender<()>>, Packet)>>>,
+    pub outgoing: Mutex<Sender<Option<Packet>>>,
     pub address: SocketAddr,
     pub codec: WrappedMcCodec,
 }
@@ -148,7 +149,7 @@ impl McCodec {
         }
         let packet = self.finish_decode(&mut packet_data);
         if packet.is_err() {
-            error!("Invalid packet: {:?}", packet.err().unwrap());
+            error!("Invalid packet for state {:?}: {:?}", self.state, packet.err().unwrap());
             return Err(IoError::from(ErrorKind::InvalidData));
         }
         let packet = packet.unwrap();
@@ -217,9 +218,6 @@ impl Decoder for WrappedMcCodec {
     type Error = IoError;
 
     fn decode(&mut self, buf: &mut BytesMut) -> std::result::Result<Option<Packet>, IoError> {
-        if buf.len() < 4 {
-            return Ok(None);
-        }
         return self.0.read().unwrap().internal_decipher(buf);
     }
 }
@@ -238,10 +236,10 @@ impl Encoder for WrappedMcCodec {
 }
 
 async fn writeForward(
-    mut incoming: Receiver<Packet>,
+    mut incoming: Receiver<Option<Packet>>,
     mut to: SplitSink<Framed<TcpStream, WrappedMcCodec>, Packet>,
 ) -> Result<()> {
-    while let Some(packet) = incoming.recv().await {
+    while let Some(Some(packet)) = incoming.recv().await {
         if to.send(packet).await.is_err() {
             break;
         }
@@ -250,12 +248,25 @@ async fn writeForward(
 }
 
 async fn readForward(
-    mut outgoing: Sender<Packet>,
+    mut outgoing: Sender<(Option<oneshot::Sender<()>>, Packet)>,
     mut from: SplitStream<Framed<TcpStream, WrappedMcCodec>>,
 ) -> Result<()> {
     while let Some(Ok(request)) = from.next().await {
-        if outgoing.send(request).await.is_err() {
+        let should_block = match &request { // packets that directly affect encoding/decoding need to be processed before we continue
+            Packet::Handshake(Handshake::HandshakeServerbound(HandshakeServerbound::ClientIntentionPacket(_))) => true,
+            _ => false,
+        };
+        let (sender, receiver) = if should_block {
+            let (sender, receiver) = oneshot::channel::<()>();
+            (Some(sender), Some(receiver))
+        } else {
+            (None, None)
+        };
+        if outgoing.send((sender, request)).await.is_err() {
             break;
+        }
+        if receiver.is_some() {
+            receiver.unwrap().await.unwrap_or(());
         }
     }
     Ok(())
@@ -269,12 +280,12 @@ impl Connection {
     ) -> Result<()> {
         let address = socket.peer_addr().unwrap();
 
-        let (in_outgoing, in_incoming) = channel::<Packet>(256);
-        let (out_outgoing, out_incoming) = channel::<Packet>(256);
+        let (in_outgoing, in_incoming) = channel::<(Option<oneshot::Sender<()>>, Packet)>(256);
+        let (out_outgoing, out_incoming) = channel::<Option<Packet>>(256);
 
         let connection = Connection {
             incoming: Mutex::new(Some(in_incoming)),
-            outgoing: Mutex::new(Some(out_outgoing)),
+            outgoing: Mutex::new(out_outgoing),
             address,
             codec: WrappedMcCodec(Arc::new(RwLock::new(McCodec {
                 read_cipher: None,
@@ -298,10 +309,6 @@ impl Connection {
             read_res = read_future => read_res,
         };
         return res.and(Ok(()));
-    }
-
-    pub fn disconnect(&self) {
-        self.outgoing.lock().unwrap().take();
     }
 
     pub fn set_state(&self, state: ConnectionProtocol) {

@@ -14,7 +14,7 @@ pub async fn start_server(address: String, handler: mpsc::Sender<WrappedConnecti
         while let Some(socket_res) = incoming.next().await {
             match socket_res {
                 Ok(socket) => {
-                    println!("Accepted connection from: '{:?}'", socket.peer_addr());
+                    info!("Accepted connection from: '{:?}'", socket.peer_addr());
                     tokio::spawn(Connection::spawn(socket, true, handler.clone()));
                 }
                 Err(err) => {

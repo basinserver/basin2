@@ -4,14 +4,13 @@ use crate::util::CONFIG;
 use basin2_protocol::{start_server, WrappedConnection};
 use tokio::sync::mpsc;
 
-pub fn start() {
+pub async fn start() {
     let (sender, receiver) = mpsc::channel(256);
-
     tokio::spawn(start_server(
         format!("{}:{}", CONFIG.bind_address, CONFIG.bind_port),
         sender,
     ));
-    tokio::spawn(handle_connections(receiver));
+    handle_connections(receiver).await;
 }
 
 async fn handle_connections(mut receiver: mpsc::Receiver<WrappedConnection>) {

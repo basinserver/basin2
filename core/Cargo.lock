@@ -63,6 +63,7 @@ dependencies = [
  "lazy_static",
  "linked-hash-map",
  "log",
+ "pkg-version",
  "serde",
  "serde_json",
  "time",

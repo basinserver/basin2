@@ -22,3 +22,4 @@ linked-hash-map = "0.5.2"
 either = "1.5.3"
 basin2-protocol = { path = "../protocol/" }
 async-trait = "0.1.24"
+pkg-version = "1.0.0"

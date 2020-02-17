@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use std::fs;
 use std::io::{Read, Write};
+use pkg_version::*;
 
 fn default_env(name: &str, default: &str) -> String {
     env::var(name).unwrap_or(default.to_string())
@@ -13,6 +14,8 @@ fn default_env(name: &str, default: &str) -> String {
 pub struct Config {
     pub bind_address: String,
     pub bind_port: u16,
+    pub server_description: String,
+    pub max_players: u32,
 }
 
 impl Default for Config {
@@ -20,6 +23,8 @@ impl Default for Config {
         Config {
             bind_address: "0.0.0.0".to_string(),
             bind_port: 25565,
+            server_description: "A Basin Server".to_string(),
+            max_players: 100,
         }
     }
 }
@@ -58,4 +63,6 @@ fn init() -> Config {
 
 lazy_static! {
     pub static ref CONFIG: Config = { init() };
+    pub static ref MC_VERSION: String = { format!("1.{}.{}", pkg_version_major!(), pkg_version_minor!()) };
+
 }

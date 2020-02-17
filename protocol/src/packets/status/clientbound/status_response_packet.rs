@@ -43,7 +43,7 @@ mod tests {
                 },
                 version: ServerStatusVersion {
                     name: "a.b.c".to_string(),
-                    version: 1234,
+                    protocol: 1234,
                 },
                 favicon: None,
             },

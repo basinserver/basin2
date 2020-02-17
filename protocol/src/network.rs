@@ -787,13 +787,14 @@ pub struct ServerStatus {
     pub description: serde_json::Value, // ChatComponent
     pub players: ServerStatusPlayers,
     pub version: ServerStatusVersion,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub favicon: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct ServerStatusVersion {
     pub name: String,
-    pub version: i32,
+    pub protocol: i32,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
@@ -1325,10 +1326,10 @@ enum_from_primitive! {
 #[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(i32)]
 pub enum ConnectionProtocol {
-    Handshake,
-    Game,
-    Status,
-    Login,
+    Handshake = -1,
+    Game = 0,
+    Status = 1,
+    Login = 2,
 }
 }
 

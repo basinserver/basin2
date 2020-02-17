@@ -199,6 +199,13 @@ impl From<String> for ChatComponent {
     }
 }
 
+
+impl From<&str> for ChatComponent {
+    fn from(string: &str) -> ChatComponent {
+        ChatComponent::from(string.to_string())
+    }
+}
+
 fn parse_bool(value: Option<&Value>) -> bool {
     match value {
         Some(Value::Bool(b)) => *b,
