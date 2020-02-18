@@ -21,6 +21,7 @@ pub struct Config {
     pub max_players: u32,
     pub online_mode: bool,
     pub compression_threshold: Option<u32>,
+    pub difficulty: String,
 }
 
 impl Default for Config {
@@ -32,6 +33,7 @@ impl Default for Config {
             max_players: 100,
             online_mode: true,
             compression_threshold: Some(256),
+            difficulty: "normal".to_string(),
         }
     }
 }

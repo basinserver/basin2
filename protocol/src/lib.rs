@@ -16,6 +16,7 @@ extern crate enum_primitive;
 use pkg_version::*;
 
 pub use result::*;
+pub use nbt::*;
 
 pub const PROTOCOL_VERSION: u32 = pkg_version_major!();
 

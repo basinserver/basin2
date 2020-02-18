@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 use uuid::Uuid;
+use std::convert::TryFrom;
 
 pub fn get_var_int_len(value: i32) -> usize {
     let mut value = value as u32;
@@ -114,11 +115,7 @@ impl McPacketBuf for BytesMut {
 
     fn get_mc_block_pos(&mut self) -> Result<BlockPos> {
         let raw = self.get_mc_i64()?;
-        Ok(BlockPos {
-            x: (raw >> 38) as i32,
-            y: (raw << 52 >> 52) as i32,
-            z: (raw << 26 >> 38) as i32,
-        })
+        Ok(raw.into())
     }
 
     fn get_mc_string(&mut self, bound: i32) -> Result<String> {
@@ -324,11 +321,7 @@ impl McPacketBuf for BytesMut {
     }
 
     fn set_mc_block_pos(&mut self, value: BlockPos) {
-        let mut raw: i64 = 0;
-        raw |= (value.x as i64 & ((1 << 26) - 1)) << 38;
-        raw |= value.y as i64 & ((1 << 12) - 1);
-        raw |= (value.z as i64 & ((1 << 26) - 1)) << 12;
-        self.set_mc_i64(raw);
+        self.set_mc_i64(value.into());
     }
 
     fn set_mc_string(&mut self, value: String) {
@@ -715,6 +708,26 @@ pub struct BlockPos {
     pub x: i32,
     pub y: i32,
     pub z: i32,
+}
+
+impl Into<i64> for BlockPos {
+    fn into(self) -> i64 {
+        let mut raw: i64 = 0;
+        raw |= (self.x as i64 & ((1 << 26) - 1)) << 38;
+        raw |= self.y as i64 & ((1 << 12) - 1);
+        raw |= (self.z as i64 & ((1 << 26) - 1)) << 12;
+        return raw;
+    }
+}
+
+impl From<i64> for BlockPos {
+    fn from(raw: i64) -> BlockPos {
+        BlockPos {
+            x: (raw >> 38) as i32,
+            y: (raw << 52 >> 52) as i32,
+            z: (raw << 26 >> 38) as i32,
+        }
+    }
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -1129,6 +1142,20 @@ pub enum Difficulty {
     Normal,
     Hard,
 }
+}
+
+impl TryFrom<String> for Difficulty {
+    type Error = Error;
+
+    fn try_from(string: String) -> Result<Difficulty> {
+        Ok(match &*string {
+            "peaceful" => Difficulty::Peaceful,
+            "easy" => Difficulty::Easy,
+            "normal" => Difficulty::Normal,
+            "hard" => Difficulty::Hard,
+            _ => return invalidData(),
+        })
+    }
 }
 
 enum_from_primitive! {
