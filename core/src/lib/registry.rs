@@ -2,14 +2,13 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::hash::Hash;
 
-pub trait RegistryItem: Send + Sync + Clone + Eq + Hash {
+pub trait RegistryItem: Send + Sync {
 
 }
 
 // we don't use a linked hashmap here due to indexing requirements
 pub struct Registry<T: RegistryItem> {
     indexed: Vec<Arc<T>>,
-    item_index_map: HashMap<Arc<T>, usize>,
     name_index_map: HashMap<String, usize>,
 }
 
@@ -27,7 +26,6 @@ impl<T: RegistryItem> Registry<T> {
     pub fn new() -> Registry<T> {
         return Registry {
             indexed: vec![],
-            item_index_map: HashMap::new(),
             name_index_map: HashMap::new(),
         };
     }
@@ -37,7 +35,6 @@ impl<T: RegistryItem> Registry<T> {
         let item = Arc::new(item);
         let index = self.indexed.len();
         self.name_index_map.insert(key, index);
-        self.item_index_map.insert(item.clone(), index);
         self.indexed.push(item);
     }
 
@@ -48,10 +45,6 @@ impl<T: RegistryItem> Registry<T> {
     fn get_str(&self, key: &str) -> Option<Arc<T>> {
         let key = namespace_normalize(key);
         return self.name_index_map.get(&key).map(|index| self.indexed[*index].clone());
-    }
-
-    fn get_index(&self, key: &T) -> Option<usize> {
-        return self.item_index_map.get(key).map(|index| *index);
     }
 
 }
