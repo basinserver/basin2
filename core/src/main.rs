@@ -9,6 +9,8 @@ mod player;
 mod server;
 mod util;
 mod world;
+mod lib;
+mod data;
 
 use tokio::runtime;
 use log::LevelFilter;

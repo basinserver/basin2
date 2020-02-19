@@ -7,7 +7,7 @@ use log::*;
 use crate::util::{ MC_VERSION, CONFIG, PUBLIC_KEY };
 use tokio::sync::Mutex;
 use rand::prelude::*;
-use crate::util::{ AtomicSet, Whitelist };
+use crate::lib::{ AtomicSet, Whitelist };
 use openssl::rsa::Padding;
 use bytes::BytesMut;
 use bytes::buf::Buf;
