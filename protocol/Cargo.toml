@@ -24,3 +24,5 @@ enum_primitive = "0.1.1"
 linked-hash-map = "0.5.2"
 either = "1.5.3"
 pkg-version = "1.0.0"
+basin2-data = { path = "../data/" }
+basin2-lib = { path = "../lib/" }

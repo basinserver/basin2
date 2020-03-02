@@ -1,6 +1,6 @@
 use crate::network::*;
 use crate::packet::*;
-use crate::result::*;
+use basin2_lib::result::*;
 use bytes::BytesMut;
 use either::Either;
 use linked_hash_map::LinkedHashMap;

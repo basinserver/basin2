@@ -6,7 +6,7 @@ pub use pong_response_packet::*;
 use super::Status;
 use crate::network::*;
 use crate::packet::*;
-use crate::Result;
+use basin2_lib::Result;
 use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;

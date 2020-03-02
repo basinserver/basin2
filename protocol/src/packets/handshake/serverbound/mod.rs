@@ -4,7 +4,7 @@ pub use client_intention_packet::*;
 use super::Handshake;
 use crate::network::*;
 use crate::packet::*;
-use crate::Result;
+use basin2_lib::Result;
 use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;

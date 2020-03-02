@@ -1,7 +1,8 @@
-use crate::network::*;
+// use crate::network::*;
 use crate::result::*;
 use bytes::BytesMut;
 use linked_hash_map::LinkedHashMap;
+use crate::{ mcproto, McProtoBase };
 
 enum_from_primitive! {
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -90,7 +91,7 @@ impl Nbt {
             _ => {
                 let name_length = buf.get_mc_u16()? as usize;
                 if buf.len() < name_length {
-                    return invalidData();
+                    return mcproto::invalid_data();
                 }
                 let bytes = buf.split_to(name_length).to_vec();
                 let name = &*String::from_utf8_lossy(&bytes);
@@ -113,14 +114,14 @@ impl Nbt {
             ByteArray => {
                 let length = buf.get_mc_i32()? as usize;
                 if length > buf.len() {
-                    return invalidData();
+                    return mcproto::invalid_data::<Nbt>();
                 }
                 Nbt::ByteArray(buf.split_to(length).to_vec())
             }
             Str => {
                 let string_length = buf.get_mc_u16()? as usize;
                 if buf.len() < string_length {
-                    return invalidData();
+                    return mcproto::invalid_data();
                 }
                 let bytes = buf.split_to(string_length).to_vec();
                 let string = &*String::from_utf8_lossy(&bytes);
@@ -162,14 +163,14 @@ impl Nbt {
             IntArray => {
                 let length = buf.get_mc_i32()? as usize;
                 if length * 4 > buf.len() {
-                    return invalidData();
+                    return mcproto::invalid_data();
                 }
                 Nbt::IntArray(buf.read_primitive_slice(length)?)
             }
             LongArray => {
                 let length = buf.get_mc_i32()? as usize;
                 if length * 8 > buf.len() {
-                    return invalidData();
+                    return mcproto::invalid_data();
                 }
                 Nbt::LongArray(buf.read_primitive_slice(length)?)
             }

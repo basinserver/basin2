@@ -1,4 +1,4 @@
-use crate::result::*;
+use basin2_lib::result::*;
 use async_trait::async_trait;
 use basin2_protocol::network::*;
 use basin2_protocol::packets::*;
@@ -7,7 +7,7 @@ use log::*;
 use crate::util::{ MC_VERSION, CONFIG, PUBLIC_KEY };
 use tokio::sync::Mutex;
 use rand::prelude::*;
-use crate::lib::{ AtomicSet, Whitelist };
+use basin2_lib::{ AtomicSet, Whitelist };
 use openssl::rsa::Padding;
 use bytes::BytesMut;
 use bytes::buf::Buf;
@@ -117,7 +117,7 @@ impl Player {
         }
         self.send_packet(Packet::from(Login::from(GameProfilePacket { gameProfile: GameProfile {
             uuid: Some(*self.uuid),
-            name: self.username.clone(),
+            name: (*self.username).clone(),
             legacy: false,
         } })))
         .await?;

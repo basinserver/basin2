@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::hash::Hash;
 
 pub trait RegistryItem: Send + Sync {
-
+    fn registered(&self, key: &str, id: u32);
 }
 
 // we don't use a linked hashmap here due to indexing requirements
@@ -30,19 +29,18 @@ impl<T: RegistryItem> Registry<T> {
         };
     }
 
-    pub fn insert(&mut self, key: &str, item: T) {
+    pub fn insert(&mut self, key: &str, item: Arc<T>) {
         let key = namespace_normalize(key);
-        let item = Arc::new(item);
         let index = self.indexed.len();
         self.name_index_map.insert(key, index);
         self.indexed.push(item);
     }
 
-    fn get(&self, index: usize) -> Option<Arc<T>> {
-        self.indexed.get(index).map(|arc| arc.clone())
+    pub fn get(&self, index: u32) -> Option<Arc<T>> {
+        self.indexed.get(index as usize).map(|arc| arc.clone())
     }
 
-    fn get_str(&self, key: &str) -> Option<Arc<T>> {
+    pub fn get_str(&self, key: &str) -> Option<Arc<T>> {
         let key = namespace_normalize(key);
         return self.name_index_map.get(&key).map(|index| self.indexed[*index].clone());
     }

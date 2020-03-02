@@ -1,4 +1,4 @@
-use basin2_protocol::Nbt;
+use basin2_lib::Nbt;
 
 pub struct TileEntity {
     pub id: String,

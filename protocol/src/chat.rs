@@ -1,4 +1,4 @@
-use crate::nbt::*;
+use basin2_lib::Nbt;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 

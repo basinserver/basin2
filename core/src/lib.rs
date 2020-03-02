@@ -1,16 +1,14 @@
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
-mod result;
-pub use result::*;
+extern crate basin2_lib;
+pub use basin2_lib::result::*;
 
 mod entity;
 mod player;
 mod server;
 mod util;
 mod world;
-mod lib;
-mod data;
 
 use tokio::runtime;
 use log::LevelFilter;
@@ -25,10 +23,21 @@ fn start_tokio() -> Result<runtime::Runtime> {
         .build()?)
 }
 
-fn main() {
+pub fn start_server() {
+    basin2_data::load(); // preload data now
     Builder::from_default_env()
         .filter_level(LevelFilter::Info)
         .init();
     let server = Arc::new(server::Server::new());
     start_tokio().unwrap().block_on(server::start(server))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn run_server() {
+        super::start_server();
+    }
 }

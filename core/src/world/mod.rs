@@ -1,5 +1,5 @@
 use std::sync::{Arc};
-use crate::result::*;
+use basin2_lib::result::*;
 
 mod chunk;
 mod block;

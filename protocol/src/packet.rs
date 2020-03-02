@@ -1,5 +1,4 @@
-use super::network::McPacketBuf;
-use crate::result::*;
+use basin2_lib::{result::*};
 use bytes::BytesMut;
 
 pub trait CodablePacket {
@@ -20,6 +19,7 @@ pub trait PacketContainer {
 pub mod test {
     use super::*;
     use std::fmt::Debug;
+    use basin2_lib::McProtoBase;
 
     pub fn cycle<T: CodablePacket + Clone + Debug + PartialEq>(initial: T) -> Result<()> {
         let mut buf = BytesMut::new();

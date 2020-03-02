@@ -1,7 +1,8 @@
 use super::packets::*;
 use crate::network::*;
 use crate::packet::PacketContainer;
-use crate::result::*;
+use basin2_lib::result::*;
+use basin2_lib::McProtoBase;
 use bytes::buf::Buf;
 use bytes::BytesMut;
 use flate2::{write::DeflateDecoder, write::DeflateEncoder, Compression};

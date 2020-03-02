@@ -1,4 +1,4 @@
-use crate::result::*;
+use basin2_lib::result::*;
 use log::*;
 use serde::{Deserialize, Serialize};
 use std::env;

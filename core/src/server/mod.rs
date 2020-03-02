@@ -1,5 +1,5 @@
 use crate::player::handle_connection;
-use crate::result::*;
+use basin2_lib::result::*;
 use crate::util::CONFIG;
 use basin2_protocol::{start_server, WrappedConnection};
 use tokio::sync::mpsc;

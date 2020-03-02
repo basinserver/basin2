@@ -1,5 +1,5 @@
 use super::*;
-use crate::result::*;
+use basin2_lib::result::*;
 use crate::player::*;
 
 struct PlayerJoin {

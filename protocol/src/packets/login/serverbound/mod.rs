@@ -8,7 +8,7 @@ pub use custom_query_packet::*;
 use super::Login;
 use crate::network::*;
 use crate::packet::*;
-use crate::Result;
+use basin2_lib::Result;
 use bytes::BytesMut;
 use std::io::Error as IoError;
 use std::io::ErrorKind;

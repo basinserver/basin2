@@ -1,6 +1,6 @@
 use crate::network::*;
 use crate::packet::*;
-use crate::result::*;
+use basin2_lib::result::*;
 use bytes::BytesMut;
 
 impl EntityMetadata {
@@ -211,7 +211,7 @@ impl CodablePacket for SetEntityDataPacket {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::nbt::Nbt;
+    use basin2_lib::Nbt;
     use crate::packet::test::*;
     use uuid::Uuid;
 

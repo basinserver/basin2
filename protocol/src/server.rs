@@ -1,6 +1,6 @@
 use super::connection::Connection;
 use crate::connection::WrappedConnection;
-use crate::result::*;
+use basin2_lib::result::*;
 use futures::stream::StreamExt;
 use log::*;
 use tokio::net::TcpListener;

@@ -87,10 +87,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "basin2"
+name = "basin2-core"
 version = "15.2.1"
 dependencies = [
  "async-trait",
+ "basin2-data",
+ "basin2-lib",
  "basin2-protocol",
  "bitvec",
  "bytes 0.5.4",
@@ -118,9 +120,44 @@ dependencies = [
 ]
 
 [[package]]
+name = "basin2-data"
+version = "15.2.1"
+dependencies = [
+ "async-trait",
+ "basin2-lib",
+ "either",
+ "enum_primitive",
+ "env_logger",
+ "lazy_static",
+ "linked-hash-map",
+ "log",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "basin2-lib"
+version = "15.2.1"
+dependencies = [
+ "async-trait",
+ "bytes 0.5.4",
+ "either",
+ "enum_primitive",
+ "env_logger",
+ "lazy_static",
+ "linked-hash-map",
+ "log",
+ "serde",
+ "serde_json",
+ "uuid 0.5.1",
+]
+
+[[package]]
 name = "basin2-protocol"
 version = "578.1.0"
 dependencies = [
+ "basin2-data",
+ "basin2-lib",
  "bytes 0.5.4",
  "either",
  "enum_primitive",

@@ -1,5 +1,5 @@
 [package]
-name = "basin2"
+name = "basin2-core"
 version = "15.2.1"
 authors = ["Protryon <max.bruce12@gmail.com>"]
 edition = "2018"
@@ -21,6 +21,8 @@ enum_primitive = "0.1.1"
 linked-hash-map = "0.5.2"
 either = "1.5.3"
 basin2-protocol = { path = "../protocol/" }
+basin2-lib = { path = "../lib/" }
+basin2-data = { path = "../data/" }
 async-trait = "0.1.24"
 pkg-version = "1.0.0"
 openssl = { version = "0.10", features = ["vendored"] }
