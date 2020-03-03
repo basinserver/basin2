@@ -2,6 +2,8 @@
 extern crate lazy_static;
 #[macro_use]
 extern crate basin2_lib;
+#[macro_use]
+extern crate scan_fmt;
 pub use basin2_lib::result::*;
 
 mod entity;

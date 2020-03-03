@@ -4,6 +4,7 @@ use super::*;
 use std::sync::{Arc, Weak};
 use memmap::{MmapOptions, Mmap};
 use std::fs::File;
+use std::path::{ Path, PathBuf };
 use basin2_lib::result::*;
 use bytes::{ Bytes, BytesMut };
 use bytes::buf::Buf;
@@ -332,21 +333,42 @@ impl ChunkT for VanillaChunk {
 }
 
 pub struct VanillaWorld {
-    directory: String,
+    directory: PathBuf,
     regions: CHashMap<u64, Arc<VanillaRegion>>,
     loaded_chunks: CHashMap<u64, Weak<VanillaChunk>>,
     
 }
 
 impl VanillaWorld {
-    fn new(directory: String) -> Result<VanillaWorld> {
-
-        Err(basin_err!("nyi"))
+    // pass in directory to regions
+    pub fn new(directory: String) -> Result<VanillaWorld> {
+        let mut regions: CHashMap<u64, Arc<VanillaRegion>> = CHashMap::new();
+        for region_file in Path::new(&directory).read_dir()? {
+            if let Ok(region_file) = region_file {
+                let region_path = region_file.path();
+                let filename = region_path.file_name().unwrap().to_str().unwrap(); // r.-1.-5.mca
+                if let Ok((x, z)) = scan_fmt!(filename, "r.{d}.{d}.mca", i32, i32) {
+                    let region = Arc::new(VanillaRegion::new(x, z, File::open(region_path)?)?);
+                    let region_id = chunk_id(x, z);
+                    regions.insert(region_id, region);
+                } else {
+                    warn!("unexpected region filename, skipping: {}", filename);
+                    continue;
+                }
+            }
+        }
+        return Ok(VanillaWorld {
+            directory: PathBuf::from(directory),
+            regions,
+            loaded_chunks: CHashMap::new(),
+        })
     }
 
     fn new_region(&self, x: i32, z: i32) -> Result<Arc<VanillaRegion>> {
-
-        Err(basin_err!("nyi"))
+        let region_id = chunk_id(x, z);
+        let region = Arc::new(VanillaRegion::new(x, z, File::create(self.directory.join(format!("r.{}.{}.mca", x, z)))?)?);
+        self.regions.insert(region_id, region.clone());
+        Ok(region)
     }
 }
 
