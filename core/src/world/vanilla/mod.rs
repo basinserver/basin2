@@ -19,6 +19,9 @@ use log::*;
 use super::tile_entity::*;
 use basin2_protocol::network::BlockPos;
 
+mod level;
+pub use level::*;
+
 struct VanillaRegion {
     x: i32,
     z: i32,
@@ -336,14 +339,13 @@ pub struct VanillaWorld {
     directory: PathBuf,
     regions: CHashMap<u64, Arc<VanillaRegion>>,
     loaded_chunks: CHashMap<u64, Weak<VanillaChunk>>,
-    
 }
 
 impl VanillaWorld {
     // pass in directory to regions
-    pub fn new(directory: String) -> Result<VanillaWorld> {
-        let mut regions: CHashMap<u64, Arc<VanillaRegion>> = CHashMap::new();
-        for region_file in Path::new(&directory).read_dir()? {
+    pub fn new(directory: &Path) -> Result<VanillaWorld> {
+        let regions: CHashMap<u64, Arc<VanillaRegion>> = CHashMap::new();
+        for region_file in directory.read_dir()? {
             if let Ok(region_file) = region_file {
                 let region_path = region_file.path();
                 let filename = region_path.file_name().unwrap().to_str().unwrap(); // r.-1.-5.mca

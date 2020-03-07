@@ -1,8 +1,8 @@
-// use crate::network::*;
 use crate::result::*;
 use bytes::BytesMut;
 use linked_hash_map::LinkedHashMap;
 use crate::{ mcproto, McProtoBase };
+use crate::basin_err;
 
 enum_from_primitive! {
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -81,11 +81,21 @@ impl Nbt {
     }
 
     pub fn parse(buf: &mut BytesMut) -> Result<Nbt> {
-        return Nbt::parse_list(buf, NbtType::Compound);
+        let direct_nbt = Nbt::parse_list(buf, NbtType::Compound)?;
+        match direct_nbt {
+            Nbt::Compound { children } if children.len() == 1 && children.contains_key("") => {
+                Ok(children[""].clone())
+            },
+            _ => Ok(direct_nbt)
+        }
     }
 
     fn parse_item(buf: &mut BytesMut) -> Result<(Option<String>, Nbt)> {
-        let nbt_type: NbtType = buf.get_mc_enum_u8()?;
+        let nbt_type: NbtType = if buf.len() == 0 {
+            NbtType::End
+        } else {
+            buf.get_mc_enum_u8()?
+        };
         let name = match nbt_type {
             NbtType::End => None,
             _ => {
@@ -253,6 +263,99 @@ impl Nbt {
                 buf.set_mc_i32(value.len() as i32);
                 buf.write_primitive_slice(&value[..]);
             }
+        }
+    }
+
+    pub fn child(&self, key: &str) -> Result<&Nbt> {
+        match self {
+            Nbt::Compound { children } => {
+                children.get(key).map(|item| Ok(item)).unwrap_or(Err(basin_err!("could not find key {} in nbt", key)))
+            },
+            _ => Err(basin_err!("could not get key {} from non-compound nbt tag", key)),
+        }
+    }
+
+    pub fn unwrap_i8(&self) -> Result<i8> {
+        match self {
+            Nbt::Byte(value) => Ok(*value),
+            _ => Err(basin_err!("invalid nbt tag type, expected Byte got {:?}", self.nbt_type())),
+        }
+    }
+
+    pub fn unwrap_i16(&self) -> Result<i16> {
+        match self {
+            Nbt::Short(value) => Ok(*value),
+            _ => Err(basin_err!("invalid nbt tag type, expected Short got {:?}", self.nbt_type())),
+        }
+    }
+
+    pub fn unwrap_i32(&self) -> Result<i32> {
+        match self {
+            Nbt::Int(value) => Ok(*value),
+            _ => Err(basin_err!("invalid nbt tag type, expected Int got {:?}", self.nbt_type())),
+        }
+    }
+
+    pub fn unwrap_i64(&self) -> Result<i64> {
+        match self {
+            Nbt::Long(value) => Ok(*value),
+            _ => Err(basin_err!("invalid nbt tag type, expected Long got {:?}", self.nbt_type())),
+        }
+    }
+
+    pub fn unwrap_f32(&self) -> Result<f32> {
+        match self {
+            Nbt::Float(value) => Ok(*value),
+            _ => Err(basin_err!("invalid nbt tag type, expected Float got {:?}", self.nbt_type())),
+        }
+    }
+
+    pub fn unwrap_f64(&self) -> Result<f64> {
+        match self {
+            Nbt::Double(value) => Ok(*value),
+            _ => Err(basin_err!("invalid nbt tag type, expected Double got {:?}", self.nbt_type())),
+        }
+    }
+
+    pub fn unwrap_bytes(&self) -> Result<&[u8]> {
+        match self {
+            Nbt::ByteArray(value) => Ok(value),
+            _ => Err(basin_err!("invalid nbt tag type, expected ByteArray got {:?}", self.nbt_type())),
+        }
+    }
+
+    pub fn unwrap_str(&self) -> Result<&str> {
+        match self {
+            Nbt::Str(value) => Ok(value),
+            _ => Err(basin_err!("invalid nbt tag type, expected Str got {:?}", self.nbt_type())),
+        }
+    }
+
+    pub fn unwrap_compound(&self) -> Result<&LinkedHashMap<String, Nbt>> {
+        match self {
+            Nbt::Compound { children } => Ok(children),
+            _ => Err(basin_err!("invalid nbt tag type, expected Compound got {:?}", self.nbt_type())),
+        }
+    }
+
+    pub fn unwrap_list(&self) -> Result<&[Nbt]> {
+        match self {
+            Nbt::List { children, .. } => Ok(children),
+            _ => Err(basin_err!("invalid nbt tag type, expected List got {:?}", self.nbt_type())),
+        }
+    }
+
+    pub fn unwrap_ints(&self) -> Result<&[i32]> {
+        match self {
+            Nbt::IntArray(value) => Ok(value),
+            _ => Err(basin_err!("invalid nbt tag type, expected IntArray got {:?}", self.nbt_type())),
+        }
+    }
+
+    pub fn unwrap_longs(&self) -> Result<&[i64]> {
+        match self {
+            Nbt::LongArray(value) => Ok(value),
+            _ => Err(basin_err!("invalid nbt tag type, expected LongArray got {:?}", self.nbt_type())),
         }
     }
 }

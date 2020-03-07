@@ -17,6 +17,8 @@ use log::LevelFilter;
 use log::*;
 use env_logger::Builder;
 use std::sync::Arc;
+use world::vanilla::VanillaLevel;
+use util::CONFIG;
 
 fn start_tokio() -> Result<runtime::Runtime> {
     Ok(runtime::Builder::new()
@@ -30,7 +32,12 @@ pub fn start_server() {
     Builder::from_default_env()
         .filter_level(LevelFilter::Info)
         .init();
-    let server = Arc::new(server::Server::new());
+
+    let level = Arc::new(match &*CONFIG.world_format {
+        "anvil" => VanillaLevel::new(CONFIG.world_directory.clone()),
+        _ => panic!("invalid world format: {}", &CONFIG.world_format),
+    }.expect("failed to load level"));
+    let server = Arc::new(server::Server::new(level));
     start_tokio().unwrap().block_on(server::start(server))
 }
 

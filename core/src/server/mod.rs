@@ -4,6 +4,7 @@ use crate::util::CONFIG;
 use basin2_protocol::{start_server, WrappedConnection};
 use tokio::sync::mpsc;
 use crate::world::World;
+use crate::world::Level;
 use crate::player::PlayerT;
 use uuid::Uuid;
 use std::collections::HashMap;
@@ -16,15 +17,15 @@ pub trait ServerEvent: Send + Sync {
 }
 
 pub struct Server {
-    pub worlds: Vec<World>,
+    pub level: Level,
     pub players: RwLock<HashMap<Uuid, Weak<PlayerT>>>,
     pub events: broadcast::Sender<Box<dyn ServerEvent>>,
 }
 
 impl Server {
-    pub fn new() -> Server {
+    pub fn new(level: Level) -> Server {
         Server {
-            worlds: vec![],
+            level,
             players: RwLock::new(HashMap::new()),
             events: broadcast::channel(1024).0,
         }
