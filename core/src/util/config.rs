@@ -22,8 +22,10 @@ pub struct Config {
     pub online_mode: bool,
     pub compression_threshold: Option<u32>,
     pub difficulty: String,
+    pub hardcore: bool,
     pub world_format: String,
     pub world_directory: String,
+    pub view_distance: u32,
 }
 
 impl Default for Config {
@@ -36,8 +38,10 @@ impl Default for Config {
             online_mode: true,
             compression_threshold: Some(256),
             difficulty: "normal".to_string(),
+            hardcore: false,
             world_format: "anvil".to_string(),
             world_directory: "./world/".to_string(),
+            view_distance: 16,
         }
     }
 }

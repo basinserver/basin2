@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use super::chunk::*;
 use super::*;
 use std::sync::{Arc, Weak};
@@ -17,7 +16,7 @@ use linked_hash_map::LinkedHashMap;
 use bitvec::prelude::*;
 use log::*;
 use super::tile_entity::*;
-use basin2_protocol::network::BlockPos;
+use basin2_protocol::network::{ BlockPos, DimensionType };
 
 mod level;
 pub use level::*;
@@ -336,6 +335,7 @@ impl ChunkT for VanillaChunk {
 }
 
 pub struct VanillaWorld {
+    dimension: DimensionType,
     directory: PathBuf,
     regions: CHashMap<u64, Arc<VanillaRegion>>,
     loaded_chunks: CHashMap<u64, Weak<VanillaChunk>>,
@@ -343,7 +343,7 @@ pub struct VanillaWorld {
 
 impl VanillaWorld {
     // pass in directory to regions
-    pub fn new(directory: &Path) -> Result<VanillaWorld> {
+    pub fn new(dimension: DimensionType, directory: &Path) -> Result<VanillaWorld> {
         let regions: CHashMap<u64, Arc<VanillaRegion>> = CHashMap::new();
         for region_file in directory.read_dir()? {
             if let Ok(region_file) = region_file {
@@ -360,6 +360,7 @@ impl VanillaWorld {
             }
         }
         return Ok(VanillaWorld {
+            dimension,
             directory: PathBuf::from(directory),
             regions,
             loaded_chunks: CHashMap::new(),
@@ -407,6 +408,10 @@ impl WorldT for VanillaWorld {
         });
         self.loaded_chunks.insert(chunk_id(loaded_chunk.x, loaded_chunk.z), Arc::downgrade(&loaded_chunk));
         Ok(loaded_chunk)
+    }
+
+    fn dimension(&self) -> DimensionType {
+        self.dimension
     }
 
     fn save(&self) {

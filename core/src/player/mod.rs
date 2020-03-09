@@ -18,6 +18,10 @@ use linked_hash_map::LinkedHashMap;
 use std::sync::Arc;
 use crate::server::ServerT;
 use futures::executor::block_on;
+use crate::world::{ World, WorldT, Level, LevelT };
+use basin2_lib::AtomicRef;
+use crate::entity::{ Entity, EntityT };
+use std::sync::RwLock;
 
 #[derive(Clone)]
 struct LoginState {
@@ -39,6 +43,10 @@ pub struct Player {
     pub uuid: AtomicSet<Uuid>,
     pub properties: AtomicSet<LinkedHashMap<String, PlayerProperty>>,
     login_state: Mutex<Option<LoginState>>,
+    pub level: AtomicRef<Level>,
+    pub world: AtomicRef<World>,
+    pub entity: AtomicRef<RwLock<EntityT>>,
+    pub game_type: AtomicRef<GameType>,
 }
 
 impl Drop for Player {
@@ -122,8 +130,26 @@ impl Player {
         } })))
         .await?;
         self.connection.set_state(ConnectionProtocol::Game);
-
         info!("Player {} has joined!", *self.username);
+
+        let formed_packet = {
+            let player_entity = self.entity.get();
+            let player_entity = player_entity.read().unwrap();
+            LoginPacket {
+                playerId: player_entity.id as i32, // TODO
+                seed: self.server.level.seed() as i64,
+                hardcore: CONFIG.hardcore,
+                gameType: *self.game_type.get(),
+                dimension: player_entity.world.dimension(),
+                maxPlayers: CONFIG.max_players as u8,
+                levelType: "default".to_string(),
+                chunkRadius: CONFIG.view_distance as i32,
+                reducedDebugInfo: self.server.level.game_rules().get("reducedDebugInfo").map(|value| *value == "true").unwrap_or(false),
+                showDeathScreen: self.server.level.game_rules().get("doImmediateRespawn").map(|value| *value == "true").unwrap_or(false),
+            }
+        };
+        self.send_packet(Packet::from(Game::from(formed_packet))).await?;
+
         self.disconnect(ChatComponent::from("test successful".to_string())).await?;
         Ok(())
     }
@@ -318,13 +344,17 @@ pub async fn handle_connection(connection: WrappedConnection, server: ServerT) {
     // lock the mutex then claim the receiver for ourselves
     let mut incoming = connection.incoming.lock().unwrap().take().unwrap();
     let player = Arc::new(Player {
-        server,
+        server: server.clone(),
         connection,
         login_state: Mutex::new(None),
         username: AtomicSet::new(),
         uuid: AtomicSet::new(),
         properties: AtomicSet::new(),
         disconnected: AtomicSet::new(),
+        level: AtomicRef::from(Arc::new(server.level.clone())),
+        world: AtomicRef::new(),
+        entity: AtomicRef::new(),
+        game_type: AtomicRef::new(),
     });
     while let Some((finish, packet)) = incoming.recv().await {
         let result = match packet {

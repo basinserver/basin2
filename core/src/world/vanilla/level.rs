@@ -1,4 +1,5 @@
-use crate::world::{ LevelT, BorderSettings, World, WorldT };
+use crate::world::level::{ LevelT, BorderSettings };
+use crate::world::{ World, WorldT };
 use super::VanillaWorld;
 use chashmap::CHashMap;
 use std::sync::atomic::{ AtomicU64, Ordering };
@@ -10,6 +11,7 @@ use bytes::BytesMut;
 use std::sync::Arc;
 use flate2::write::{GzDecoder};
 use std::io::Write;
+use basin2_protocol::network::{ DimensionType };
 
 pub struct VanillaLevel {
     directory: PathBuf,
@@ -67,7 +69,7 @@ impl VanillaLevel {
             level_nbt.child("SpawnZ")?.unwrap_i32()?,
         );
         let time = AtomicU64::new(level_nbt.child("Time")?.unwrap_i64()? as u64);
-        dimensions.insert(0, Arc::new(VanillaWorld::new(&directory.join("region"))?) as Arc<dyn WorldT + 'static>);
+        dimensions.insert(0, Arc::new(VanillaWorld::new(DimensionType::Overworld, &directory.join("region"))?) as Arc<dyn WorldT + 'static>);
         //TODO: nether & end loading
         Ok(VanillaLevel {
             directory: directory.to_path_buf(),

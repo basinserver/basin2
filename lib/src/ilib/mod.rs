@@ -1,7 +1,9 @@
 mod atomic_set;
+mod atomic_ref;
 mod whitelist;
 mod registry;
 pub use atomic_set::AtomicSet;
+pub use atomic_ref::AtomicRef;
 pub use whitelist::Whitelist;
 pub use registry::{ Registry, RegistryItem };
 use std::iter::FromIterator;

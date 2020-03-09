@@ -68,7 +68,7 @@ impl<T: Send + Sync + Sized> AtomicSet<T> {
     pub fn try_set(&self, item: T) {
         let boxed_item = Box::into_raw(Box::new(item));
         let null_ptr = null_mut::<T>();
-        if self.item.compare_and_swap(null_ptr, boxed_item, Ordering::Relaxed) == null_ptr {
+        if self.item.compare_and_swap(null_ptr, boxed_item, Ordering::Relaxed) != null_ptr {
             drop(unsafe { Box::from_raw(boxed_item) });
         }
     }
@@ -76,7 +76,7 @@ impl<T: Send + Sync + Sized> AtomicSet<T> {
     pub fn set(&self, item: T) {
         let boxed_item = Box::into_raw(Box::new(item));
         let null_ptr = null_mut::<T>();
-        if self.item.compare_and_swap(null_ptr, boxed_item, Ordering::Relaxed) == null_ptr {
+        if self.item.compare_and_swap(null_ptr, boxed_item, Ordering::Relaxed) != null_ptr {
             drop(unsafe { Box::from_raw(boxed_item) });
             panic!("attempted to re-set AtomicSet!");
         }
