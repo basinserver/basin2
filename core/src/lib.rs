@@ -11,6 +11,7 @@ mod player;
 mod server;
 mod util;
 mod world;
+mod command;
 
 use tokio::runtime;
 use log::LevelFilter;
@@ -33,10 +34,10 @@ pub fn start_server() {
         .filter_level(LevelFilter::Info)
         .init();
 
-    let level = Arc::new(match &*CONFIG.world_format {
+    let level = match &*CONFIG.world_format {
         "anvil" => VanillaLevel::new(CONFIG.world_directory.clone()),
         _ => panic!("invalid world format: {}", &CONFIG.world_format),
-    }.expect("failed to load level"));
+    }.expect("failed to load level");
     let server = Arc::new(server::Server::new(level));
     start_tokio().unwrap().block_on(server::start(server))
 }

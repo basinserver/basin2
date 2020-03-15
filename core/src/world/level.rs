@@ -1,5 +1,8 @@
 use chashmap::CHashMap;
 use super::World;
+use basin2_lib::Nbt;
+use uuid::Uuid;
+use basin2_protocol::network::Difficulty;
 
 pub struct BorderSettings {
     pub center: (i32, i32),
@@ -15,6 +18,14 @@ pub struct BorderSettings {
 pub trait LevelT: Send + Sync {
     
     fn dimensions(&self) -> &CHashMap<i32, World>;
+
+    fn player_data(&self, uuid: &Uuid) -> Option<Nbt>;
+    fn set_player_data(&self, uuid: &Uuid, data: &Nbt);
+
+    fn difficulty(&self) -> (Difficulty, bool);
+    fn set_difficulty(&self, difficulty: Difficulty);
+
+    fn next_entity_id(&self) -> u32;
 
     fn get_border_settings(&self) -> &BorderSettings;
     fn day_time(&self) -> u64;

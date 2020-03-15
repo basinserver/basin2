@@ -1,5 +1,4 @@
 use super::chunk::*;
-use super::*;
 use std::sync::{Arc, Weak};
 use memmap::{MmapOptions, Mmap};
 use std::fs::File;
@@ -14,12 +13,12 @@ use chashmap::CHashMap;
 use super::block::Block;
 use linked_hash_map::LinkedHashMap;
 use bitvec::prelude::*;
-use log::*;
+use log::warn;
 use super::tile_entity::*;
 use basin2_protocol::network::{ BlockPos, DimensionType };
-
 mod level;
 pub use level::*;
+use super::*;
 
 struct VanillaRegion {
     x: i32,
@@ -335,15 +334,18 @@ impl ChunkT for VanillaChunk {
 }
 
 pub struct VanillaWorld {
+    level: Level,
     dimension: DimensionType,
     directory: PathBuf,
     regions: CHashMap<u64, Arc<VanillaRegion>>,
     loaded_chunks: CHashMap<u64, Weak<VanillaChunk>>,
+    entities_by_id: CHashMap<u32, Entity>,
+    entities_by_uuid: CHashMap<Uuid, Entity>,
 }
 
 impl VanillaWorld {
     // pass in directory to regions
-    pub fn new(dimension: DimensionType, directory: &Path) -> Result<VanillaWorld> {
+    pub fn new(level: Level, dimension: DimensionType, directory: &Path) -> Result<VanillaWorld> {
         let regions: CHashMap<u64, Arc<VanillaRegion>> = CHashMap::new();
         for region_file in directory.read_dir()? {
             if let Ok(region_file) = region_file {
@@ -360,10 +362,13 @@ impl VanillaWorld {
             }
         }
         return Ok(VanillaWorld {
+            level,
             dimension,
             directory: PathBuf::from(directory),
             regions,
             loaded_chunks: CHashMap::new(),
+            entities_by_id: CHashMap::new(),
+            entities_by_uuid: CHashMap::new(),
         })
     }
 
@@ -416,5 +421,17 @@ impl WorldT for VanillaWorld {
 
     fn save(&self) {
 
+    }
+
+    fn get_entity_by_id(&self, id: u32) -> Option<Entity> {
+        self.entities_by_id.get(&id).map(|e| e.clone())
+    }
+
+    fn get_entity_by_uuid(&self, uuid: Uuid) -> Option<Entity> {
+        self.entities_by_uuid.get(&uuid).map(|e| e.clone())
+    }
+
+    fn level(&self) -> Level {
+        self.level.clone()
     }
 }

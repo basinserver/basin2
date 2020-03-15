@@ -111,8 +111,6 @@ impl McProtoSpecialized for BytesMut {
     }
 }
 
-pub struct Command {}
-
 pub struct BaseCommandNode {
     pub uuid: Uuid,
     pub children: LinkedHashMap<String, Arc<CommandNode>>,
@@ -739,11 +737,11 @@ pub enum Difficulty {
 }
 }
 
-impl TryFrom<String> for Difficulty {
+impl TryFrom<&str> for Difficulty {
     type Error = Error;
 
-    fn try_from(string: String) -> Result<Difficulty> {
-        Ok(match &*string {
+    fn try_from(string: &str) -> Result<Difficulty> {
+        Ok(match string {
             "peaceful" => Difficulty::Peaceful,
             "easy" => Difficulty::Easy,
             "normal" => Difficulty::Normal,
@@ -900,6 +898,20 @@ pub enum GameType {
     Adventure,
     Spectator,
 }
+}
+
+impl TryFrom<&str> for GameType {
+    type Error = Error;
+
+    fn try_from(name: &str) -> Result<GameType> {
+        match &*name.to_lowercase() {
+            "survival" => Ok(GameType::Survival),
+            "creative" => Ok(GameType::Creative),
+            "adventure" => Ok(GameType::Adventure),
+            "spectator" => Ok(GameType::Spectator),
+            _ => Err(basin_err!("invalid game type: '{}'", name)),
+        }
+    }
 }
 
 enum_from_primitive! {

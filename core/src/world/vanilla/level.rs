@@ -2,16 +2,21 @@ use crate::world::level::{ LevelT, BorderSettings };
 use crate::world::{ World, WorldT };
 use super::VanillaWorld;
 use chashmap::CHashMap;
-use std::sync::atomic::{ AtomicU64, Ordering };
+use std::sync::atomic::{ AtomicU64, AtomicU32, Ordering };
 use basin2_lib::nbt::*;
 use basin2_lib::result::*;
+use basin2_lib::Atomic;
 use std::path::{ Path, PathBuf };
 use std::fs;
 use bytes::BytesMut;
 use std::sync::Arc;
 use flate2::write::{GzDecoder};
 use std::io::Write;
-use basin2_protocol::network::{ DimensionType };
+use basin2_protocol::network::{ DimensionType, Difficulty };
+use uuid::Uuid;
+use log::*;
+use std::convert::TryFrom;
+use crate::util::CONFIG;
 
 pub struct VanillaLevel {
     directory: PathBuf,
@@ -22,10 +27,14 @@ pub struct VanillaLevel {
     seed: u64,
     spawn: (i32, i32, i32),
     time: AtomicU64,
+    player_data: CHashMap<Uuid, Nbt>,
+    difficulty: Atomic<Difficulty>,
+    difficulty_locked: bool,
+    next_entity_id: AtomicU32,
 }
 
 impl VanillaLevel {
-    pub fn new<T: AsRef<Path>>(directory: T) -> Result<VanillaLevel> {
+    pub fn new<T: AsRef<Path>>(directory: T) -> Result<Arc<VanillaLevel>> {
         let directory = directory.as_ref();
         let level_file = directory.join("level.dat");
         let dimensions = CHashMap::new();
@@ -69,9 +78,27 @@ impl VanillaLevel {
             level_nbt.child("SpawnZ")?.unwrap_i32()?,
         );
         let time = AtomicU64::new(level_nbt.child("Time")?.unwrap_i64()? as u64);
-        dimensions.insert(0, Arc::new(VanillaWorld::new(DimensionType::Overworld, &directory.join("region"))?) as Arc<dyn WorldT + 'static>);
-        //TODO: nether & end loading
-        Ok(VanillaLevel {
+
+        let player_data = CHashMap::new();
+        let player_data_dir = directory.join("playerdata/");
+        for player_file in player_data_dir.read_dir()? {
+            if let Ok(player_file) = player_file {
+                let filename = player_file.file_name();
+                let filename = filename.to_str().unwrap(); // uuid.dat
+                let player_file = player_file.path();
+                if let Ok(uuid) = scan_fmt!(filename, "{}.dat", String) {
+                    let mut raw_nbt = BytesMut::from(&fs::read(player_file)?[..]);
+                    let player_nbt = Nbt::parse(&mut raw_nbt)?;
+
+                    player_data.insert(Uuid::parse_str(&uuid)?, player_nbt);
+                } else {
+                    warn!("unexpected playerdata filename, skipping: {}", filename);
+                    continue;
+                }
+            }
+        }
+
+        let level = Arc::new(VanillaLevel {
             directory: directory.to_path_buf(),
             dimensions,
             border_settings,
@@ -80,13 +107,42 @@ impl VanillaLevel {
             seed,
             spawn,
             time,
-        })
+            player_data,
+            difficulty: Atomic::from(Difficulty::try_from(&*CONFIG.difficulty)?),
+            difficulty_locked: CONFIG.difficulty_locked,
+            next_entity_id: AtomicU32::new(1),
+        });
+
+        level.dimensions.insert(0, Arc::new(VanillaWorld::new(level.clone(), DimensionType::Overworld, &directory.join("region"))?) as Arc<dyn WorldT + 'static>);
+        //TODO: nether & end loading
+
+        Ok(level)
     }
 }
 
 impl LevelT for VanillaLevel {
     fn dimensions(&self) -> &CHashMap<i32, World> {
         &self.dimensions
+    }
+
+    fn player_data(&self, uuid: &Uuid) -> Option<Nbt> {
+        self.player_data.get(uuid).map(|data| data.clone())
+    }
+
+    fn set_player_data(&self, uuid: &Uuid, player_data: &Nbt) {
+        self.player_data.insert(uuid.clone(), player_data.clone());
+    }
+
+    fn difficulty(&self) -> (Difficulty, bool) {
+        (self.difficulty.get(), self.difficulty_locked)
+    }
+
+    fn set_difficulty(&self, difficulty: Difficulty) {
+        self.difficulty.set(difficulty);
+    }
+
+    fn next_entity_id(&self) -> u32 {
+        self.next_entity_id.fetch_add(1, Ordering::Relaxed)
     }
 
     fn get_border_settings(&self) -> &BorderSettings {

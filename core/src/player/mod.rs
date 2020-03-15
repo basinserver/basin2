@@ -19,9 +19,13 @@ use std::sync::Arc;
 use crate::server::ServerT;
 use futures::executor::block_on;
 use crate::world::{ World, WorldT, Level, LevelT };
-use basin2_lib::AtomicRef;
-use crate::entity::{ Entity, EntityT };
-use std::sync::RwLock;
+use basin2_lib::{ AtomicRef, Nbt };
+use crate::entity::{ Entity, EntityT, player::* };
+use std::sync::{ RwLock };
+use enum_primitive::FromPrimitive;
+use std::convert::TryFrom;
+use basin2_data::{ DATA, BLOCKS, ITEMS, ENTITY_TYPES };
+use std::sync::atomic::{ AtomicU32, Ordering };
 
 #[derive(Clone)]
 struct LoginState {
@@ -37,16 +41,101 @@ pub struct PlayerProperty {
 
 pub struct Player {
     pub server: ServerT,
+    pub entity_id: u32,
     pub connection: WrappedConnection,
     pub disconnected: AtomicSet<bool>,
     pub username: AtomicSet<String>,
     pub uuid: AtomicSet<Uuid>,
     pub properties: AtomicSet<LinkedHashMap<String, PlayerProperty>>,
     login_state: Mutex<Option<LoginState>>,
-    pub level: AtomicRef<Level>,
-    pub world: AtomicRef<World>,
+    pub level: AtomicRef<dyn LevelT + 'static>,
+    pub world: AtomicRef<dyn WorldT + 'static>,
     pub entity: AtomicRef<RwLock<EntityT>>,
-    pub game_type: AtomicRef<GameType>,
+    pub data: RwLock<Option<IngamePlayerData>>,
+    pub teleport_id: AtomicU32,
+}
+
+pub const PLAYER_INVENTORY_SIZE: usize = 46;
+pub const PLAYER_ENDER_SIZE: usize = 27;
+
+#[derive(Clone)]
+pub struct IngamePlayerData {
+    pub game_type: GameType,
+    pub selected_item_slot: i32,
+    pub spawn: Option<(i32, i32, i32)>,
+    pub spawn_forced: bool,
+    pub food_level: i32,
+    pub food_exhaustion_level: f32,
+    pub food_saturation_level: f32,
+    pub food_tick_timer: i32,
+    pub xp_level: i32,
+    pub xp_total: i32,
+    pub xp_seed: i32,
+    pub inventory: Vec<ItemStack>,
+    pub ender_items: Vec<ItemStack>,
+    pub seen_credits: bool,
+    pub recipes: Vec<String>,
+    pub walk_speed: f32,
+    pub fly_speed: f32,
+    pub may_fly: bool,
+    pub flying: bool,
+    pub invulnerable: bool,
+    pub may_build: bool,
+    pub instabuild: bool,
+    pub is_op: bool,
+}
+
+impl IngamePlayerData {
+    pub fn parse(nbt: &Nbt) -> Result<IngamePlayerData> {
+        let game_type = GameType::from_i32(nbt.child("playerGameType")?.unwrap_i32()?).ok_or(basin_err!("invalid game type for player"))?;
+        let spawn = if nbt.child("SpawnY").is_ok() {
+            Some((
+                nbt.child("SpawnX")?.unwrap_i32()?,
+                nbt.child("SpawnY")?.unwrap_i32()?,
+                nbt.child("SpawnZ")?.unwrap_i32()?,
+            ))
+        } else {
+            None
+        };
+        let inventory_items = nbt.child("Inventory")?.unwrap_list()?;
+        let mut inventory = vec![ItemStack::empty(); PLAYER_INVENTORY_SIZE];
+        for item in inventory_items {
+            let slot = item.child("Slot")?.unwrap_i32()?;
+            inventory[slot as usize] = ItemStack::try_from(item)?;
+        }
+        let ender_items_raw = nbt.child("EnderItems")?.unwrap_list()?;
+        let mut ender_items = vec![ItemStack::empty(); PLAYER_ENDER_SIZE];
+        for item in ender_items_raw {
+            let slot = item.child("Slot")?.unwrap_i32()?;
+            ender_items[slot as usize] = ItemStack::try_from(item)?;
+        }
+        let abilities = nbt.child("abilities")?;
+        Ok(IngamePlayerData {
+            game_type,
+            selected_item_slot: nbt.child("SelectedItemSlot")?.unwrap_i32()?,
+            spawn,
+            spawn_forced: nbt.child("SpawnForced").and_then(|b| b.unwrap_i8()).map(|b| b == 1).unwrap_or(false),
+            food_level: nbt.child("foodLevel")?.unwrap_i32()?,
+            food_exhaustion_level: nbt.child("foodExhaustionLevel")?.unwrap_f32()?,
+            food_saturation_level: nbt.child("foodSaturationLevel")?.unwrap_f32()?,
+            food_tick_timer: nbt.child("foodTickTimer")?.unwrap_i32()?,
+            xp_level: nbt.child("XpLevel")?.unwrap_i32()?,
+            xp_total: nbt.child("XpTotal")?.unwrap_i32()?,
+            xp_seed: nbt.child("XpSeed")?.unwrap_i32()?,
+            inventory,
+            ender_items,
+            seen_credits: nbt.child("seenCredits")?.unwrap_i8()? == 1,
+            recipes: nbt.child("recipeBook")?.child("recipes")?.unwrap_list()?.iter().map(|item| item.unwrap_str().map(|s| s.to_string()) ).collect::<Result<Vec<String>>>()?,
+            walk_speed: abilities.child("walkSpeed")?.unwrap_f32()?,
+            fly_speed: abilities.child("flySpeed")?.unwrap_f32()?,
+            may_fly: abilities.child("mayFly")?.unwrap_i8()? == 1,
+            flying: abilities.child("flying")?.unwrap_i8()? == 1,
+            invulnerable: abilities.child("invulnerable")?.unwrap_i8()? == 1,
+            may_build: abilities.child("mayBuild")?.unwrap_i8()? == 1,
+            instabuild: abilities.child("instabuild")?.unwrap_i8()? == 1,
+            is_op: false,
+        })
+    }
 }
 
 impl Drop for Player {
@@ -88,10 +177,10 @@ impl Player {
 
 #[async_trait]
 pub trait ProtocolHandler {
-    async fn handle_handshake(&self, packet: &HandshakeServerbound) -> Result<()>;
-    async fn handle_login(&self, packet: &LoginServerbound) -> Result<()>;
-    async fn handle_status(&self, packet: &StatusServerbound) -> Result<()>;
-    async fn handle_game(&self, packet: &GameServerbound) -> Result<()>;
+    async fn handle_handshake(self: &Arc<Self>, packet: &HandshakeServerbound) -> Result<()>;
+    async fn handle_login(self: &Arc<Self>, packet: &LoginServerbound) -> Result<()>;
+    async fn handle_status(self: &Arc<Self>, packet: &StatusServerbound) -> Result<()>;
+    async fn handle_game(self: &Arc<Self>, packet: &GameServerbound) -> Result<()>;
 }
 
 #[derive(Deserialize)]
@@ -114,7 +203,25 @@ lazy_static! {
 
 impl Player {
 
-    async fn finish_login(&self) -> Result<()> {
+    async fn teleport_sync(self: &PlayerT) -> Result<()> {
+        let formed_packet = {
+            let id = self.teleport_id.fetch_add(1, Ordering::Relaxed) + 1;
+            let entity = self.entity.read().unwrap();
+            PlayerPositionPacket {
+                id: id as i32,
+                x: entity.pos.x,
+                y: entity.pos.y,
+                z: entity.pos.z,
+                yRot: entity.rot.yaw,
+                xRot: entity.rot.pitch,
+                relativeArguments: (false, false, false, false, false),
+            }
+        };
+        self.send_packet(Packet::from(Game::from(formed_packet))).await?;
+        Ok(())
+    }
+
+    async fn finish_login(self: &PlayerT) -> Result<()> {
         match CONFIG.compression_threshold {
             Some(threshold) => {
                 self.send_packet(Packet::from(Login::from(LoginCompressionPacket { compressionThreshold: threshold as i32 })))
@@ -130,7 +237,44 @@ impl Player {
         } })))
         .await?;
         self.connection.set_state(ConnectionProtocol::Game);
-        info!("Player {} has joined!", *self.username);
+
+        let entity_data = self.server.level.player_data(&self.uuid);
+
+        let data = entity_data.as_ref().map(|data| IngamePlayerData::parse(data)).unwrap_or_else(|| {
+            Ok(IngamePlayerData {
+                game_type: GameType::try_from(&*CONFIG.game_type)?,
+                selected_item_slot: 0,
+                spawn: None,
+                spawn_forced: false,
+                food_level: 20,
+                food_exhaustion_level: 0.0,
+                food_saturation_level: 0.0,
+                food_tick_timer: 0,
+                xp_level: 0,
+                xp_total: 0,
+                xp_seed: 0,
+                inventory: vec![ItemStack::empty(); PLAYER_INVENTORY_SIZE],
+                ender_items: vec![ItemStack::empty(); PLAYER_ENDER_SIZE],
+                seen_credits: false,
+                recipes: vec![],
+                walk_speed: 0.1,
+                fly_speed: 0.05,
+                may_fly: false,
+                flying: false,
+                invulnerable: false,
+                may_build: true,
+                instabuild: false,
+                is_op: false,
+            })
+        })?;
+
+        // self.server.level.set_player_data(&self.uuid, &data);
+        {
+            *self.data.write().unwrap() = Some(data);
+        }
+        let game_type = {
+            self.data.read().unwrap().as_ref().unwrap().game_type
+        };
 
         let formed_packet = {
             let player_entity = self.entity.get();
@@ -139,7 +283,7 @@ impl Player {
                 playerId: player_entity.id as i32, // TODO
                 seed: self.server.level.seed() as i64,
                 hardcore: CONFIG.hardcore,
-                gameType: *self.game_type.get(),
+                gameType: game_type,
                 dimension: player_entity.world.dimension(),
                 maxPlayers: CONFIG.max_players as u8,
                 levelType: "default".to_string(),
@@ -149,7 +293,93 @@ impl Player {
             }
         };
         self.send_packet(Packet::from(Game::from(formed_packet))).await?;
+        self.send_packet(Packet::from(Game::from(CustomPayloadPacket {
+            identifier: "brand".to_string(),
+            data: BytesMut::from("basin2".as_bytes()),
+        }))).await?;
+        let (difficulty, locked) = self.server.level.difficulty();
+        self.send_packet(Packet::from(Game::from(game::clientbound::ChangeDifficultyPacket {
+            difficulty,
+            locked,
+        }))).await?;
+        let formed_packet = {
+            let data = self.data.read().unwrap();
+            let data = data.as_ref().unwrap();
+            PlayerAbilitiesPacket {
+                walkingSpeed: data.walk_speed,
+                flyingSpeed: data.fly_speed,
+                invulnerable: data.invulnerable,
+                isFlying: data.flying,
+                canFly: data.may_fly,
+                instabuild: data.instabuild,
+            }
+        };
+        self.send_packet(Packet::from(Game::from(formed_packet))).await?;
+        self.send_packet(Packet::from(Game::from(game::clientbound::SetCarriedItemPacket {
+            slot: 0,
+        }))).await?;
+        self.send_packet(Packet::from(Game::from(UpdateRecipesPacket {
+            recipes: DATA.recipes.iter().map(|(key, value)| (key.clone(), value.clone())).collect(),
+        }))).await?;
+        self.send_packet(Packet::from(Game::from(UpdateTagsPacket {
+            blocks: DATA.tags_blocks.iter().map(|(key, value)| (key.clone(), value.values.iter().map(|value| {
+                BLOCKS.get_str(value).map(|block| block.registry_id.load(Ordering::Relaxed) as i32 ).unwrap_or(0)
+            }).collect())).collect(),
+            items: DATA.tags_items.iter().map(|(key, value)| (key.clone(), value.values.iter().map(|value| {
+                ITEMS.get_str(value).map(|item| item.registry_id.load(Ordering::Relaxed) as i32 ).unwrap_or(0)
+            }).collect())).collect(),
+            entityTypes: DATA.tags_entity_types.iter().map(|(key, value)| (key.clone(), value.values.iter().map(|value| {
+                ENTITY_TYPES.get_str(value).map(|entity_type| entity_type.registry_id.load(Ordering::Relaxed) as i32 ).unwrap_or(0)
+            }).collect())).collect(),
+            fluids: vec![], // TODO
+        }))).await?;
+        let permission_level: u8 = {
+            let data = self.data.read().unwrap();
+            let data = data.as_ref().unwrap();
+            if data.is_op {
+                28
+            } else {
+                24
+            }
+        };
+        self.send_packet(Packet::from(Game::from(EntityEventPacket {
+            entityId: self.entity_id as i32,
+            eventId: permission_level,
+        }))).await?;
+        self.send_packet(Packet::from(Game::from(CommandsPacket {
+            root: self.server.commands.clone(),
+        }))).await?;
+        let formed_packet = {
+            let data = self.data.read().unwrap();
+            let data = data.as_ref().unwrap();
+            RecipePacket {
+                state: RecipePacketState::Init,
+                recipes: data.recipes.clone(),
+                toHighlight: Some(vec![]),
+                guiOpen: false,
+                filteringCraftable: false,
+                furnaceGuiOpen: false,
+                furnaceFilteringCraftable: false,
+            }
+        };
+        self.send_packet(Packet::from(Game::from(formed_packet))).await?;
+        //TODO: scoreboard sync
+        let player_entity = Arc::new(RwLock::new({
+            if let Some(entity_data) = entity_data {
+                EntityT::try_from(self.world.get(), entity_data, Some(Box::new(PlayerData { player: self.clone() })))?
+            } else {
+                new_player_entity(self.world.get(), self)?
+            }
+        }));
 
+        self.entity.set(player_entity.clone());
+        //TODO: send entity to world, spawn logic, etc
+
+        self.teleport_sync().await?;
+
+        info!("Player {} has joined!", *self.username);
+
+        //TODO: broadcast join message, send player info packets, level info, resource pack
         self.disconnect(ChatComponent::from("test successful".to_string())).await?;
         Ok(())
     }
@@ -204,7 +434,7 @@ lazy_static! {
 
 #[async_trait]
 impl ProtocolHandler for Player {
-    async fn handle_handshake(&self, packet: &HandshakeServerbound) -> Result<()> {
+    async fn handle_handshake(self: &PlayerT, packet: &HandshakeServerbound) -> Result<()> {
         use HandshakeServerbound::*;
 
         match packet {
@@ -225,7 +455,7 @@ impl ProtocolHandler for Player {
         }
     }
 
-    async fn handle_login(&self, packet: &LoginServerbound) -> Result<()> {
+    async fn handle_login(self: &PlayerT, packet: &LoginServerbound) -> Result<()> {
         use LoginServerbound::*;
 
         let mut login_state = self.login_state.lock().await;
@@ -259,7 +489,7 @@ impl ProtocolHandler for Player {
                     login_state.awaiting_response = false;
                     self.uuid.set(Uuid::new_v5(&*USER_NAMESPACE, &**self.username));
                     self.properties.set(LinkedHashMap::new());
-                    self.finish_login().await?;
+                    self.clone().finish_login().await?;
                 }
                 Ok(())
             },
@@ -292,7 +522,7 @@ impl ProtocolHandler for Player {
                 if !self.authenticate_mojang(&shared_secret[..]).await? {
                     return Err(basin_err!("bad login"));
                 }
-                self.finish_login().await?;
+                self.clone().finish_login().await?;
                 Ok(())
             },
             CustomQueryPacket(_packet) => {
@@ -302,7 +532,7 @@ impl ProtocolHandler for Player {
         }
     }
 
-    async fn handle_status(&self, packet: &StatusServerbound) -> Result<()> {
+    async fn handle_status(self: &PlayerT, packet: &StatusServerbound) -> Result<()> {
         use StatusServerbound::*;
         match packet {
             StatusRequestPacket(_packet) => {
@@ -335,7 +565,7 @@ impl ProtocolHandler for Player {
         }
     }
 
-    async fn handle_game(&self, packet: &GameServerbound) -> Result<()> {
+    async fn handle_game(self: &PlayerT, packet: &GameServerbound) -> Result<()> {
         Ok(())
     }
 }
@@ -345,16 +575,18 @@ pub async fn handle_connection(connection: WrappedConnection, server: ServerT) {
     let mut incoming = connection.incoming.lock().unwrap().take().unwrap();
     let player = Arc::new(Player {
         server: server.clone(),
+        entity_id: server.level.next_entity_id(),
         connection,
         login_state: Mutex::new(None),
         username: AtomicSet::new(),
         uuid: AtomicSet::new(),
         properties: AtomicSet::new(),
         disconnected: AtomicSet::new(),
-        level: AtomicRef::from(Arc::new(server.level.clone())),
+        level: AtomicRef::from(server.level.clone()),
         world: AtomicRef::new(),
         entity: AtomicRef::new(),
-        game_type: AtomicRef::new(),
+        data: RwLock::new(None),
+        teleport_id: AtomicU32::new(0),
     });
     while let Some((finish, packet)) = incoming.recv().await {
         let result = match packet {

@@ -1,6 +1,31 @@
-use basin2_lib::{ Registry, RegistryItem, AtomicSet };
+use basin2_lib::{ Registry, RegistryItem, AtomicSet, Nbt };
 use std::sync::{ Arc, atomic::AtomicU32, atomic::Ordering };
 use basin2_lib::result::*;
+use std::fmt::Debug;
+use std::any::Any;
+use linked_hash_map::LinkedHashMap;
+
+pub trait EntityData: Any + Send + Sync + 'static {
+
+}
+
+impl EntityData for () {}
+
+pub trait EntityTypeData: Send + Sync + Debug + 'static {
+
+    fn parse(&self, nbt: &Nbt) -> Result<Box<dyn EntityData>>;
+    fn serialize(&self, data: &dyn EntityData) -> Result<Nbt>;
+}
+
+impl EntityTypeData for () {
+    fn parse(&self, nbt: &Nbt) -> Result<Box<dyn EntityData>> {
+        Ok(Box::new(()))
+    }
+
+    fn serialize(&self, data: &dyn EntityData) -> Result<Nbt> {
+        Ok(Nbt::Compound { children: LinkedHashMap::new() })
+    }
+}
 
 #[derive(Debug)]
 pub struct EntityTypeT {
@@ -12,6 +37,7 @@ pub struct EntityTypeT {
     pub fire_immune: bool,
     pub can_spawn_far_away: bool,
     pub dimensions: (f32, f32),
+    pub data_manager: Box<dyn EntityTypeData>,
 }
 
 impl Default for EntityTypeT {
@@ -25,6 +51,7 @@ impl Default for EntityTypeT {
             fire_immune: false,
             can_spawn_far_away: true,
             dimensions: (0.6, 1.8),
+            data_manager: Box::new(()),
         }
     }
 }

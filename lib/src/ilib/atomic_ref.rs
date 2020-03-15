@@ -2,32 +2,32 @@ use std::fmt::{Debug, self};
 use std::sync::atomic::{ AtomicPtr, Ordering };
 use std::sync::Arc;
 use std::ptr::null_mut;
+use std::ops::Deref;
 
-// once-settable, any-readonly-gettable option
-// useful for read-only structs with after-initialization, one-time fill-in of data
-pub struct AtomicRef<T: Send + Sync> {
-    item: AtomicPtr<T>,
+// n-settable, any-readonly-gettable option
+pub struct AtomicRef<T: Send + Sync + ?Sized + 'static> {
+    item: AtomicPtr<Arc<T>>,
 }
 
-impl<T: Send + Sync> Default for AtomicRef<T> {
+impl<T: Send + Sync + ?Sized + 'static> Default for AtomicRef<T> {
     fn default() -> AtomicRef<T> {
         AtomicRef::new()
     }
 }
 
-impl<T: Debug + Send + Sync> Debug for AtomicRef<T> {
+impl<T: Debug + Send + Sync + ?Sized + 'static> Debug for AtomicRef<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         (*self.get()).fmt(f)
     }
 }
 
-impl<T: Clone + Send + Sync> Clone for AtomicRef<T> {
+impl<T: Clone + Send + Sync + ?Sized + 'static> Clone for AtomicRef<T> {
     fn clone(&self) -> Self {
         let ptr = self.item.load(Ordering::Relaxed);
-        let ptr = if ptr == null_mut::<T>() {
+        let ptr = if ptr == null_mut::<Arc<T>>() {
             ptr
         } else {
-            Arc::into_raw(self.get()) as *mut T
+            Box::into_raw(Box::new(self.get())) as *mut Arc<T>
         };
         AtomicRef {
             item: AtomicPtr::new(ptr),
@@ -35,59 +35,71 @@ impl<T: Clone + Send + Sync> Clone for AtomicRef<T> {
     }
 }
 
-impl<T: PartialEq + Send + Sync> PartialEq for AtomicRef<T> {
+impl<T: PartialEq + Send + Sync + ?Sized + 'static> PartialEq for AtomicRef<T> {
     fn eq(&self, other: &Self) -> bool {
         return (*self.get()) == (*other.get());
     }
 }
 
-impl<T: Send + Sync> Drop for AtomicRef<T> {
+impl<T: Send + Sync + ?Sized + 'static> Drop for AtomicRef<T> {
     fn drop(&mut self) {
         let ptr = self.item.load(Ordering::Relaxed);
         if ptr != null_mut() {
-            drop(unsafe { Arc::from_raw(ptr) });
+            drop(unsafe { Box::from_raw(ptr) });
         }
     }
 }
 
-impl<T: Send + Sync> From<Arc<T>> for AtomicRef<T> {
+impl<T: Send + Sync + ?Sized + 'static> From<Arc<T>> for AtomicRef<T> {
     fn from(item: Arc<T>) -> AtomicRef<T> {
         return AtomicRef {
-            item: AtomicPtr::new(Arc::into_raw(item) as *mut T),
+            item: AtomicPtr::new(Box::into_raw(Box::new(item)) as *mut Arc<T>),
         };
     }
 }
 
-impl<T: Send + Sync> AtomicRef<T> {
+impl<T: Send + Sync + ?Sized + 'static> Deref for AtomicRef<T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        let ptr = self.item.load(Ordering::Relaxed);
+        if ptr == null_mut::<Arc<T>>() {
+            panic!("attempt to get value of unset AtomicRef!");
+        }
+        unsafe { ptr.as_ref().unwrap() }
+    }
+}
+
+impl<T: Send + Sync + ?Sized + 'static> AtomicRef<T> {
     
     pub fn new() -> AtomicRef<T> {
         AtomicRef {
-            item: AtomicPtr::new(null_mut::<T>()),
+            item: AtomicPtr::new(null_mut::<Arc<T>>()),
         }
     }
 
     pub fn set(&self, item: Arc<T>) {
-        let boxed_item = Arc::into_raw(item) as *mut T;
+        let boxed_item = Box::into_raw(Box::new(item)) as *mut Arc<T>;
         let old_item = self.item.swap(boxed_item, Ordering::Relaxed);
         if old_item != null_mut() {
-            drop(unsafe { Arc::from_raw(old_item) });
+            drop(unsafe { Box::from_raw(old_item) });
         }
     }
 
     pub fn get(&self) -> Arc<T> {
         let ptr = self.item.load(Ordering::Relaxed);
-        if ptr == null_mut::<T>() {
-            panic!("attempt to get value of unset AtomicSet!");
+        if ptr == null_mut::<Arc<T>>() {
+            panic!("attempt to get value of unset AtomicRef!");
         }
-        let original_arc = unsafe { Arc::from_raw(ptr) };
-        let returning_arc = original_arc.clone();
-        Arc::into_raw(original_arc);
+        let original_arc = unsafe { Box::from_raw(ptr) };
+        let returning_arc = (*original_arc).clone();
+        Box::into_raw(original_arc);
         return returning_arc;
     }
 
     pub fn is_set(&self) -> bool {
         let ptr = self.item.load(Ordering::Relaxed);
-        ptr != null_mut::<T>()
+        ptr != null_mut::<Arc<T>>()
     }
 }
 

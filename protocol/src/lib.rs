@@ -2,6 +2,8 @@
 
 #[macro_use]
 pub mod macros;
+#[macro_use]
+extern crate basin2_lib;
 
 mod chat;
 pub mod connection;

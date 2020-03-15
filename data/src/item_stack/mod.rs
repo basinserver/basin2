@@ -1,6 +1,8 @@
 
 use super::{ Item, ITEMS, items };
 use basin2_lib::Nbt;
+use basin2_lib::result::*;
+use std::convert::TryFrom;
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct ItemStack {
@@ -26,6 +28,19 @@ impl From<&str> for ItemStack {
             item: ITEMS.get_str(item).unwrap_or(items::AIR.clone()),
             nbt: None,
         }
+    }
+}
+
+
+impl TryFrom<&Nbt> for ItemStack {
+    type Error = Error;
+
+    fn try_from(item: &Nbt) -> Result<ItemStack> {
+        Ok(ItemStack {
+            count: item.child("Count").and_then(|count| count.unwrap_i8() ).unwrap_or(1) as i32,
+            item: ITEMS.get_str(item.child("id").and_then(|id| id.unwrap_str() ).unwrap_or("minecraft:stone")).unwrap_or(items::STONE.clone()),
+            nbt: item.child("tag").ok().cloned(),
+        })
     }
 }
 
