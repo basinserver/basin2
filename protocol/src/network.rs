@@ -51,7 +51,7 @@ impl McProtoSpecialized for BytesMut {
             }
             let nbt = self.get_mc_nbt()?;
             Ok(ItemStack {
-                item: ItemT::item_not_found(ITEMS.get(item_id as u32))?,
+                item: ITEMS.get(item_id as u32).ok_or(basin_err!("item id not found: {}", item_id))?,
                 count: count as i32,
                 nbt: Some(nbt),
             })
@@ -676,17 +676,17 @@ impl DimensionType {
     pub fn id(&self) -> i32 {
         use DimensionType::*;
         match self {
-            Overworld => 1,
-            Nether => 0,
-            TheEnd => 2,
+            Overworld => 0,
+            Nether => -1,
+            TheEnd => 1,
         }
     }
 
     pub fn from_id(id: i32) -> Option<DimensionType> {
         match id {
-            1 => Some(DimensionType::Overworld),
-            0 => Some(DimensionType::Nether),
-            2 => Some(DimensionType::TheEnd),
+            0 => Some(DimensionType::Overworld),
+            -1 => Some(DimensionType::Nether),
+            1 => Some(DimensionType::TheEnd),
             _ => None,
         }
     }
@@ -1188,4 +1188,27 @@ pub enum SetTitlesPacketType {
     Clear,
     Reset,
 }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_item_serialize(item: ItemStack) -> Result<()> {
+        let mut buf = BytesMut::new();
+        buf.set_mc_item_stack(item.clone());
+        let mut encoded = buf.clone();
+        let decoded = encoded.get_mc_item_stack()?;
+        if item != decoded {
+            println!("encoded data: {}", encoded.display());
+        }
+        assert_eq!(item, decoded);
+        Ok(())
+    }
+
+    #[test]
+    fn test_empty_item() -> Result<()> {
+        test_item_serialize(ItemStack::empty())
+    }
 }

@@ -33,17 +33,22 @@ pub struct VanillaLevel {
     next_entity_id: AtomicU32,
 }
 
+fn gzip_read_nbt<T: AsRef<Path>>(file: T) -> Result<Nbt> {
+    let raw_nbt = BytesMut::from(&fs::read(file)?[..]);
+    let mut deflater = GzDecoder::new(vec![]);
+    deflater.write_all(&raw_nbt)?;
+    let mut raw_nbt = BytesMut::from(&deflater.finish()?[..]);
+
+    Nbt::parse(&mut raw_nbt)
+}
+
 impl VanillaLevel {
     pub fn new<T: AsRef<Path>>(directory: T) -> Result<Arc<VanillaLevel>> {
         let directory = directory.as_ref();
         let level_file = directory.join("level.dat");
         let dimensions = CHashMap::new();
-        let raw_nbt = BytesMut::from(&fs::read(level_file)?[..]);
-        let mut deflater = GzDecoder::new(vec![]);
-        deflater.write_all(&raw_nbt)?;
-        let mut raw_nbt = BytesMut::from(&deflater.finish()?[..]);
 
-        let level_nbt = Nbt::parse(&mut raw_nbt)?;
+        let level_nbt = gzip_read_nbt(level_file)?;
         let level_nbt = level_nbt.child("Data")?;
         let border_settings = {
             let center_x = level_nbt.child("BorderCenterX")?.unwrap_f64()?;
@@ -87,8 +92,7 @@ impl VanillaLevel {
                 let filename = filename.to_str().unwrap(); // uuid.dat
                 let player_file = player_file.path();
                 if let Ok(uuid) = scan_fmt!(filename, "{}.dat", String) {
-                    let mut raw_nbt = BytesMut::from(&fs::read(player_file)?[..]);
-                    let player_nbt = Nbt::parse(&mut raw_nbt)?;
+                    let player_nbt = gzip_read_nbt(player_file)?;
 
                     player_data.insert(Uuid::parse_str(&uuid)?, player_nbt);
                 } else {

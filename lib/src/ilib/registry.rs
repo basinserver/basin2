@@ -14,7 +14,10 @@ pub struct Registry<T: RegistryItem> {
 fn namespace_normalize(key: &str) -> String {
     let split_index = key.find(":");
     let (namespace, name) = match split_index {
-        Some(split_index) => key.split_at(split_index),
+        Some(split_index) => {
+            let (namespace, name) = key.split_at(split_index);
+            (namespace, &name[1..])
+        },
         None => ("minecraft", key),
     };
     format!("{}:{}", namespace, name)
@@ -32,6 +35,7 @@ impl<T: RegistryItem> Registry<T> {
     pub fn insert(&mut self, key: &str, item: Arc<T>) {
         let key = namespace_normalize(key);
         let index = self.indexed.len();
+        item.registered(&key, index as u32);
         self.name_index_map.insert(key, index);
         self.indexed.push(item);
     }

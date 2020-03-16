@@ -26,6 +26,7 @@ use enum_primitive::FromPrimitive;
 use std::convert::TryFrom;
 use basin2_data::{ DATA, BLOCKS, ITEMS, ENTITY_TYPES };
 use std::sync::atomic::{ AtomicU32, Ordering };
+use tokio::sync::oneshot;
 
 #[derive(Clone)]
 struct LoginState {
@@ -60,6 +61,7 @@ pub const PLAYER_ENDER_SIZE: usize = 27;
 
 #[derive(Clone)]
 pub struct IngamePlayerData {
+    pub dimension: DimensionType,
     pub game_type: GameType,
     pub selected_item_slot: i32,
     pub spawn: Option<(i32, i32, i32)>,
@@ -87,6 +89,7 @@ pub struct IngamePlayerData {
 
 impl IngamePlayerData {
     pub fn parse(nbt: &Nbt) -> Result<IngamePlayerData> {
+        let dimension = DimensionType::from_i32(nbt.child("Dimension")?.unwrap_i32()?).ok_or(basin_err!("invalid dimension for player"))?;
         let game_type = GameType::from_i32(nbt.child("playerGameType")?.unwrap_i32()?).ok_or(basin_err!("invalid game type for player"))?;
         let spawn = if nbt.child("SpawnY").is_ok() {
             Some((
@@ -100,17 +103,25 @@ impl IngamePlayerData {
         let inventory_items = nbt.child("Inventory")?.unwrap_list()?;
         let mut inventory = vec![ItemStack::empty(); PLAYER_INVENTORY_SIZE];
         for item in inventory_items {
-            let slot = item.child("Slot")?.unwrap_i32()?;
+            let slot = item.child("Slot")?.unwrap_i8()?;
+            let slot = match slot {
+                0..=8 => slot + 36,
+                9..=35 => slot,
+                100..=103 => (3 - (slot - 100)) + 5,
+                -106 => 45,
+                _ => return Err(basin_err!("invalid slot value in player inventory: {}", slot)),
+            };
             inventory[slot as usize] = ItemStack::try_from(item)?;
         }
         let ender_items_raw = nbt.child("EnderItems")?.unwrap_list()?;
         let mut ender_items = vec![ItemStack::empty(); PLAYER_ENDER_SIZE];
         for item in ender_items_raw {
-            let slot = item.child("Slot")?.unwrap_i32()?;
+            let slot = item.child("Slot")?.unwrap_i8()?;
             ender_items[slot as usize] = ItemStack::try_from(item)?;
         }
         let abilities = nbt.child("abilities")?;
         Ok(IngamePlayerData {
+            dimension,
             game_type,
             selected_item_slot: nbt.child("SelectedItemSlot")?.unwrap_i32()?,
             spawn,
@@ -128,7 +139,7 @@ impl IngamePlayerData {
             recipes: nbt.child("recipeBook")?.child("recipes")?.unwrap_list()?.iter().map(|item| item.unwrap_str().map(|s| s.to_string()) ).collect::<Result<Vec<String>>>()?,
             walk_speed: abilities.child("walkSpeed")?.unwrap_f32()?,
             fly_speed: abilities.child("flySpeed")?.unwrap_f32()?,
-            may_fly: abilities.child("mayFly")?.unwrap_i8()? == 1,
+            may_fly: abilities.child("mayfly")?.unwrap_i8()? == 1,
             flying: abilities.child("flying")?.unwrap_i8()? == 1,
             invulnerable: abilities.child("invulnerable")?.unwrap_i8()? == 1,
             may_build: abilities.child("mayBuild")?.unwrap_i8()? == 1,
@@ -150,9 +161,22 @@ impl Player {
     pub async fn send_packet(&self, packet: Packet) -> Result<()> {
         let mut sender = self.connection.outgoing.lock().unwrap().clone();
         
-        Ok(sender.send(Some(packet))
+        Ok(sender.send((None, Some(packet)))
             .await
             .map_err(|e| basin_err!("could not send packet: {:?}", e))?)
+    }
+
+    pub async fn send_packet_blocking(&self, packet: Packet) -> Result<()> {
+        let mut sender = self.connection.outgoing.lock().unwrap().clone();
+        
+        let (response_sender, receiver) = oneshot::channel::<()>();
+
+        let result = sender.send((Some(response_sender), Some(packet)))
+            .await
+            .map_err(|e| basin_err!("could not send packet: {:?}", e) as Error);
+        
+        receiver.await.unwrap();
+        result
     }
 
     pub async fn disconnect(&self, reason: ChatComponent) -> Result<()> {
@@ -169,7 +193,7 @@ impl Player {
         }
         let mut sender = self.connection.outgoing.lock().unwrap().clone();
         
-        Ok(sender.send(None)
+        Ok(sender.send((None, None))
             .await
             .map_err(|e| basin_err!("could not send packet: {:?}", e))?)
     }
@@ -230,18 +254,20 @@ impl Player {
             }
             _ => ()
         }
-        self.send_packet(Packet::from(Login::from(GameProfilePacket { gameProfile: GameProfile {
+        self.send_packet_blocking(Packet::from(Login::from(GameProfilePacket { gameProfile: GameProfile {
             uuid: Some(*self.uuid),
             name: (*self.username).clone(),
             legacy: false,
         } })))
         .await?;
+
         self.connection.set_state(ConnectionProtocol::Game);
 
         let entity_data = self.server.level.player_data(&self.uuid);
 
         let data = entity_data.as_ref().map(|data| IngamePlayerData::parse(data)).unwrap_or_else(|| {
             Ok(IngamePlayerData {
+                dimension: DimensionType::Overworld,
                 game_type: GameType::try_from(&*CONFIG.game_type)?,
                 selected_item_slot: 0,
                 spawn: None,
@@ -276,6 +302,21 @@ impl Player {
             self.data.read().unwrap().as_ref().unwrap().game_type
         };
 
+        {
+            let dimension = { self.data.read().unwrap().as_ref().unwrap().dimension };
+            let world = self.server.level.dimensions().get(&dimension.id()).ok_or(basin_err!("dimension not found for player: {}", dimension.id()))?;
+            self.world.set(world.clone());
+        }
+        let player_entity = Arc::new(RwLock::new({
+            if let Some(entity_data) = entity_data {
+                EntityT::try_from(self.world.get(), entity_data, Some(Box::new(PlayerData { player: self.clone() })))?
+            } else {
+                new_player_entity(self.world.get(), self)?
+            }
+        }));
+
+        self.entity.set(player_entity.clone());
+
         let formed_packet = {
             let player_entity = self.entity.get();
             let player_entity = player_entity.read().unwrap();
@@ -293,7 +334,7 @@ impl Player {
             }
         };
         self.send_packet(Packet::from(Game::from(formed_packet))).await?;
-        self.send_packet(Packet::from(Game::from(CustomPayloadPacket {
+        self.send_packet(Packet::from(Game::from(game::clientbound::CustomPayloadPacket {
             identifier: "brand".to_string(),
             data: BytesMut::from("basin2".as_bytes()),
         }))).await?;
@@ -305,7 +346,7 @@ impl Player {
         let formed_packet = {
             let data = self.data.read().unwrap();
             let data = data.as_ref().unwrap();
-            PlayerAbilitiesPacket {
+            game::clientbound::PlayerAbilitiesPacket {
                 walkingSpeed: data.walk_speed,
                 flyingSpeed: data.fly_speed,
                 invulnerable: data.invulnerable,
@@ -364,15 +405,7 @@ impl Player {
         };
         self.send_packet(Packet::from(Game::from(formed_packet))).await?;
         //TODO: scoreboard sync
-        let player_entity = Arc::new(RwLock::new({
-            if let Some(entity_data) = entity_data {
-                EntityT::try_from(self.world.get(), entity_data, Some(Box::new(PlayerData { player: self.clone() })))?
-            } else {
-                new_player_entity(self.world.get(), self)?
-            }
-        }));
 
-        self.entity.set(player_entity.clone());
         //TODO: send entity to world, spawn logic, etc
 
         self.teleport_sync().await?;
@@ -380,7 +413,7 @@ impl Player {
         info!("Player {} has joined!", *self.username);
 
         //TODO: broadcast join message, send player info packets, level info, resource pack
-        self.disconnect(ChatComponent::from("test successful".to_string())).await?;
+        //self.disconnect(ChatComponent::from("test successful".to_string())).await?;
         Ok(())
     }
 
@@ -534,6 +567,7 @@ impl ProtocolHandler for Player {
 
     async fn handle_status(self: &PlayerT, packet: &StatusServerbound) -> Result<()> {
         use StatusServerbound::*;
+        
         match packet {
             StatusRequestPacket(_packet) => {
                 self.send_packet(Packet::from(Status::from(StatusResponsePacket {
@@ -566,6 +600,7 @@ impl ProtocolHandler for Player {
     }
 
     async fn handle_game(self: &PlayerT, packet: &GameServerbound) -> Result<()> {
+        println!("{:?}", packet);
         Ok(())
     }
 }
@@ -598,20 +633,22 @@ pub async fn handle_connection(connection: WrappedConnection, server: ServerT) {
             Packet::Game(Game::GameServerbound(packet)) => player.handle_game(&packet).await,
             _ => {
                 error!("received invalid packet {:?}", packet);
+                if let Some(finish) = finish {
+                    finish.send(()).unwrap_or(());
+                }
                 break;
             }
         };
+        if let Some(finish) = finish {
+            finish.send(()).unwrap_or(());
+        }
         if result.is_err() {
             error!(
-                "error receiving packet from player: {:?}",
+                "error handling packet from player: {:?}",
                 result.err().unwrap()
             );
             player.disconnect(ChatComponent::from("Disconnected. Ask your server admin for more details.")).await.unwrap_or(());
             break;
-        }
-        match finish {
-            Some(finish) => finish.send(()).unwrap_or(()),
-            _ => (),
         }
     }
     player.disconnect(ChatComponent::from("Disconnect")).await.unwrap_or(());

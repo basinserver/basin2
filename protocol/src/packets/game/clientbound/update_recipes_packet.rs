@@ -164,7 +164,6 @@ impl CodablePacket for UpdateRecipesPacket {
                     buf.set_mc_var_int(height);
                     buf.set_mc_string(group.unwrap_or("".to_string()));
                     for ingredient in recipeItems {
-                        buf.set_mc_var_int(ingredient.len() as i32);
                         for item in ingredient {
                             RecipeSerializerNetworked::write_ingredient(item, buf);
                         }
@@ -229,7 +228,7 @@ mod tests {
     use crate::packet::test::*;
 
     #[test]
-    fn test_cycle() -> Result<()> {
+    fn test_cycle_shaped() -> Result<()> {
         cycle(UpdateRecipesPacket {
             recipes: vec![
                 (
@@ -239,14 +238,20 @@ mod tests {
                         height: 2,
                         group: Some("group".to_string()),
                         recipeItems: vec![
-                            vec![vec![ItemStack::empty()]],
-                            vec![vec![ItemStack::empty()]],
-                            vec![vec![ItemStack::empty()]],
-                            vec![vec![ItemStack::empty()]],
+                            vec![vec![ItemStack::empty()], vec![ItemStack::empty()]],
+                            vec![vec![ItemStack::empty()], vec![ItemStack::empty()]],
                         ],
                         result: ItemStack::empty(),
                     },
                 ),
+            ],
+        })
+    }
+
+    #[test]
+    fn test_cycle_shapeless() -> Result<()> {
+        cycle(UpdateRecipesPacket {
+            recipes: vec![
                 (
                     "shapeless recipe".to_string(),
                     RecipeSerializer::CraftingShapeless {
@@ -260,10 +265,26 @@ mod tests {
                         result: ItemStack::empty(),
                     },
                 ),
+            ],
+        })
+    }
+
+    #[test]
+    fn test_cycle_simple() -> Result<()> {
+        cycle(UpdateRecipesPacket {
+            recipes: vec![
                 (
                     "simple recipe".to_string(),
                     RecipeSerializer::CraftingSpecialArmordye,
                 ),
+            ],
+        })
+    }
+
+    #[test]
+    fn test_cycle_smelting() -> Result<()> {
+        cycle(UpdateRecipesPacket {
+            recipes: vec![
                 (
                     "smelting recipe".to_string(),
                     RecipeSerializer::Smelting(SimpleCookingSerializer {
@@ -274,6 +295,14 @@ mod tests {
                         cookingTime: 300,
                     }),
                 ),
+            ],
+        })
+    }
+
+    #[test]
+    fn test_cycle_stonecutting() -> Result<()> {
+        cycle(UpdateRecipesPacket {
+            recipes: vec![
                 (
                     "stonecutting recipe".to_string(),
                     RecipeSerializer::Stonecutting {

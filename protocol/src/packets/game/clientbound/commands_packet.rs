@@ -333,12 +333,11 @@ impl CommandNode {
                 deque.push_back(base_node.redirect.clone().unwrap());
             }
         }
-        let mut output_vec: Vec<Uuid> = vec![];
-        output_vec.reserve(output.len());
+        let mut output_vec: Vec<Option<Uuid>> = vec![None; output.len()];
         for (node, i) in &output {
-            output_vec[*i] = node.clone();
+            output_vec[*i] = Some(node.clone());
         }
-        (output, output_vec, all_nodes)
+        (output, output_vec.iter().map(|item| item.unwrap()).collect(), all_nodes)
     }
 
     fn serialize(self: Arc<CommandNode>, buf: &mut BytesMut, offsets: &HashMap<Uuid, usize>) {

@@ -37,7 +37,7 @@ pub struct WrappedMcCodec(pub Arc<RwLock<McCodec>>);
 
 pub struct Connection {
     pub incoming: Mutex<Option<Receiver<(Option<oneshot::Sender<()>>, Packet)>>>,
-    pub outgoing: Mutex<Sender<Option<Packet>>>,
+    pub outgoing: Mutex<Sender<(Option<oneshot::Sender<()>>, Option<Packet>)>>,
     pub address: SocketAddr,
     pub codec: WrappedMcCodec,
 }
@@ -53,6 +53,14 @@ impl fmt::Debug for Connection {
 impl McCodec {
     fn finish_decode(&self, buf: &mut BytesMut) -> Result<Packet> {
         let packet_id = buf.get_mc_var_int()?;
+        let decoded = self.finish_decode_packet(buf, packet_id);
+        match decoded {
+            Ok(packet) => Ok(packet),
+            Err(e) => Err(basin_err!("failed to decode packet id {} from {}<{:?}>: {:?}", packet_id, if self.is_server { "server" } else { "client" }, self.state, e)),
+        }
+    }
+
+    fn finish_decode_packet(&self, buf: &mut BytesMut, packet_id: i32) -> Result<Packet> {
         Ok(match (self.state, self.is_server) {
             (ConnectionProtocol::Handshake, true) => Packet::Handshake(
                 Handshake::HandshakeServerbound(HandshakeServerbound::decode(packet_id, buf)?),
@@ -162,6 +170,17 @@ impl McCodec {
         packet: Packet,
         output: &mut BytesMut,
     ) -> std::result::Result<(), IoError> {
+        match (self.state, self.is_server, &packet) {
+            (ConnectionProtocol::Handshake, true, Packet::Handshake(Handshake::HandshakeClientbound(..))) => (),
+            (ConnectionProtocol::Handshake, false, Packet::Handshake(Handshake::HandshakeServerbound(..))) => (),
+            (ConnectionProtocol::Status, true, Packet::Status(Status::StatusClientbound(..))) => (),
+            (ConnectionProtocol::Status, false, Packet::Status(Status::StatusServerbound(..))) => (),
+            (ConnectionProtocol::Login, true, Packet::Login(Login::LoginClientbound(..))) => (),
+            (ConnectionProtocol::Login, false, Packet::Login(Login::LoginServerbound(..))) => (),
+            (ConnectionProtocol::Game, true, Packet::Game(Game::GameClientbound(..))) => (),
+            (ConnectionProtocol::Game, false, Packet::Game(Game::GameServerbound(..))) => (),
+            _ => return Err(IoError::from(ErrorKind::InvalidData)),
+        }
         let mut encoded = BytesMut::new();
         packet.encode(&mut encoded);
         // compress
@@ -237,12 +256,23 @@ impl Encoder for WrappedMcCodec {
 }
 
 async fn writeForward(
-    mut incoming: Receiver<Option<Packet>>,
+    mut incoming: Receiver<(Option<oneshot::Sender<()>>, Option<Packet>)>,
     mut to: SplitSink<Framed<TcpStream, WrappedMcCodec>, Packet>,
 ) -> Result<()> {
-    while let Some(Some(packet)) = incoming.recv().await {
-        if to.send(packet).await.is_err() {
-            break;
+    loop {
+        match incoming.recv().await {
+            Some((responder, Some(packet))) => {
+                //TODO: stop cloning for debug here
+                let result = to.send(packet.clone()).await;
+                if let Some(responder) = responder {
+                    responder.send(()).unwrap_or(());
+                }
+                if result.is_err() {
+                    error!("error sending packet: {:?}, data: {:?}", result, packet);
+                    break;
+                }
+            },
+            Some((_, None)) | None => { break; },
         }
     }
     Ok(())
@@ -252,24 +282,33 @@ async fn readForward(
     mut outgoing: Sender<(Option<oneshot::Sender<()>>, Packet)>,
     mut from: SplitStream<Framed<TcpStream, WrappedMcCodec>>,
 ) -> Result<()> {
-    while let Some(Ok(request)) = from.next().await {
-        let should_block = match &request { // packets that directly affect encoding/decoding need to be processed before we continue
-            Packet::Handshake(Handshake::HandshakeServerbound(HandshakeServerbound::ClientIntentionPacket(_))) => true,
-            Packet::Login(Login::LoginServerbound(LoginServerbound::KeyPacket(_))) => true,
-            Packet::Login(Login::LoginServerbound(LoginServerbound::HelloPacket(_))) => true,
-            _ => false,
-        };
-        let (sender, receiver) = if should_block {
-            let (sender, receiver) = oneshot::channel::<()>();
-            (Some(sender), Some(receiver))
-        } else {
-            (None, None)
-        };
-        if outgoing.send((sender, request)).await.is_err() {
-            break;
-        }
-        if receiver.is_some() {
-            receiver.unwrap().await.unwrap_or(());
+    loop {
+        match from.next().await {
+            Some(Ok(request)) => {
+                let should_block = match &request { // packets that directly affect encoding/decoding need to be processed before we continue
+                    Packet::Handshake(Handshake::HandshakeServerbound(HandshakeServerbound::ClientIntentionPacket(_))) => true,
+                    Packet::Login(Login::LoginServerbound(LoginServerbound::KeyPacket(_))) => true,
+                    Packet::Login(Login::LoginServerbound(LoginServerbound::HelloPacket(_))) => true,
+                    _ => false,
+                };
+                let (sender, receiver) = if should_block {
+                    let (sender, receiver) = oneshot::channel::<()>();
+                    (Some(sender), Some(receiver))
+                } else {
+                    (None, None)
+                };
+                if outgoing.send((sender, request)).await.is_err() {
+                    break;
+                }
+                if receiver.is_some() {
+                    receiver.unwrap().await.unwrap_or(());
+                }
+            },
+            Some(Err(e)) => {
+                error!("error decoding packet: {:?}", e);
+                break;
+            },
+            None => { break; },
         }
     }
     Ok(())
@@ -284,7 +323,7 @@ impl Connection {
         let address = socket.peer_addr().unwrap();
 
         let (in_outgoing, in_incoming) = channel::<(Option<oneshot::Sender<()>>, Packet)>(256);
-        let (out_outgoing, out_incoming) = channel::<Option<Packet>>(256);
+        let (out_outgoing, out_incoming) = channel::<(Option<oneshot::Sender<()>>, Option<Packet>)>(256);
 
         let connection = Connection {
             incoming: Mutex::new(Some(in_incoming)),

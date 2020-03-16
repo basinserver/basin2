@@ -26,8 +26,8 @@ pub use entities::{ EntityType, EntityTypeT };
 use std::sync::Arc;
 
 lazy_static! {
-    pub static ref ITEMS: Registry<ItemT> = { let mut registry = Registry::new(); items::construct_registry(&mut registry); registry };
     pub static ref BLOCKS: Registry<BlockT> = { let mut registry = Registry::new(); blocks::construct_registry(&mut registry); registry };
+    pub static ref ITEMS: Registry<ItemT> = { let _ = *BLOCKS; let mut registry = Registry::new(); items::construct_registry(&mut registry); registry };
     pub static ref MOB_EFFECTS: Registry<MobEffectT> = { let mut registry = Registry::new(); mob_effects::construct_registry(&mut registry); registry };
     pub static ref ENTITY_TYPES: Registry<EntityTypeT> = { let mut registry = Registry::new(); entities::construct_registry(&mut registry); registry };
 
@@ -35,9 +35,9 @@ lazy_static! {
 }
 
 pub fn load() {
-    let _ = &ITEMS;
-    let _ = &BLOCKS;
-    let _ = &MOB_EFFECTS;
-    let _ = &DATA;
+    let _ = *BLOCKS;
+    let _ = *ITEMS;
+    let _ = *MOB_EFFECTS;
+    let _ = *DATA;
 
 }

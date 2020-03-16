@@ -3,6 +3,8 @@ use super::blocks::{ Block, self };
 use super::mob_effects::MobEffectInstance;
 use std::sync::{ Arc, atomic::AtomicU32, atomic::Ordering };
 use basin2_lib::result::*;
+use std::convert::TryFrom;
+use crate::ITEMS;
 
 mod data;
 pub use data::*;
@@ -67,11 +69,8 @@ impl ItemT {
         })
     }
 
-    pub fn item_not_found(item: Option<Item>) -> Result<Item> {
-        match item {
-            Some(item) => Ok(item),
-            None => Err(basin_err!("item not found")),
-        }
+    pub fn try_from(key: &str) -> Result<Item> {
+        ITEMS.get_str(key).ok_or(basin_err!("couldn't find item: {}", key))
     }
 }
 

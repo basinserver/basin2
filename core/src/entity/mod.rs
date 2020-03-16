@@ -86,7 +86,7 @@ fn parse_entity_uuid_nbt(nbt: &Nbt) -> Result<Uuid> {
 impl EntityT {
 
     pub fn try_from(world: World, nbt: Nbt, data: Option<Box<dyn EntityData>>) -> Result<EntityT> {
-        let entity_type = nbt.child("id")?.unwrap_str()?;
+        let entity_type = nbt.child("id").and_then(|id| id.unwrap_str()).unwrap_or("minecraft:player");
         let entity_type = ENTITY_TYPES.get_str(entity_type).ok_or(basin_err!("no entity type specified"))?;
         let mut passengers = vec![];
         for passenger in nbt.child("Passengers") {

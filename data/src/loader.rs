@@ -7,6 +7,7 @@ use std::fs;
 use super::*;
 use basin2_lib::result::{ Result, * };
 use basin2_lib::TryCollect;
+use log::*;
 
 #[derive(Serialize, Deserialize)]
 pub struct AdvancementDisplayDataIcon {
@@ -180,10 +181,11 @@ impl Data {
         for row in rows {
             let mut out: Vec<Vec<ItemStack>> = vec![];
             for key in row.chars() {
-                let ingredient = match keys.get(&key.to_string()) {
+                let value = keys.get(&key.to_string());
+                let ingredient = match value {
                     Some(Value::Object(ingredient)) => Data::parse_ingredient(ingredient, tags_items)?,
                     Some(Value::Array(ingredients)) => Data::parse_ingredients(ingredients, tags_items)?,
-                    _ => return Err(basin_err!("ingredient is invalid or missing")),
+                    _ => return Err(basin_err!("ingredient is invalid or missing: {:?}", value)),
                 };
                 out.push(ingredient);
             }
@@ -217,7 +219,7 @@ impl Data {
                     ingredients.push(match value {
                         Value::Object(ingredient) => Data::parse_ingredient(ingredient, tags_items)?,
                         Value::Array(ingredients) => Data::parse_ingredients(ingredients, tags_items)?,
-                        _ => return Err(basin_err!("ingredient is invalid or missing")),
+                        _ => return Err(basin_err!("ingredient is invalid or missing: {:?}", value)),
                     });
                 }
             },
@@ -233,14 +235,14 @@ impl Data {
 
     fn parse_ingredient(value: &Map<String, Value>, tags_items: &mut HashMap<String, TagsData>) -> Result<Vec<ItemStack>> {
         match value.get("item") {
-            Some(Value::String(id)) => return Ok(vec![ItemStack::from(ItemT::item_not_found(ITEMS.get_str(&*id))?)]),
+            Some(Value::String(id)) => return Ok(vec![ItemStack::from(ItemT::try_from(&*id)?)]),
             None => (),
             _ => return Err(basin_err!("invalid item: {:?}", value)),
         };
         Ok(match value.get("tag") {
             Some(Value::String(tag)) => {
                 match tags_items.get(tag) {
-                    Some(data) => data.values.iter().map(|name| Ok(ItemStack::from(ItemT::item_not_found(ITEMS.get_str(name))?))).try_collect()?,
+                    Some(data) => data.values.iter().map(|name| Ok(ItemStack::from(ItemT::try_from(name)?))).try_collect()?,
                     _ => return Err(basin_err!("invalid tag: {:?}", tag)),
                 }
             }
@@ -251,12 +253,12 @@ impl Data {
     fn parse_result(value: Option<&Value>) -> Result<ItemStack> {
         match value {
             Some(Value::String(id)) => {
-                Ok(ItemStack::new(ItemT::item_not_found(ITEMS.get_str(&*id))?, 1, None))
+                Ok(ItemStack::new(ItemT::try_from(&*id)?, 1, None))
             },
             Some(Value::Object(map)) => {
                 let item = 
                 match map.get("item") {
-                    Some(Value::String(id)) => ItemT::item_not_found(ITEMS.get_str(&*id))?,
+                    Some(Value::String(id)) => ItemT::try_from(&*id)?,
                     _ => return Err(basin_err!("invalid item: {:?}", map)),
                 };
                 let count =
@@ -290,7 +292,7 @@ impl Data {
         let ingredient = match value.get("ingredient") {
             Some(Value::Object(ingredient)) => Data::parse_ingredient(ingredient, tags_items)?,
             Some(Value::Array(ingredients)) => Data::parse_ingredients(ingredients, tags_items)?,
-            _ => return Err(basin_err!("ingredient is invalid or missing")),
+            _ => return Err(basin_err!("ingredient is invalid or missing: {:?}", value.get("ingredient"))),
         };
         let result = Data::parse_result(value.get("result"))?;
 
@@ -463,8 +465,12 @@ impl Data {
             let filename = &filename[0..filename.len() - 5];
             let raw = fs::read_to_string(item.path())?;
             let raw_recipe: Value = serde_json::from_str(&*raw)?;
-            let recipe = Data::parse_recipe(raw_recipe, tags_items)?;
-            recipes.insert(format!("{}:{}", namespace, filename), recipe);
+            let recipe = Data::parse_recipe(raw_recipe, tags_items);
+            match recipe {
+                Ok(recipe) => { recipes.insert(format!("{}:{}", namespace, filename), recipe); },
+                Err(e) => error!("couldn't read recipe {:?}: {:?}", item.path(), e),
+            }
+            
         }
 
         // TODO: structures

@@ -86,6 +86,9 @@ impl Nbt {
             Nbt::Compound { children } if children.len() == 1 && children.contains_key("") => {
                 Ok(children[""].clone())
             },
+            Nbt::Compound { children } if children.len() == 0 => {
+                Ok(Nbt::End)
+            },
             _ => Ok(direct_nbt)
         }
     }
@@ -190,6 +193,10 @@ impl Nbt {
     pub fn serialize(self, buf: &mut BytesMut) {
         match self {
             Nbt::Compound { .. } => (),
+            Nbt::End => {
+                buf.set_mc_u8(self.nbt_type() as u8);
+                return;
+            },
             _ => panic!("attempted to serialize non-compound!"),
         }
         self.serialize_list(buf);
