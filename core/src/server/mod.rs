@@ -4,23 +4,18 @@ use crate::util::CONFIG;
 use basin2_protocol::{start_server, WrappedConnection};
 use tokio::sync::mpsc;
 use crate::world::Level;
-use crate::player::PlayerT;
+use crate::player::{ PlayerT, PlayerEvent };
 use uuid::Uuid;
 use std::collections::HashMap;
 use std::sync::{ Arc, Weak, RwLock };
 use tokio::sync::broadcast;
-pub mod events;
 use basin2_protocol::network::{ CommandNode, BaseCommandNode };
 use linked_hash_map::LinkedHashMap;
 
-pub trait ServerEvent: Send + Sync {
-    fn process(self, server: ServerT, player: PlayerT);
-}
-
 pub struct Server {
     pub level: Level,
-    pub players: RwLock<HashMap<Uuid, Weak<PlayerT>>>,
-    pub events: broadcast::Sender<Box<dyn ServerEvent>>,
+    pub players: RwLock<HashMap<Uuid, PlayerT>>,
+    pub player_events: broadcast::Sender<Arc<dyn PlayerEvent>>,
     pub commands: Arc<CommandNode>,
 }
 
@@ -38,9 +33,13 @@ impl Server {
         Server {
             level,
             players: RwLock::new(HashMap::new()),
-            events: broadcast::channel(1024).0,
+            player_events: broadcast::channel(1024).0,
             commands: Arc::new(commands),
         }
+    }
+
+    pub fn send<T: PlayerEvent>(&self, event: T) {
+        self.player_events.send(Arc::new(event)).unwrap_or(0);
     }
 }
 
