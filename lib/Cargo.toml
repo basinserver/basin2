@@ -1,9 +1,8 @@
 [package]
 name = "basin2-lib"
-version = "15.2.1"
+version = "152.1.0"
 authors = ["Protryon <max.bruce12@gmail.com>"]
 edition = "2018"
-publish = false
 
 [dependencies]
 lazy_static = "1.4.0"

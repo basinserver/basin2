@@ -39,7 +39,7 @@ checksum = "f8aac770f1885fd7e387acedd76065302551364496e46b3dd00860b2f8359b9d"
 
 [[package]]
 name = "basin2-lib"
-version = "15.2.1"
+version = "152.1.0"
 dependencies = [
  "async-trait",
  "bytes",
