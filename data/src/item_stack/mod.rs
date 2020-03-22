@@ -1,7 +1,6 @@
-
-use super::{ Item, ITEMS, items };
-use basin2_lib::Nbt;
+use super::{items, Item, ITEMS};
 use basin2_lib::result::*;
+use basin2_lib::Nbt;
 use std::convert::TryFrom;
 
 #[derive(PartialEq, Clone, Debug)]
@@ -31,14 +30,22 @@ impl From<&str> for ItemStack {
     }
 }
 
-
 impl TryFrom<&Nbt> for ItemStack {
     type Error = Error;
 
     fn try_from(item: &Nbt) -> Result<ItemStack> {
         Ok(ItemStack {
-            count: item.child("Count").and_then(|count| count.unwrap_i8() ).unwrap_or(1) as i32,
-            item: ITEMS.get_str(item.child("id").and_then(|id| id.unwrap_str() ).unwrap_or("minecraft:stone")).unwrap_or(items::STONE.clone()),
+            count: item
+                .child("Count")
+                .and_then(|count| count.unwrap_i8())
+                .unwrap_or(1) as i32,
+            item: ITEMS
+                .get_str(
+                    item.child("id")
+                        .and_then(|id| id.unwrap_str())
+                        .unwrap_or("minecraft:stone"),
+                )
+                .unwrap_or(items::STONE.clone()),
             nbt: item.child("tag").ok().cloned(),
         })
     }
@@ -46,11 +53,7 @@ impl TryFrom<&Nbt> for ItemStack {
 
 impl ItemStack {
     pub fn new(item: Item, count: i32, nbt: Option<Nbt>) -> ItemStack {
-        ItemStack {
-            item,
-            count,
-            nbt,
-        }
+        ItemStack { item, count, nbt }
     }
 
     pub fn is_empty(&self) -> bool {

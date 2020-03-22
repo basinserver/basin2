@@ -1,5 +1,5 @@
-use basin2_lib::ilib::{ Registry, RegistryItem, AtomicSet };
-use std::sync::{ Arc, atomic::AtomicU32, atomic::Ordering };
+use basin2_lib::ilib::{AtomicSet, Registry, RegistryItem};
+use std::sync::{atomic::AtomicU32, atomic::Ordering, Arc};
 
 #[derive(Debug)]
 pub struct MobEffectT {
@@ -23,12 +23,22 @@ impl RegistryItem for MobEffectT {
 
 impl MobEffectT {
     pub fn instance(self: &Arc<Self>, duration: u32, amplifier: u32) -> MobEffectInstance {
-        MobEffectInstance { mob_effect: self.clone(), duration, amplifier }
+        MobEffectInstance {
+            mob_effect: self.clone(),
+            duration,
+            amplifier,
+        }
     }
 }
 
 pub fn construct_registry(registry: &mut Registry<MobEffectT>) {
-    registry.insert("null", Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) })); // 1-based index hack
+    registry.insert(
+        "null",
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        }),
+    ); // 1-based index hack
     registry.insert("speed", MOVEMENT_SPEED.clone());
     registry.insert("slowness", MOVEMENT_SLOWDOWN.clone());
     registry.insert("haste", DIG_SPEED.clone());
@@ -60,42 +70,202 @@ pub fn construct_registry(registry: &mut Registry<MobEffectT>) {
     registry.insert("conduit_power", CONDUIT_POWER.clone());
     registry.insert("dolphins_grace", DOLPHINS_GRACE.clone());
     registry.insert("bad_omen", BAD_OMEN.clone());
-    registry.insert("hero_of_the_village", HERO_OF_THE_VILLAGE.clone());    
+    registry.insert("hero_of_the_village", HERO_OF_THE_VILLAGE.clone());
 }
 
 pub type MobEffect = Arc<MobEffectT>;
 
 lazy_static! {
-    pub static ref MOVEMENT_SPEED: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref MOVEMENT_SLOWDOWN: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref DIG_SPEED: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref DIG_SLOWDOWN: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref DAMAGE_BOOST: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref HEAL: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref HARM: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref JUMP: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref CONFUSION: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref REGENERATION: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref DAMAGE_RESISTANCE: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref FIRE_RESISTANCE: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref WATER_BREATHING: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref INVISIBILITY: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref BLINDNESS: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref NIGHT_VISION: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref HUNGER: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref WEAKNESS: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref POISON: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref WITHER: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref HEALTH_BOOST: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref ABSORPTION: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref SATURATION: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref GLOWING: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref LEVITATION: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref LUCK: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref UNLUCK: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref SLOW_FALLING: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref CONDUIT_POWER: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref DOLPHINS_GRACE: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref BAD_OMEN: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
-    pub static ref HERO_OF_THE_VILLAGE: MobEffect = { Arc::new(MobEffectT { registry_name: AtomicSet::new(), registry_id: AtomicU32::new(0) }) };
+    pub static ref MOVEMENT_SPEED: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref MOVEMENT_SLOWDOWN: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref DIG_SPEED: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref DIG_SLOWDOWN: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref DAMAGE_BOOST: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref HEAL: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref HARM: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref JUMP: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref CONFUSION: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref REGENERATION: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref DAMAGE_RESISTANCE: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref FIRE_RESISTANCE: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref WATER_BREATHING: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref INVISIBILITY: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref BLINDNESS: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref NIGHT_VISION: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref HUNGER: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref WEAKNESS: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref POISON: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref WITHER: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref HEALTH_BOOST: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref ABSORPTION: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref SATURATION: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref GLOWING: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref LEVITATION: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref LUCK: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref UNLUCK: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref SLOW_FALLING: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref CONDUIT_POWER: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref DOLPHINS_GRACE: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref BAD_OMEN: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
+    pub static ref HERO_OF_THE_VILLAGE: MobEffect = {
+        Arc::new(MobEffectT {
+            registry_name: AtomicSet::new(),
+            registry_id: AtomicU32::new(0),
+        })
+    };
 }

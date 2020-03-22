@@ -1,9 +1,7 @@
 use crate::loader::LootTableData;
 
 #[derive(Debug, Clone)]
-pub struct LootTable {
-
-}
+pub struct LootTable {}
 
 impl From<LootTableData> for LootTable {
     fn from(data: LootTableData) -> LootTable {

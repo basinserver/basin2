@@ -1,13 +1,13 @@
-use std::collections::HashMap;
-use basin2_lib::Nbt;
-use crate::{ RecipeSerializer, SimpleCookingSerializer, ItemStack };
-use serde::{ Serialize, Deserialize };
-use serde_json::{ Value, Map };
-use std::fs;
 use super::*;
-use basin2_lib::result::{ Result, * };
+use crate::{ItemStack, RecipeSerializer, SimpleCookingSerializer};
+use basin2_lib::result::{Result, *};
+use basin2_lib::Nbt;
 use basin2_lib::TryCollect;
 use log::*;
+use serde::{Deserialize, Serialize};
+use serde_json::{Map, Value};
+use std::collections::HashMap;
+use std::fs;
 
 #[derive(Serialize, Deserialize)]
 pub struct AdvancementDisplayDataIcon {
@@ -109,7 +109,7 @@ pub struct LootTablePool {
     pub conditions: Conditions,
     #[serde(default = "empty_vec")]
     pub functions: Vec<LootTableFunction>,
-    pub rolls: Value, // either an int or a {min,max} object
+    pub rolls: Value,               // either an int or a {min,max} object
     pub bonus_rolls: Option<Value>, // either an int or a {min,max} object
     #[serde(default = "empty_vec")]
     pub entries: Vec<LootTableEntry>,
@@ -142,8 +142,10 @@ pub struct Data {
 }
 
 impl Data {
-
-    fn parse_recipe_shaped(value: Value, tags_items: &mut HashMap<String, TagsData>) -> Result<RecipeSerializer> {
+    fn parse_recipe_shaped(
+        value: Value,
+        tags_items: &mut HashMap<String, TagsData>,
+    ) -> Result<RecipeSerializer> {
         let value = match value {
             Value::Object(value) => value,
             _ => return Err(basin_err!("not an object")),
@@ -161,20 +163,18 @@ impl Data {
                     match value {
                         Value::String(string) => {
                             rows.push(string.clone());
-                        },
+                        }
                         _ => return Err(basin_err!("invalid pattern specified: {:?}", value)),
                     }
                 }
-            },
+            }
             _ => return Err(basin_err!("invalid pattern specified: {:?}", value)),
         };
         if rows.len() <= 0 || rows.first().unwrap().len() <= 0 {
             return Err(basin_err!("invalid pattern specified: {:?}", value));
         }
         let keys = match value.get("key") {
-            Some(Value::Object(entries)) => {
-                entries
-            },
+            Some(Value::Object(entries)) => entries,
             _ => return Err(basin_err!("invalid key specified: {:?}", value)),
         };
         let mut items: Vec<Vec<Vec<ItemStack>>> = vec![];
@@ -183,8 +183,12 @@ impl Data {
             for key in row.chars() {
                 let value = keys.get(&key.to_string());
                 let ingredient = match value {
-                    Some(Value::Object(ingredient)) => Data::parse_ingredient(ingredient, tags_items)?,
-                    Some(Value::Array(ingredients)) => Data::parse_ingredients(ingredients, tags_items)?,
+                    Some(Value::Object(ingredient)) => {
+                        Data::parse_ingredient(ingredient, tags_items)?
+                    }
+                    Some(Value::Array(ingredients)) => {
+                        Data::parse_ingredients(ingredients, tags_items)?
+                    }
                     _ => return Err(basin_err!("ingredient is invalid or missing: {:?}", value)),
                 };
                 out.push(ingredient);
@@ -198,10 +202,13 @@ impl Data {
             group: group,
             recipeItems: items,
             result,
-        })
+        });
     }
 
-    fn parse_recipe_shapeless(value: Value, tags_items: &mut HashMap<String, TagsData>) -> Result<RecipeSerializer> {
+    fn parse_recipe_shapeless(
+        value: Value,
+        tags_items: &mut HashMap<String, TagsData>,
+    ) -> Result<RecipeSerializer> {
         let value = match value {
             Value::Object(value) => value,
             _ => return Err(basin_err!("not an object")),
@@ -217,12 +224,18 @@ impl Data {
             Some(Value::Array(values)) => {
                 for value in values {
                     ingredients.push(match value {
-                        Value::Object(ingredient) => Data::parse_ingredient(ingredient, tags_items)?,
-                        Value::Array(ingredients) => Data::parse_ingredients(ingredients, tags_items)?,
-                        _ => return Err(basin_err!("ingredient is invalid or missing: {:?}", value)),
+                        Value::Object(ingredient) => {
+                            Data::parse_ingredient(ingredient, tags_items)?
+                        }
+                        Value::Array(ingredients) => {
+                            Data::parse_ingredients(ingredients, tags_items)?
+                        }
+                        _ => {
+                            return Err(basin_err!("ingredient is invalid or missing: {:?}", value))
+                        }
                     });
                 }
-            },
+            }
             _ => return Err(basin_err!("invalid pattern specified: {:?}", value)),
         };
 
@@ -233,46 +246,50 @@ impl Data {
         });
     }
 
-    fn parse_ingredient(value: &Map<String, Value>, tags_items: &mut HashMap<String, TagsData>) -> Result<Vec<ItemStack>> {
+    fn parse_ingredient(
+        value: &Map<String, Value>,
+        tags_items: &mut HashMap<String, TagsData>,
+    ) -> Result<Vec<ItemStack>> {
         match value.get("item") {
             Some(Value::String(id)) => return Ok(vec![ItemStack::from(ItemT::try_from(&*id)?)]),
             None => (),
             _ => return Err(basin_err!("invalid item: {:?}", value)),
         };
         Ok(match value.get("tag") {
-            Some(Value::String(tag)) => {
-                match tags_items.get(tag) {
-                    Some(data) => data.values.iter().map(|name| Ok(ItemStack::from(ItemT::try_from(name)?))).try_collect()?,
-                    _ => return Err(basin_err!("invalid tag: {:?}", tag)),
-                }
-            }
+            Some(Value::String(tag)) => match tags_items.get(tag) {
+                Some(data) => data
+                    .values
+                    .iter()
+                    .map(|name| Ok(ItemStack::from(ItemT::try_from(name)?)))
+                    .try_collect()?,
+                _ => return Err(basin_err!("invalid tag: {:?}", tag)),
+            },
             _ => return Err(basin_err!("invalid item: {:?}", value)),
         })
     }
 
     fn parse_result(value: Option<&Value>) -> Result<ItemStack> {
         match value {
-            Some(Value::String(id)) => {
-                Ok(ItemStack::new(ItemT::try_from(&*id)?, 1, None))
-            },
+            Some(Value::String(id)) => Ok(ItemStack::new(ItemT::try_from(&*id)?, 1, None)),
             Some(Value::Object(map)) => {
-                let item = 
-                match map.get("item") {
+                let item = match map.get("item") {
                     Some(Value::String(id)) => ItemT::try_from(&*id)?,
                     _ => return Err(basin_err!("invalid item: {:?}", map)),
                 };
-                let count =
-                match map.get("count") {
+                let count = match map.get("count") {
                     Some(Value::Number(count)) => count.as_u64().unwrap_or(1),
                     _ => 1,
                 };
                 Ok(ItemStack::new(item, count as i32, None))
-            },
+            }
             _ => return Err(basin_err!("invalid result: {:?}", value)),
         }
     }
 
-    fn parse_ingredients(value: &Vec<Value>, tags_items: &mut HashMap<String, TagsData>) -> Result<Vec<ItemStack>> {
+    fn parse_ingredients(
+        value: &Vec<Value>,
+        tags_items: &mut HashMap<String, TagsData>,
+    ) -> Result<Vec<ItemStack>> {
         let mut out = vec![];
         for ingredient in value {
             let ingredient = match ingredient {
@@ -284,7 +301,10 @@ impl Data {
         Ok(out)
     }
 
-    fn single_ingredient_base(value: &Map<String, Value>, tags_items: &mut HashMap<String, TagsData>) -> Result<(Option<String>, Vec<ItemStack>, ItemStack)> {
+    fn single_ingredient_base(
+        value: &Map<String, Value>,
+        tags_items: &mut HashMap<String, TagsData>,
+    ) -> Result<(Option<String>, Vec<ItemStack>, ItemStack)> {
         let group = match value.get("group") {
             Some(Value::String(string)) => Some(string.clone()),
             _ => None,
@@ -292,14 +312,22 @@ impl Data {
         let ingredient = match value.get("ingredient") {
             Some(Value::Object(ingredient)) => Data::parse_ingredient(ingredient, tags_items)?,
             Some(Value::Array(ingredients)) => Data::parse_ingredients(ingredients, tags_items)?,
-            _ => return Err(basin_err!("ingredient is invalid or missing: {:?}", value.get("ingredient"))),
+            _ => {
+                return Err(basin_err!(
+                    "ingredient is invalid or missing: {:?}",
+                    value.get("ingredient")
+                ))
+            }
         };
         let result = Data::parse_result(value.get("result"))?;
 
         return Ok((group, ingredient, result));
     }
 
-    fn parse_recipe_cooking(value: Value, tags_items: &mut HashMap<String, TagsData>) -> Result<SimpleCookingSerializer> {
+    fn parse_recipe_cooking(
+        value: Value,
+        tags_items: &mut HashMap<String, TagsData>,
+    ) -> Result<SimpleCookingSerializer> {
         let value = match value {
             Value::Object(value) => value,
             _ => return Err(basin_err!("not an object")),
@@ -307,7 +335,7 @@ impl Data {
         let (group, ingredient, result) = Data::single_ingredient_base(&value, tags_items)?;
         let experience = match value.get("experience") {
             Some(Value::Number(num)) => num.as_f64().unwrap_or(0.0) as f32,
-            _ => return Err( basin_err!("experience is invalid or missing")),
+            _ => return Err(basin_err!("experience is invalid or missing")),
         };
         let cookingTime = match value.get("cookingtime") {
             Some(Value::Number(num)) => num.as_i64().unwrap_or(100) as i32,
@@ -323,7 +351,10 @@ impl Data {
         })
     }
 
-    fn parse_recipe_stonecutting(value: Value, tags_items: &mut HashMap<String, TagsData>) -> Result<RecipeSerializer> {
+    fn parse_recipe_stonecutting(
+        value: Value,
+        tags_items: &mut HashMap<String, TagsData>,
+    ) -> Result<RecipeSerializer> {
         let value = match value {
             Value::Object(value) => value,
             _ => return Err(basin_err!("not an object")),
@@ -337,14 +368,15 @@ impl Data {
         })
     }
 
-    fn parse_recipe(value: Value, tags_items: &mut HashMap<String, TagsData>) -> Result<RecipeSerializer> {
+    fn parse_recipe(
+        value: Value,
+        tags_items: &mut HashMap<String, TagsData>,
+    ) -> Result<RecipeSerializer> {
         use RecipeSerializer::*;
         let recipe_type = match &value {
-            Value::Object(map) => {
-                match map.get("type") {
-                    Some(Value::String(string)) => Some(string),
-                    _ => None,
-                }
+            Value::Object(map) => match map.get("type") {
+                Some(Value::String(string)) => Some(string),
+                _ => None,
             },
             _ => None,
         };
@@ -372,7 +404,9 @@ impl Data {
             "minecraft:smelting" => Smelting(Data::parse_recipe_cooking(value, tags_items)?),
             "minecraft:blasting" => Blasting(Data::parse_recipe_cooking(value, tags_items)?),
             "minecraft:smoking" => Smoking(Data::parse_recipe_cooking(value, tags_items)?),
-            "minecraft:campfire_cooking" => CampfireCooking(Data::parse_recipe_cooking(value, tags_items)?),
+            "minecraft:campfire_cooking" => {
+                CampfireCooking(Data::parse_recipe_cooking(value, tags_items)?)
+            }
             "minecraft:stonecutting" => Data::parse_recipe_stonecutting(value, tags_items)?,
             _ => return Err(basin_err!("invalid recipe_type: {}", &**recipe_type)),
         })
@@ -405,7 +439,6 @@ impl Data {
         tags_entity_types: &mut HashMap<String, TagsData>,
         tags_fluids: &mut HashMap<String, TagsData>,
     ) -> Result<()> {
-
         Data::load_tags(namespace, "blocks", tags_blocks)?;
         Data::load_tags(namespace, "items", tags_items)?;
         Data::load_tags(namespace, "entity_types", tags_entity_types)?;
@@ -429,7 +462,10 @@ impl Data {
                 let filename = &filename[0..filename.len() - 5];
                 let raw = fs::read_to_string(item.path())?;
                 let advancement: AdvancementData = serde_json::from_str(&*raw)?;
-                advancements.insert(format!("{}:{}/{}", namespace, root_name, filename), advancement);
+                advancements.insert(
+                    format!("{}:{}/{}", namespace, root_name, filename),
+                    advancement,
+                );
             }
         }
 
@@ -451,7 +487,10 @@ impl Data {
                 let filename = &filename[0..filename.len() - 5];
                 let raw = fs::read_to_string(item.path())?;
                 let loot_table: LootTableData = serde_json::from_str(&*raw)?;
-                loot_tables.insert(format!("{}:{}/{}", namespace, root_name, filename), loot_table);
+                loot_tables.insert(
+                    format!("{}:{}/{}", namespace, root_name, filename),
+                    loot_table,
+                );
             }
         }
 
@@ -467,10 +506,11 @@ impl Data {
             let raw_recipe: Value = serde_json::from_str(&*raw)?;
             let recipe = Data::parse_recipe(raw_recipe, tags_items);
             match recipe {
-                Ok(recipe) => { recipes.insert(format!("{}:{}", namespace, filename), recipe); },
+                Ok(recipe) => {
+                    recipes.insert(format!("{}:{}", namespace, filename), recipe);
+                }
                 Err(e) => error!("couldn't read recipe {:?}: {:?}", item.path(), e),
             }
-            
         }
 
         // TODO: structures
@@ -483,10 +523,10 @@ impl Data {
         let mut loot_tables: HashMap<String, LootTableData> = HashMap::new();
         let mut recipes: HashMap<String, RecipeSerializer> = HashMap::new();
         let mut structures: HashMap<String, HashMap<String, Nbt>> = HashMap::new();
-        let mut tags_blocks: HashMap<String, TagsData> = HashMap::new();    
-        let mut tags_items: HashMap<String, TagsData> = HashMap::new();    
-        let mut tags_entity_types: HashMap<String, TagsData> = HashMap::new();    
-        let mut tags_fluids: HashMap<String, TagsData> = HashMap::new();    
+        let mut tags_blocks: HashMap<String, TagsData> = HashMap::new();
+        let mut tags_items: HashMap<String, TagsData> = HashMap::new();
+        let mut tags_entity_types: HashMap<String, TagsData> = HashMap::new();
+        let mut tags_fluids: HashMap<String, TagsData> = HashMap::new();
         for namespace in fs::read_dir("./data/")? {
             let namespace = namespace?;
             let path = namespace.path();

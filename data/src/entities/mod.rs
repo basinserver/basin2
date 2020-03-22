@@ -1,18 +1,15 @@
-use basin2_lib::{ Registry, RegistryItem, AtomicSet, Nbt };
-use std::sync::{ Arc, atomic::AtomicU32, atomic::Ordering };
 use basin2_lib::result::*;
-use std::fmt::Debug;
-use std::any::Any;
+use basin2_lib::{AtomicSet, Nbt, Registry, RegistryItem};
 use linked_hash_map::LinkedHashMap;
+use std::any::Any;
+use std::fmt::Debug;
+use std::sync::{atomic::AtomicU32, atomic::Ordering, Arc};
 
-pub trait EntityData: Any + Send + Sync + 'static {
-
-}
+pub trait EntityData: Any + Send + Sync + 'static {}
 
 impl EntityData for () {}
 
 pub trait EntityTypeData: Send + Sync + Debug + 'static {
-
     fn parse(&self, nbt: &Nbt) -> Result<Box<dyn EntityData>>;
     fn serialize(&self, data: &dyn EntityData) -> Result<Nbt>;
 }
@@ -23,7 +20,9 @@ impl EntityTypeData for () {
     }
 
     fn serialize(&self, data: &dyn EntityData) -> Result<Nbt> {
-        Ok(Nbt::Compound { children: LinkedHashMap::new() })
+        Ok(Nbt::Compound {
+            children: LinkedHashMap::new(),
+        })
     }
 }
 
@@ -65,110 +64,952 @@ impl RegistryItem for EntityTypeT {
 
 pub type EntityType = Arc<EntityTypeT>;
 
-lazy_static! { pub static ref AREA_EFFECT_CLOUD: EntityType = { Arc::new(EntityTypeT { class_name: Some("AreaEffectCloud".to_string()), fire_immune: true, dimensions: (6.00, 0.50), ..Default::default() }) }; }
-lazy_static! { pub static ref ARMOR_STAND: EntityType = { Arc::new(EntityTypeT { class_name: Some("ArmorStand".to_string()), dimensions: (0.50, 1.98), ..Default::default() }) }; }
-lazy_static! { pub static ref ARROW: EntityType = { Arc::new(EntityTypeT { class_name: Some("Arrow".to_string()), dimensions: (0.50, 0.50), ..Default::default() }) }; }
-lazy_static! { pub static ref BAT: EntityType = { Arc::new(EntityTypeT { class_name: Some("Bat".to_string()), dimensions: (0.50, 0.90), ..Default::default() }) }; }
-lazy_static! { pub static ref BEE: EntityType = { Arc::new(EntityTypeT { class_name: Some("Bee".to_string()), dimensions: (0.70, 0.60), ..Default::default() }) }; }
-lazy_static! { pub static ref BLAZE: EntityType = { Arc::new(EntityTypeT { class_name: Some("Blaze".to_string()), fire_immune: true, dimensions: (0.60, 1.80), ..Default::default() }) }; }
-lazy_static! { pub static ref BOAT: EntityType = { Arc::new(EntityTypeT { class_name: Some("Boat".to_string()), dimensions: (1.38, 0.56), ..Default::default() }) }; }
-lazy_static! { pub static ref CAT: EntityType = { Arc::new(EntityTypeT { class_name: Some("Cat".to_string()), dimensions: (0.60, 0.70), ..Default::default() }) }; }
-lazy_static! { pub static ref CAVE_SPIDER: EntityType = { Arc::new(EntityTypeT { class_name: Some("CaveSpider".to_string()), dimensions: (0.70, 0.50), ..Default::default() }) }; }
-lazy_static! { pub static ref CHICKEN: EntityType = { Arc::new(EntityTypeT { class_name: Some("Chicken".to_string()), dimensions: (0.40, 0.70), ..Default::default() }) }; }
-lazy_static! { pub static ref COD: EntityType = { Arc::new(EntityTypeT { class_name: Some("Cod".to_string()), dimensions: (0.50, 0.30), ..Default::default() }) }; }
-lazy_static! { pub static ref COW: EntityType = { Arc::new(EntityTypeT { class_name: Some("Cow".to_string()), dimensions: (0.90, 1.40), ..Default::default() }) }; }
-lazy_static! { pub static ref CREEPER: EntityType = { Arc::new(EntityTypeT { class_name: Some("Creeper".to_string()), dimensions: (0.60, 1.70), ..Default::default() }) }; }
-lazy_static! { pub static ref DONKEY: EntityType = { Arc::new(EntityTypeT { class_name: Some("Donkey".to_string()), dimensions: (1.40, 1.50), ..Default::default() }) }; }
-lazy_static! { pub static ref DOLPHIN: EntityType = { Arc::new(EntityTypeT { class_name: Some("Dolphin".to_string()), dimensions: (0.90, 0.60), ..Default::default() }) }; }
-lazy_static! { pub static ref DRAGON_FIREBALL: EntityType = { Arc::new(EntityTypeT { class_name: Some("DragonFireball".to_string()), dimensions: (1.00, 1.00), ..Default::default() }) }; }
-lazy_static! { pub static ref DROWNED: EntityType = { Arc::new(EntityTypeT { class_name: Some("Drowned".to_string()), dimensions: (0.60, 1.95), ..Default::default() }) }; }
-lazy_static! { pub static ref ELDER_GUARDIAN: EntityType = { Arc::new(EntityTypeT { class_name: Some("ElderGuardian".to_string()), dimensions: (2.00, 2.00), ..Default::default() }) }; }
-lazy_static! { pub static ref END_CRYSTAL: EntityType = { Arc::new(EntityTypeT { class_name: Some("EndCrystal".to_string()), dimensions: (2.00, 2.00), ..Default::default() }) }; }
-lazy_static! { pub static ref ENDER_DRAGON: EntityType = { Arc::new(EntityTypeT { class_name: Some("EnderDragon".to_string()), fire_immune: true, dimensions: (16.00, 8.00), ..Default::default() }) }; }
-lazy_static! { pub static ref ENDERMAN: EntityType = { Arc::new(EntityTypeT { class_name: Some("EnderMan".to_string()), dimensions: (0.60, 2.90), ..Default::default() }) }; }
-lazy_static! { pub static ref ENDERMITE: EntityType = { Arc::new(EntityTypeT { class_name: Some("Endermite".to_string()), dimensions: (0.40, 0.30), ..Default::default() }) }; }
-lazy_static! { pub static ref EVOKER_FANGS: EntityType = { Arc::new(EntityTypeT { class_name: Some("EvokerFangs".to_string()), dimensions: (0.50, 0.80), ..Default::default() }) }; }
-lazy_static! { pub static ref EVOKER: EntityType = { Arc::new(EntityTypeT { class_name: Some("Evoker".to_string()), dimensions: (0.60, 1.95), ..Default::default() }) }; }
-lazy_static! { pub static ref EXPERIENCE_ORB: EntityType = { Arc::new(EntityTypeT { class_name: Some("ExperienceOrb".to_string()), dimensions: (0.50, 0.50), ..Default::default() }) }; }
-lazy_static! { pub static ref EYE_OF_ENDER: EntityType = { Arc::new(EntityTypeT { class_name: Some("EyeOfEnder".to_string()), dimensions: (0.25, 0.25), ..Default::default() }) }; }
-lazy_static! { pub static ref FALLING_BLOCK: EntityType = { Arc::new(EntityTypeT { class_name: Some("FallingBlockEntity".to_string()), dimensions: (0.98, 0.98), ..Default::default() }) }; }
-lazy_static! { pub static ref FIREWORK_ROCKET: EntityType = { Arc::new(EntityTypeT { class_name: Some("FireworkRocketEntity".to_string()), dimensions: (0.25, 0.25), ..Default::default() }) }; }
-lazy_static! { pub static ref FOX: EntityType = { Arc::new(EntityTypeT { class_name: Some("Fox".to_string()), dimensions: (0.60, 0.70), ..Default::default() }) }; }
-lazy_static! { pub static ref GHAST: EntityType = { Arc::new(EntityTypeT { class_name: Some("Ghast".to_string()), fire_immune: true, dimensions: (4.00, 4.00), ..Default::default() }) }; }
-lazy_static! { pub static ref GIANT: EntityType = { Arc::new(EntityTypeT { class_name: Some("Giant".to_string()), dimensions: (3.60, 12.00), ..Default::default() }) }; }
-lazy_static! { pub static ref GUARDIAN: EntityType = { Arc::new(EntityTypeT { class_name: Some("Guardian".to_string()), dimensions: (0.85, 0.85), ..Default::default() }) }; }
-lazy_static! { pub static ref HORSE: EntityType = { Arc::new(EntityTypeT { class_name: Some("Horse".to_string()), dimensions: (1.40, 1.60), ..Default::default() }) }; }
-lazy_static! { pub static ref HUSK: EntityType = { Arc::new(EntityTypeT { class_name: Some("Husk".to_string()), dimensions: (0.60, 1.95), ..Default::default() }) }; }
-lazy_static! { pub static ref ILLUSIONER: EntityType = { Arc::new(EntityTypeT { class_name: Some("Illusioner".to_string()), dimensions: (0.60, 1.95), ..Default::default() }) }; }
-lazy_static! { pub static ref ITEM: EntityType = { Arc::new(EntityTypeT { class_name: Some("ItemEntity".to_string()), dimensions: (0.25, 0.25), ..Default::default() }) }; }
-lazy_static! { pub static ref ITEM_FRAME: EntityType = { Arc::new(EntityTypeT { class_name: Some("ItemFrame".to_string()), dimensions: (0.50, 0.50), ..Default::default() }) }; }
-lazy_static! { pub static ref FIREBALL: EntityType = { Arc::new(EntityTypeT { class_name: Some("LargeFireball".to_string()), dimensions: (1.00, 1.00), ..Default::default() }) }; }
-lazy_static! { pub static ref LEASH_KNOT: EntityType = { Arc::new(EntityTypeT { class_name: Some("LeashFenceKnotEntity".to_string()), should_save: false, dimensions: (0.50, 0.50), ..Default::default() }) }; }
-lazy_static! { pub static ref LLAMA: EntityType = { Arc::new(EntityTypeT { class_name: Some("Llama".to_string()), dimensions: (0.90, 1.87), ..Default::default() }) }; }
-lazy_static! { pub static ref LLAMA_SPIT: EntityType = { Arc::new(EntityTypeT { class_name: Some("LlamaSpit".to_string()), dimensions: (0.25, 0.25), ..Default::default() }) }; }
-lazy_static! { pub static ref MAGMA_CUBE: EntityType = { Arc::new(EntityTypeT { class_name: Some("MagmaCube".to_string()), fire_immune: true, dimensions: (2.04, 2.04), ..Default::default() }) }; }
-lazy_static! { pub static ref MINECART: EntityType = { Arc::new(EntityTypeT { class_name: Some("Minecart".to_string()), dimensions: (0.98, 0.70), ..Default::default() }) }; }
-lazy_static! { pub static ref CHEST_MINECART: EntityType = { Arc::new(EntityTypeT { class_name: Some("MinecartChest".to_string()), dimensions: (0.98, 0.70), ..Default::default() }) }; }
-lazy_static! { pub static ref COMMAND_BLOCK_MINECART: EntityType = { Arc::new(EntityTypeT { class_name: Some("MinecartCommandBlock".to_string()), dimensions: (0.98, 0.70), ..Default::default() }) }; }
-lazy_static! { pub static ref FURNACE_MINECART: EntityType = { Arc::new(EntityTypeT { class_name: Some("MinecartFurnace".to_string()), dimensions: (0.98, 0.70), ..Default::default() }) }; }
-lazy_static! { pub static ref HOPPER_MINECART: EntityType = { Arc::new(EntityTypeT { class_name: Some("MinecartHopper".to_string()), dimensions: (0.98, 0.70), ..Default::default() }) }; }
-lazy_static! { pub static ref SPAWNER_MINECART: EntityType = { Arc::new(EntityTypeT { class_name: Some("MinecartSpawner".to_string()), dimensions: (0.98, 0.70), ..Default::default() }) }; }
-lazy_static! { pub static ref TNT_MINECART: EntityType = { Arc::new(EntityTypeT { class_name: Some("MinecartTNT".to_string()), dimensions: (0.98, 0.70), ..Default::default() }) }; }
-lazy_static! { pub static ref MULE: EntityType = { Arc::new(EntityTypeT { class_name: Some("Mule".to_string()), dimensions: (1.40, 1.60), ..Default::default() }) }; }
-lazy_static! { pub static ref MOOSHROOM: EntityType = { Arc::new(EntityTypeT { class_name: Some("MushroomCow".to_string()), dimensions: (0.90, 1.40), ..Default::default() }) }; }
-lazy_static! { pub static ref OCELOT: EntityType = { Arc::new(EntityTypeT { class_name: Some("Ocelot".to_string()), dimensions: (0.60, 0.70), ..Default::default() }) }; }
-lazy_static! { pub static ref PAINTING: EntityType = { Arc::new(EntityTypeT { class_name: Some("Painting".to_string()), dimensions: (0.50, 0.50), ..Default::default() }) }; }
-lazy_static! { pub static ref PANDA: EntityType = { Arc::new(EntityTypeT { class_name: Some("Panda".to_string()), dimensions: (1.30, 1.25), ..Default::default() }) }; }
-lazy_static! { pub static ref PARROT: EntityType = { Arc::new(EntityTypeT { class_name: Some("Parrot".to_string()), dimensions: (0.50, 0.90), ..Default::default() }) }; }
-lazy_static! { pub static ref PIG: EntityType = { Arc::new(EntityTypeT { class_name: Some("Pig".to_string()), dimensions: (0.90, 0.90), ..Default::default() }) }; }
-lazy_static! { pub static ref PUFFERFISH: EntityType = { Arc::new(EntityTypeT { class_name: Some("Pufferfish".to_string()), dimensions: (0.70, 0.70), ..Default::default() }) }; }
-lazy_static! { pub static ref ZOMBIE_PIGMAN: EntityType = { Arc::new(EntityTypeT { class_name: Some("PigZombie".to_string()), fire_immune: true, dimensions: (0.60, 1.95), ..Default::default() }) }; }
-lazy_static! { pub static ref POLAR_BEAR: EntityType = { Arc::new(EntityTypeT { class_name: Some("PolarBear".to_string()), dimensions: (1.40, 1.40), ..Default::default() }) }; }
-lazy_static! { pub static ref TNT: EntityType = { Arc::new(EntityTypeT { class_name: Some("PrimedTnt".to_string()), fire_immune: true, dimensions: (0.98, 0.98), ..Default::default() }) }; }
-lazy_static! { pub static ref RABBIT: EntityType = { Arc::new(EntityTypeT { class_name: Some("Rabbit".to_string()), dimensions: (0.40, 0.50), ..Default::default() }) }; }
-lazy_static! { pub static ref SALMON: EntityType = { Arc::new(EntityTypeT { class_name: Some("Salmon".to_string()), dimensions: (0.70, 0.40), ..Default::default() }) }; }
-lazy_static! { pub static ref SHEEP: EntityType = { Arc::new(EntityTypeT { class_name: Some("Sheep".to_string()), dimensions: (0.90, 1.30), ..Default::default() }) }; }
-lazy_static! { pub static ref SHULKER: EntityType = { Arc::new(EntityTypeT { class_name: Some("Shulker".to_string()), fire_immune: true, can_spawn_far_away: true, dimensions: (1.00, 1.00), ..Default::default() }) }; }
-lazy_static! { pub static ref SHULKER_BULLET: EntityType = { Arc::new(EntityTypeT { class_name: Some("ShulkerBullet".to_string()), dimensions: (0.31, 0.31), ..Default::default() }) }; }
-lazy_static! { pub static ref SILVERFISH: EntityType = { Arc::new(EntityTypeT { class_name: Some("Silverfish".to_string()), dimensions: (0.40, 0.30), ..Default::default() }) }; }
-lazy_static! { pub static ref SKELETON: EntityType = { Arc::new(EntityTypeT { class_name: Some("Skeleton".to_string()), dimensions: (0.60, 1.99), ..Default::default() }) }; }
-lazy_static! { pub static ref SKELETON_HORSE: EntityType = { Arc::new(EntityTypeT { class_name: Some("SkeletonHorse".to_string()), dimensions: (1.40, 1.60), ..Default::default() }) }; }
-lazy_static! { pub static ref SLIME: EntityType = { Arc::new(EntityTypeT { class_name: Some("Slime".to_string()), dimensions: (2.04, 2.04), ..Default::default() }) }; }
-lazy_static! { pub static ref SMALL_FIREBALL: EntityType = { Arc::new(EntityTypeT { class_name: Some("SmallFireball".to_string()), dimensions: (0.31, 0.31), ..Default::default() }) }; }
-lazy_static! { pub static ref SNOW_GOLEM: EntityType = { Arc::new(EntityTypeT { class_name: Some("SnowGolem".to_string()), dimensions: (0.70, 1.90), ..Default::default() }) }; }
-lazy_static! { pub static ref SNOWBALL: EntityType = { Arc::new(EntityTypeT { class_name: Some("Snowball".to_string()), dimensions: (0.25, 0.25), ..Default::default() }) }; }
-lazy_static! { pub static ref SPECTRAL_ARROW: EntityType = { Arc::new(EntityTypeT { class_name: Some("SpectralArrow".to_string()), dimensions: (0.50, 0.50), ..Default::default() }) }; }
-lazy_static! { pub static ref SPIDER: EntityType = { Arc::new(EntityTypeT { class_name: Some("Spider".to_string()), dimensions: (1.40, 0.90), ..Default::default() }) }; }
-lazy_static! { pub static ref SQUID: EntityType = { Arc::new(EntityTypeT { class_name: Some("Squid".to_string()), dimensions: (0.80, 0.80), ..Default::default() }) }; }
-lazy_static! { pub static ref STRAY: EntityType = { Arc::new(EntityTypeT { class_name: Some("Stray".to_string()), dimensions: (0.60, 1.99), ..Default::default() }) }; }
-lazy_static! { pub static ref TRADER_LLAMA: EntityType = { Arc::new(EntityTypeT { class_name: Some("TraderLlama".to_string()), dimensions: (0.90, 1.87), ..Default::default() }) }; }
-lazy_static! { pub static ref TROPICAL_FISH: EntityType = { Arc::new(EntityTypeT { class_name: Some("TropicalFish".to_string()), dimensions: (0.50, 0.40), ..Default::default() }) }; }
-lazy_static! { pub static ref TURTLE: EntityType = { Arc::new(EntityTypeT { class_name: Some("Turtle".to_string()), dimensions: (1.20, 0.40), ..Default::default() }) }; }
-lazy_static! { pub static ref EGG: EntityType = { Arc::new(EntityTypeT { class_name: Some("ThrownEgg".to_string()), dimensions: (0.25, 0.25), ..Default::default() }) }; }
-lazy_static! { pub static ref ENDER_PEARL: EntityType = { Arc::new(EntityTypeT { class_name: Some("ThrownEnderpearl".to_string()), dimensions: (0.25, 0.25), ..Default::default() }) }; }
-lazy_static! { pub static ref EXPERIENCE_BOTTLE: EntityType = { Arc::new(EntityTypeT { class_name: Some("ThrownExperienceBottle".to_string()), dimensions: (0.25, 0.25), ..Default::default() }) }; }
-lazy_static! { pub static ref POTION: EntityType = { Arc::new(EntityTypeT { class_name: Some("ThrownPotion".to_string()), dimensions: (0.25, 0.25), ..Default::default() }) }; }
-lazy_static! { pub static ref TRIDENT: EntityType = { Arc::new(EntityTypeT { class_name: Some("ThrownTrident".to_string()), dimensions: (0.50, 0.50), ..Default::default() }) }; }
-lazy_static! { pub static ref VEX: EntityType = { Arc::new(EntityTypeT { class_name: Some("Vex".to_string()), fire_immune: true, dimensions: (0.40, 0.80), ..Default::default() }) }; }
-lazy_static! { pub static ref VILLAGER: EntityType = { Arc::new(EntityTypeT { class_name: Some("Villager".to_string()), dimensions: (0.60, 1.95), ..Default::default() }) }; }
-lazy_static! { pub static ref IRON_GOLEM: EntityType = { Arc::new(EntityTypeT { class_name: Some("IronGolem".to_string()), dimensions: (1.40, 2.70), ..Default::default() }) }; }
-lazy_static! { pub static ref VINDICATOR: EntityType = { Arc::new(EntityTypeT { class_name: Some("Vindicator".to_string()), dimensions: (0.60, 1.95), ..Default::default() }) }; }
-lazy_static! { pub static ref PILLAGER: EntityType = { Arc::new(EntityTypeT { class_name: Some("Pillager".to_string()), can_spawn_far_away: true, dimensions: (0.60, 1.95), ..Default::default() }) }; }
-lazy_static! { pub static ref WANDERING_TRADER: EntityType = { Arc::new(EntityTypeT { class_name: Some("WanderingTrader".to_string()), dimensions: (0.60, 1.95), ..Default::default() }) }; }
-lazy_static! { pub static ref WITCH: EntityType = { Arc::new(EntityTypeT { class_name: Some("Witch".to_string()), dimensions: (0.60, 1.95), ..Default::default() }) }; }
-lazy_static! { pub static ref WITHER: EntityType = { Arc::new(EntityTypeT { class_name: Some("WitherBoss".to_string()), fire_immune: true, dimensions: (0.90, 3.50), ..Default::default() }) }; }
-lazy_static! { pub static ref WITHER_SKELETON: EntityType = { Arc::new(EntityTypeT { class_name: Some("WitherSkeleton".to_string()), fire_immune: true, dimensions: (0.70, 2.40), ..Default::default() }) }; }
-lazy_static! { pub static ref WITHER_SKULL: EntityType = { Arc::new(EntityTypeT { class_name: Some("WitherSkull".to_string()), dimensions: (0.31, 0.31), ..Default::default() }) }; }
-lazy_static! { pub static ref WOLF: EntityType = { Arc::new(EntityTypeT { class_name: Some("Wolf".to_string()), dimensions: (0.60, 0.85), ..Default::default() }) }; }
-lazy_static! { pub static ref ZOMBIE: EntityType = { Arc::new(EntityTypeT { class_name: Some("Zombie".to_string()), dimensions: (0.60, 1.95), ..Default::default() }) }; }
-lazy_static! { pub static ref ZOMBIE_HORSE: EntityType = { Arc::new(EntityTypeT { class_name: Some("ZombieHorse".to_string()), dimensions: (1.40, 1.60), ..Default::default() }) }; }
-lazy_static! { pub static ref ZOMBIE_VILLAGER: EntityType = { Arc::new(EntityTypeT { class_name: Some("ZombieVillager".to_string()), dimensions: (0.60, 1.95), ..Default::default() }) }; }
-lazy_static! { pub static ref PHANTOM: EntityType = { Arc::new(EntityTypeT { class_name: Some("Phantom".to_string()), dimensions: (0.90, 0.50), ..Default::default() }) }; }
-lazy_static! { pub static ref RAVAGER: EntityType = { Arc::new(EntityTypeT { class_name: Some("Ravager".to_string()), dimensions: (1.95, 2.20), ..Default::default() }) }; }
-lazy_static! { pub static ref LIGHTNING_BOLT: EntityType = { Arc::new(EntityTypeT { class_name: None, should_save: false, dimensions: (0.00, 0.00), ..Default::default() }) }; }
-lazy_static! { pub static ref PLAYER: EntityType = { Arc::new(EntityTypeT { class_name: None, should_save: false, should_summon: false, dimensions: (0.60, 1.80), ..Default::default() }) }; }
-lazy_static! { pub static ref FISHING_BOBBER: EntityType = { Arc::new(EntityTypeT { class_name: None, should_save: false, should_summon: false, dimensions: (0.25, 0.25), ..Default::default() }) }; }
-
+lazy_static! {
+    pub static ref AREA_EFFECT_CLOUD: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("AreaEffectCloud".to_string()),
+            fire_immune: true,
+            dimensions: (6.00, 0.50),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ARMOR_STAND: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("ArmorStand".to_string()),
+            dimensions: (0.50, 1.98),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ARROW: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Arrow".to_string()),
+            dimensions: (0.50, 0.50),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref BAT: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Bat".to_string()),
+            dimensions: (0.50, 0.90),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref BEE: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Bee".to_string()),
+            dimensions: (0.70, 0.60),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref BLAZE: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Blaze".to_string()),
+            fire_immune: true,
+            dimensions: (0.60, 1.80),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref BOAT: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Boat".to_string()),
+            dimensions: (1.38, 0.56),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref CAT: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Cat".to_string()),
+            dimensions: (0.60, 0.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref CAVE_SPIDER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("CaveSpider".to_string()),
+            dimensions: (0.70, 0.50),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref CHICKEN: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Chicken".to_string()),
+            dimensions: (0.40, 0.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref COD: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Cod".to_string()),
+            dimensions: (0.50, 0.30),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref COW: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Cow".to_string()),
+            dimensions: (0.90, 1.40),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref CREEPER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Creeper".to_string()),
+            dimensions: (0.60, 1.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref DONKEY: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Donkey".to_string()),
+            dimensions: (1.40, 1.50),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref DOLPHIN: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Dolphin".to_string()),
+            dimensions: (0.90, 0.60),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref DRAGON_FIREBALL: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("DragonFireball".to_string()),
+            dimensions: (1.00, 1.00),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref DROWNED: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Drowned".to_string()),
+            dimensions: (0.60, 1.95),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ELDER_GUARDIAN: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("ElderGuardian".to_string()),
+            dimensions: (2.00, 2.00),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref END_CRYSTAL: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("EndCrystal".to_string()),
+            dimensions: (2.00, 2.00),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ENDER_DRAGON: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("EnderDragon".to_string()),
+            fire_immune: true,
+            dimensions: (16.00, 8.00),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ENDERMAN: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("EnderMan".to_string()),
+            dimensions: (0.60, 2.90),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ENDERMITE: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Endermite".to_string()),
+            dimensions: (0.40, 0.30),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref EVOKER_FANGS: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("EvokerFangs".to_string()),
+            dimensions: (0.50, 0.80),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref EVOKER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Evoker".to_string()),
+            dimensions: (0.60, 1.95),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref EXPERIENCE_ORB: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("ExperienceOrb".to_string()),
+            dimensions: (0.50, 0.50),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref EYE_OF_ENDER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("EyeOfEnder".to_string()),
+            dimensions: (0.25, 0.25),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref FALLING_BLOCK: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("FallingBlockEntity".to_string()),
+            dimensions: (0.98, 0.98),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref FIREWORK_ROCKET: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("FireworkRocketEntity".to_string()),
+            dimensions: (0.25, 0.25),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref FOX: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Fox".to_string()),
+            dimensions: (0.60, 0.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref GHAST: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Ghast".to_string()),
+            fire_immune: true,
+            dimensions: (4.00, 4.00),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref GIANT: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Giant".to_string()),
+            dimensions: (3.60, 12.00),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref GUARDIAN: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Guardian".to_string()),
+            dimensions: (0.85, 0.85),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref HORSE: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Horse".to_string()),
+            dimensions: (1.40, 1.60),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref HUSK: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Husk".to_string()),
+            dimensions: (0.60, 1.95),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ILLUSIONER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Illusioner".to_string()),
+            dimensions: (0.60, 1.95),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ITEM: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("ItemEntity".to_string()),
+            dimensions: (0.25, 0.25),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ITEM_FRAME: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("ItemFrame".to_string()),
+            dimensions: (0.50, 0.50),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref FIREBALL: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("LargeFireball".to_string()),
+            dimensions: (1.00, 1.00),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref LEASH_KNOT: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("LeashFenceKnotEntity".to_string()),
+            should_save: false,
+            dimensions: (0.50, 0.50),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref LLAMA: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Llama".to_string()),
+            dimensions: (0.90, 1.87),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref LLAMA_SPIT: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("LlamaSpit".to_string()),
+            dimensions: (0.25, 0.25),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref MAGMA_CUBE: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("MagmaCube".to_string()),
+            fire_immune: true,
+            dimensions: (2.04, 2.04),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref MINECART: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Minecart".to_string()),
+            dimensions: (0.98, 0.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref CHEST_MINECART: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("MinecartChest".to_string()),
+            dimensions: (0.98, 0.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref COMMAND_BLOCK_MINECART: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("MinecartCommandBlock".to_string()),
+            dimensions: (0.98, 0.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref FURNACE_MINECART: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("MinecartFurnace".to_string()),
+            dimensions: (0.98, 0.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref HOPPER_MINECART: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("MinecartHopper".to_string()),
+            dimensions: (0.98, 0.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SPAWNER_MINECART: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("MinecartSpawner".to_string()),
+            dimensions: (0.98, 0.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref TNT_MINECART: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("MinecartTNT".to_string()),
+            dimensions: (0.98, 0.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref MULE: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Mule".to_string()),
+            dimensions: (1.40, 1.60),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref MOOSHROOM: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("MushroomCow".to_string()),
+            dimensions: (0.90, 1.40),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref OCELOT: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Ocelot".to_string()),
+            dimensions: (0.60, 0.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref PAINTING: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Painting".to_string()),
+            dimensions: (0.50, 0.50),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref PANDA: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Panda".to_string()),
+            dimensions: (1.30, 1.25),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref PARROT: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Parrot".to_string()),
+            dimensions: (0.50, 0.90),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref PIG: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Pig".to_string()),
+            dimensions: (0.90, 0.90),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref PUFFERFISH: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Pufferfish".to_string()),
+            dimensions: (0.70, 0.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ZOMBIE_PIGMAN: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("PigZombie".to_string()),
+            fire_immune: true,
+            dimensions: (0.60, 1.95),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref POLAR_BEAR: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("PolarBear".to_string()),
+            dimensions: (1.40, 1.40),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref TNT: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("PrimedTnt".to_string()),
+            fire_immune: true,
+            dimensions: (0.98, 0.98),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref RABBIT: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Rabbit".to_string()),
+            dimensions: (0.40, 0.50),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SALMON: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Salmon".to_string()),
+            dimensions: (0.70, 0.40),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SHEEP: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Sheep".to_string()),
+            dimensions: (0.90, 1.30),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SHULKER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Shulker".to_string()),
+            fire_immune: true,
+            can_spawn_far_away: true,
+            dimensions: (1.00, 1.00),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SHULKER_BULLET: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("ShulkerBullet".to_string()),
+            dimensions: (0.31, 0.31),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SILVERFISH: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Silverfish".to_string()),
+            dimensions: (0.40, 0.30),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SKELETON: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Skeleton".to_string()),
+            dimensions: (0.60, 1.99),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SKELETON_HORSE: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("SkeletonHorse".to_string()),
+            dimensions: (1.40, 1.60),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SLIME: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Slime".to_string()),
+            dimensions: (2.04, 2.04),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SMALL_FIREBALL: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("SmallFireball".to_string()),
+            dimensions: (0.31, 0.31),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SNOW_GOLEM: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("SnowGolem".to_string()),
+            dimensions: (0.70, 1.90),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SNOWBALL: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Snowball".to_string()),
+            dimensions: (0.25, 0.25),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SPECTRAL_ARROW: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("SpectralArrow".to_string()),
+            dimensions: (0.50, 0.50),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SPIDER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Spider".to_string()),
+            dimensions: (1.40, 0.90),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref SQUID: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Squid".to_string()),
+            dimensions: (0.80, 0.80),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref STRAY: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Stray".to_string()),
+            dimensions: (0.60, 1.99),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref TRADER_LLAMA: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("TraderLlama".to_string()),
+            dimensions: (0.90, 1.87),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref TROPICAL_FISH: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("TropicalFish".to_string()),
+            dimensions: (0.50, 0.40),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref TURTLE: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Turtle".to_string()),
+            dimensions: (1.20, 0.40),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref EGG: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("ThrownEgg".to_string()),
+            dimensions: (0.25, 0.25),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ENDER_PEARL: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("ThrownEnderpearl".to_string()),
+            dimensions: (0.25, 0.25),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref EXPERIENCE_BOTTLE: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("ThrownExperienceBottle".to_string()),
+            dimensions: (0.25, 0.25),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref POTION: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("ThrownPotion".to_string()),
+            dimensions: (0.25, 0.25),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref TRIDENT: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("ThrownTrident".to_string()),
+            dimensions: (0.50, 0.50),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref VEX: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Vex".to_string()),
+            fire_immune: true,
+            dimensions: (0.40, 0.80),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref VILLAGER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Villager".to_string()),
+            dimensions: (0.60, 1.95),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref IRON_GOLEM: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("IronGolem".to_string()),
+            dimensions: (1.40, 2.70),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref VINDICATOR: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Vindicator".to_string()),
+            dimensions: (0.60, 1.95),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref PILLAGER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Pillager".to_string()),
+            can_spawn_far_away: true,
+            dimensions: (0.60, 1.95),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref WANDERING_TRADER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("WanderingTrader".to_string()),
+            dimensions: (0.60, 1.95),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref WITCH: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Witch".to_string()),
+            dimensions: (0.60, 1.95),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref WITHER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("WitherBoss".to_string()),
+            fire_immune: true,
+            dimensions: (0.90, 3.50),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref WITHER_SKELETON: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("WitherSkeleton".to_string()),
+            fire_immune: true,
+            dimensions: (0.70, 2.40),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref WITHER_SKULL: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("WitherSkull".to_string()),
+            dimensions: (0.31, 0.31),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref WOLF: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Wolf".to_string()),
+            dimensions: (0.60, 0.85),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ZOMBIE: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Zombie".to_string()),
+            dimensions: (0.60, 1.95),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ZOMBIE_HORSE: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("ZombieHorse".to_string()),
+            dimensions: (1.40, 1.60),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref ZOMBIE_VILLAGER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("ZombieVillager".to_string()),
+            dimensions: (0.60, 1.95),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref PHANTOM: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Phantom".to_string()),
+            dimensions: (0.90, 0.50),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref RAVAGER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: Some("Ravager".to_string()),
+            dimensions: (1.95, 2.20),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref LIGHTNING_BOLT: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: None,
+            should_save: false,
+            dimensions: (0.00, 0.00),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref PLAYER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: None,
+            should_save: false,
+            should_summon: false,
+            dimensions: (0.60, 1.80),
+            ..Default::default()
+        })
+    };
+}
+lazy_static! {
+    pub static ref FISHING_BOBBER: EntityType = {
+        Arc::new(EntityTypeT {
+            class_name: None,
+            should_save: false,
+            should_summon: false,
+            dimensions: (0.25, 0.25),
+            ..Default::default()
+        })
+    };
+}
 
 pub fn construct_registry(registry: &mut Registry<EntityTypeT>) {
     registry.insert("area_effect_cloud", AREA_EFFECT_CLOUD.clone());

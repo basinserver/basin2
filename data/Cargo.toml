@@ -1,9 +1,8 @@
 [package]
 name = "basin2-data"
-version = "15.2.1"
+version = "152.1.0"
 authors = ["Protryon <max.bruce12@gmail.com>"]
 edition = "2018"
-publish = false
 
 [dependencies]
 lazy_static = "1.4.0"
@@ -16,3 +15,4 @@ linked-hash-map = "0.5.2"
 either = "1.5.3"
 basin2-lib = { path = "../lib/" }
 async-trait = "0.1.24"
+cenum = "1.0"

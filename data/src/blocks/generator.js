@@ -1,4 +1,4 @@
-const input = `<omitted>`;
+const input = require('fs').readFileSync('./blocks.txt', 'UTF-8');
 
 const lines = input.split("\n");
 
@@ -99,7 +99,8 @@ for (const i in results) {
     }
 }
 results.forEach(result => {
-    const output = `    lazy_static! { pub static ref ${result.name}: Block = { Arc::new(BlockT { material: materials::${result.properties.material}.clone(), ${result.properties.rustArgs.join(', ').appendIfPresent(', ', ' ')}..Default::default() }) }; }`;
+    const stateName = `BlockState${result.namespace_name.split('_').map(x => x[0].toUpperCase() + x.slice(1)).join('')}`
+    const output = `    lazy_static! { pub static ref ${result.name}: Block = { Arc::new(BlockT { default_state: Some(Box::new(${stateName}::default())), material: materials::${result.properties.material}.clone(), ${result.properties.rustArgs.join(', ').appendIfPresent(', ', ' ')}..Default::default() }) }; }`;
     console.log(output);
 });
 
