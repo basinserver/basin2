@@ -2,7 +2,11 @@
 name = "basin2-lib"
 version = "152.1.0"
 authors = ["Protryon <max.bruce12@gmail.com>"]
+license = "GPL-3.0-or-later"
 edition = "2018"
+repository = "https://github.com/Protryon/basin2"
+description = "Basin2 subpackage for general use."
+keywords = [ "basin", "basin2", "minecraft" ]
 
 [dependencies]
 lazy_static = "1.4.0"
