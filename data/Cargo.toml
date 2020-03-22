@@ -13,6 +13,6 @@ env_logger = "0.6.1"
 enum_primitive = "0.1.1"
 linked-hash-map = "0.5.2"
 either = "1.5.3"
-basin2-lib = { path = "../lib/" }
+basin2-lib = { path = "../lib/", version = "152.1.0" }
 async-trait = "0.1.24"
 cenum = "1.0"
