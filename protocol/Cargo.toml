@@ -2,8 +2,11 @@
 name = "basin2-protocol"
 version = "578.1.0"
 authors = ["Protryon <max.bruce12@gmail.com>"]
+license = "GPL-3.0-or-later"
 edition = "2018"
-publish = false
+repository = "https://github.com/Protryon/basin2"
+description = "Basin2 subpackage for MC protocol."
+keywords = [ "basin", "basin2", "minecraft" ]
 
 [dependencies]
 lazy_static = "1.4.0"
@@ -24,5 +27,5 @@ enum_primitive = "0.1.1"
 linked-hash-map = "0.5.2"
 either = "1.5.3"
 pkg-version = "1.0.0"
-basin2-data = { path = "../data/" }
-basin2-lib = { path = "../lib/" }
+basin2-data = { path = "../data/", version = "152.1.0" }
+basin2-lib = { path = "../lib/", version = "152.1.0" }

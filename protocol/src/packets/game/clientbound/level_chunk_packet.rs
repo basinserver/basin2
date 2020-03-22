@@ -10,7 +10,7 @@ pub struct LevelChunkPacket {
     pub z: i32,
     pub availableSections: i32,
     pub heightmaps: Nbt,
-    pub biomes: Option<Box<Vec<i32>>>,
+    pub biomes: Option<Vec<i32>>,
     pub buffer: BytesMut,
     pub blockEntitiesTags: Vec<Nbt>,
 }
@@ -48,9 +48,9 @@ impl CodablePacket for LevelChunkPacket {
         let availableSections = buf.get_mc_var_int()?;
         let heightmaps = buf.get_mc_nbt()?;
         let biomes = if has_biomes {
-            let mut biomes = Box::new(vec![]);
-            for _ in 0..(1 << 10) {
-                biomes.push(buf.get_mc_i32()?)
+            let mut biomes = vec![0; 1 << 10];
+            for i in 0..(1 << 10) {
+                biomes[i] = buf.get_mc_i32()?;
             }
             Some(biomes)
         } else {
@@ -96,7 +96,7 @@ mod tests {
                     children: vec![Nbt::Int(65)],
                 },
             ),
-            biomes: Some(Box::new(vec![23].repeat(1 << 10))),
+            biomes: Some(vec![23; 1 << 10]),
             buffer: BytesMut::from(&vec![0x1a, 0x2b, 0x3c][..]),
             blockEntitiesTags: vec![Nbt::make_singleton_compound(
                 "test entity".to_string(),
